@@ -1,0 +1,64 @@
+using System;
+using System.IO;
+using System.Reflection;
+using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
+using CUTarkovMedicalMod.Framework;
+using CUTarkovWeaponMod.Framework;
+
+namespace CUTarkovWeaponMod;
+
+[BepInPlugin(ModGuid, ModName, ModVersion)]
+[BepInDependency("com.yourname.cu.tarkovmedicalmod", BepInDependency.DependencyFlags.HardDependency)]
+public sealed class Plugin : BaseUnityPlugin
+{
+    public const string ModGuid = "com.yourname.cu.tarkovweaponmod";
+    public const string ModName = "Casualties: Unknown - Tarkov-Style Weapon Mod";
+    public const string ModVersion = "0.1.0.0";
+
+    internal static ManualLogSource Log = null!;
+
+    private void Awake()
+    {
+        Log = Logger;
+
+        // Register weapon translations with the medical mod's I18n system
+        var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+                          ?? Paths.PluginPath;
+        var langDir = Path.Combine(assemblyDir, "Lang");
+        I18n.RegisterExternalLangDir(langDir);
+
+        // Register weapon items in the medical mod's console spawn system
+        WeaponItemRegistration.Register();
+
+        try
+        {
+            var harmony = new Harmony(ModGuid);
+            harmony.PatchAll();
+
+            // PatchAll() cannot discover PlayerCamera.HandleVariables (private method),
+            // so manually register the ScopeZoom patch
+            try
+            {
+                var hvMethod = AccessTools.Method(typeof(PlayerCamera), "HandleVariables");
+                if (hvMethod != null)
+                {
+                    var postfix = new HarmonyMethod(typeof(CUTarkovWeaponMod.Framework.ScopeZoomPatch),
+                        nameof(CUTarkovWeaponMod.Framework.ScopeZoomPatch.PostfixHandleVariables));
+                    harmony.Patch(hvMethod, postfix: postfix);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"[ScopeZoom] Manual patch failed: {ex}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"PatchAll() threw: {ex}");
+        }
+
+        Log.LogInfo($"{ModName} loaded.");
+    }
+}
