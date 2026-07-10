@@ -45,6 +45,11 @@
     <Reference Include="Unity.RenderPipelines.Core.Runtime">
       <HintPath>$(GameAssembliesDir)/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(GameAssembliesDir)/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.IO.Compression" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -52,7 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CUTarkovMedicalMod-test1\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj">
+    <ProjectReference Include="..\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj">
       <Private>false</Private>
     </ProjectReference>
   </ItemGroup>

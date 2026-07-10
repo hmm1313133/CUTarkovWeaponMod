@@ -19,6 +19,8 @@ public sealed class Plugin : BaseUnityPlugin
 
     internal static ManualLogSource Log = null!;
 
+    private WeaponUpdateNotifier _updateNotifier = null!;
+
     private void Awake()
     {
         Log = Logger;
@@ -75,5 +77,18 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         Log.LogInfo($"{ModName} loaded.");
+
+        // 创建更新提醒实例（由 Plugin 的 Update/OnGUI 驱动）
+        _updateNotifier = new WeaponUpdateNotifier();
+    }
+
+    private void Update()
+    {
+        _updateNotifier?.Tick();
+    }
+
+    private void OnGUI()
+    {
+        _updateNotifier?.OnGUI();
     }
 }
