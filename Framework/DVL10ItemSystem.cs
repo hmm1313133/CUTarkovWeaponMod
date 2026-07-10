@@ -95,9 +95,9 @@ public static class DVL10ItemSystem
 
             // 调整枪管和火光位置：向外偏移，使弹道起点和火光更靠外
             if (gun.barrel != null)
-                gun.barrel.localPosition += new Vector3(2.5f, 0f, 0f);
+                gun.barrel.localPosition += new Vector3(1.5f, 0f, 0f);
             if (gun.muzzleParticle != null)
-                gun.muzzleParticle.transform.localPosition += new Vector3(2.5f, 0f, 0f);
+                gun.muzzleParticle.transform.localPosition += new Vector3(2f, 0f, 0f);
 
             Plugin.Log.LogInfo($"[DVL10] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}");
         }

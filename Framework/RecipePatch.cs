@@ -193,7 +193,21 @@ public static class RecipePatch
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 7 magazine recipes.");
+            AddRecipe(recipes, UMP45MagItemSystem.ItemKey, 1,
+                Specific("scrappanel", 3),
+                Specific("magazinebase", 1),
+                Liquid("biochem", 10f),
+                ByQuality("cutting"),
+                ByQuality("hammering"));
+
+            AddRecipe(recipes, RPDMagItemSystem.ItemKey, 1,
+                Specific("scrappanel", 3),
+                Specific("magazinebase", 1),
+                Liquid("biochem", 10f),
+                ByQuality("cutting"),
+                ByQuality("hammering"));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 9 magazine recipes.");
 
             // 注入自定义弹药名称到 Language.main 字典
             LocalePatch.InjectCustomEntries();

@@ -94,9 +94,9 @@ public static class M4A1ItemSystem
 
             // 调整枪管和火光位置：向外偏移2.5单位
             if (gun.barrel != null)
-                gun.barrel.localPosition += new Vector3(2.5f, 0f, 0f);
+                gun.barrel.localPosition += new Vector3(1.5f, 0f, 0f);
             if (gun.muzzleParticle != null)
-                gun.muzzleParticle.transform.localPosition += new Vector3(2.5f, 0f, 0f);
+                gun.muzzleParticle.transform.localPosition += new Vector3(2f, 0f, 0f);
 
             Plugin.Log.LogInfo($"[M4A1] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto");
         }

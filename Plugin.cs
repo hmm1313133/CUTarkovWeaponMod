@@ -29,6 +29,21 @@ public sealed class Plugin : BaseUnityPlugin
         var langDir = Path.Combine(assemblyDir, "Lang");
         I18n.RegisterExternalLangDir(langDir);
 
+        // Diagnostic: verify file deployment
+        var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "redrebel.png");
+        Log.LogInfo($"[WeaponMod] Assembly dir: {assemblyDir}");
+        Log.LogInfo($"[WeaponMod] Lang dir: {langDir}, exists={Directory.Exists(langDir)}");
+        if (Directory.Exists(langDir))
+        {
+            var langFiles = Directory.GetFiles(langDir, "*.json");
+            Log.LogInfo($"[WeaponMod] Lang files: {string.Join(", ", langFiles)}");
+        }
+        Log.LogInfo($"[WeaponMod] redrebel.png: {iconPath}, exists={File.Exists(iconPath)}");
+
+        // Verify I18n loaded redrebel keys
+        var testTr = I18n.Tr("redrebel.name");
+        Log.LogInfo($"[WeaponMod] I18n.Tr(\"redrebel.name\") = \"{testTr}\" (raw key means translations not loaded)");
+
         // Register weapon items in the medical mod's console spawn system
         WeaponItemRegistration.Register();
 

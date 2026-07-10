@@ -71,5 +71,23 @@
     "p90_mag.desc": "FN P90 SMG magazine, 50-round capacity.",
 
     "5728sb193.name": "5.7x28mm SB193",
-    "5728sb193.desc": "5.7x28mm FN SB193 subsonic cartridge, with a 4g lead core brass-jacketed bullet, brass case. Designed for use with FN57 and P90 suppressors to minimize sound signature, with reduced propellant charge to ensure reliable cycling. Despite low muzzle velocity, it can still effectively threaten low-to-medium tier armor, though its construction results in a higher probability of ricochet."
+    "5728sb193.desc": "5.7x28mm FN SB193 subsonic cartridge, with a 4g lead core brass-jacketed bullet, brass case. Designed for use with FN57 and P90 suppressors to minimize sound signature, with reduced propellant charge to ensure reliable cycling. Despite low muzzle velocity, it can still effectively threaten low-to-medium tier armor, though its construction results in a higher probability of ricochet.",
+
+    "mp153.name": "MP-153 12-Gauge Semi-Auto Shotgun [MP 153]",
+    "mp153.desc": "The MP-153 is a semi-automatic smoothbore shotgun designed and manufactured by IzhMekh (Izhevsk Mechanical Plant). A reliable and practical weapon for hunting and self-defense. It appears to have an extended magazine tube.\n\n<color=#4fc3f7>Pellet damage (x8): Creature 41 / Block 30</color>",
+
+    "ump45.name": "HK UMP 45 SMG [UMP 45]",
+    "ump45.desc": "The HK UMP submachine gun was developed by Heckler & Koch in the 20th century, designed to be a lighter and cheaper alternative to replace the MP5. This version of the UMP fires .45 ACP ammunition with a lower rate of fire. This weapon is equipped with a suppressor, making it more friendly to your ears.\n\n<color=#ffcc00>[Special Effect] This weapon is equipped with a suppressor, significantly reducing firing noise.</color>\n<color=#4fc3f7>Single-shot damage: Creature 44 / Block 27</color>",
+    "ump45_mag.name": "UMP 45 Magazine [25-Round]",
+    "ump45_mag.desc": "HK UMP 45 SMG magazine, 25-round capacity, compatible with .45 ACP ammunition.",
+
+    "rpd.name": "RPD 7.62x39 LMG [RPD]",
+    "rpd.desc": "A Degtyaryov light machine gun chambered in 7.62x39mm ammunition. This weapon was primarily issued to the Soviet Army from the late 1940s to the early 1960s, serving as supporting firepower for infantry squads and platoon-level units. The RPD's design was remarkably refined for its time, with a compact structure, excellent reliability, and impeccable firepower output as a machine gun. Manufactured by the V.A. Degtyaryov Plant.\n\n<color=#4fc3f7>Single-shot damage: Creature 87 / Block 67</color>",
+    "rpd_mag.name": "RPD 100-Round Belt Drum",
+    "rpd_mag.desc": "The standard 100-round belt drum magazine for the RPD light machine gun, jokingly referred to by some firearm collectors as a 'log'. Manufactured by the V.A. Degtyaryov Plant.",
+
+    "redrebel.name": "Red Rebel Ice Axe [Red Rebel]",
+    "redrebel.desc": "A perfectly balanced ice axe with a tip made of high-hardness metal. Centuries ago, it was the most desired equipment for all mountaineers.\n\n<color=#ffcc00>[Special Effect] When held in the main hand, the ice axe grants climbing ability.</color>",
+    "m2sword.name": "Miller Bros. Blades M-2 Tactical Sword [M-2]",
+    "m2sword.desc": "The \u201cM-2\u201d tactical short sword crafted by Miller Bros Blades.\n\n<color=#4fc3f7>Single attack: Creature 87 / Block 31</color>"
 }

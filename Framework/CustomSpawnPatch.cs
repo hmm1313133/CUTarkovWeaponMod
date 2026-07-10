@@ -29,8 +29,11 @@ public static class CustomSpawnPatch
         Glock17ItemSystem.ItemKey,   // glock17
         M4A1ItemSystem.ItemKey,      // m4a1
         MP133ItemSystem.ItemKey,     // mp133
+        MP153ItemSystem.ItemKey,     // mp153
         P90ItemSystem.ItemKey,       // p90
         SKSItemSystem.ItemKey,       // sks
+        UMP45ItemSystem.ItemKey,     // ump45
+        RPDItemSystem.ItemKey,       // rpd
     };
 
     // === 自定义弹匣 ID 列表 ===
@@ -43,6 +46,8 @@ public static class CustomSpawnPatch
         Glock17MagItemSystem.ItemKey, // glock17_mag
         M4A1MagItemSystem.ItemKey,    // m4a1_mag
         P90MagItemSystem.ItemKey,     // p90_mag
+        UMP45MagItemSystem.ItemKey,   // ump45_mag
+        RPDMagItemSystem.ItemKey,     // rpd_mag
     };
 
     // === 生成状态标志 ===

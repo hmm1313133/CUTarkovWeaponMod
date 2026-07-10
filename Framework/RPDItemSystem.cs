@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -11,43 +11,40 @@ using CUTarkovMedicalMod.Framework;
 namespace CUTarkovWeaponMod.Framework;
 
 /// <summary>
-/// Accuracy International AXMC .338 LM 栓动式狙击步枪。
+/// RPD 7.62x39 轻机枪。
 /// 基于原版 rifle 预制体克隆，修改 GunScript 字段实现自定义数值。
+/// 全自动射击模式，100发弹链盒供弹。
 /// </summary>
-public static class AXMCItemSystem
+public static class RPDItemSystem
 {
-    public const string ItemKey = "axmc";
+    public const string ItemKey = "rpd";
     public const string BaseGameItemId = "rifle";
 
-    public static string DisplayName => I18n.Tr("axmc.name");
-    public static string Description => I18n.Tr("axmc.desc");
+    public static string DisplayName => I18n.Tr("rpd.name");
+    public static string Description => I18n.Tr("rpd.desc");
 
     // === GunScript 数值 ===
-    private const int MagCapacity = 10;
-    private const float KnockBack = 18f;
-    private const float AnimalDamage = 310f;
-    private const float StructureDamage = 299f;
-    private const float Loudness = 6f;
+    private const int MagCapacity = 100;
+    private const float KnockBack = 4.8f;
+    private const float AnimalDamage = 87f;
+    private const float StructureDamage = 67f;
+    private const float Loudness = 3f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0f;
-    private const float ConditionLossPerShot = 0.5f;
-    private const float DesiredGasTime = 0f;
-    // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
-    private const int FiringModeOverride = 0; // Pump (栓动)
+    private const float VerticalSpread = 0.16f;
+    private const float ConditionLossPerShot = 0.16f;
+    private const float DesiredGasTime = 0.1f;
+    private const int FiringModeOverride = 2; // Auto
 
     private static Sprite? _cachedIcon;
     private static Sprite? _cachedNoMagIcon;
     private static AudioClip? _cachedFireSound;
 
-    public static bool IsAXMCRequest(MedicalGrantRequest request)
+    public static bool IsRPDRequest(MedicalGrantRequest request)
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// 配置生成的物品实例。
-    /// </summary>
     public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
     {
-        if (!IsAXMCRequest(request)) return;
+        if (!IsRPDRequest(request)) return;
 
         EnsureRegisteredInItemTable();
 
@@ -57,6 +54,7 @@ public static class AXMCItemSystem
         var gun = item.GetComponent<GunScript>();
         if (gun != null)
         {
+            gun.firingMode = (GunScript.FiringMode)FiringModeOverride;
             gun.magCapacity = MagCapacity;
             gun.roundsInMag = 0;
             gun.knockBack = KnockBack;
@@ -67,18 +65,15 @@ public static class AXMCItemSystem
             gun.verticalSpread = VerticalSpread;
             gun.conditionLossPerShot = ConditionLossPerShot;
             gun.desiredGasTime = DesiredGasTime;
-            if (FiringModeOverride >= 0)
-                gun.firingMode = (GunScript.FiringMode)FiringModeOverride;
 
             var fireSound = TryLoadFireSound();
             if (fireSound != null)
                 gun.fireSound = fireSound;
 
-            // 设置拉栓/闭栓音效
-            var rackSound = TryLoadSound("axmc_open", "ax");
+            var rackSound = TryLoadSound("rpd_open", "rpd");
             if (rackSound != null)
                 gun.customRack = rackSound;
-            var unrackSound = TryLoadSound("axmc_close", "ax");
+            var unrackSound = TryLoadSound("rpd_close", "rpd");
             if (unrackSound != null)
                 gun.customUnrack = unrackSound;
 
@@ -96,24 +91,24 @@ public static class AXMCItemSystem
                     sr.sprite = icon;
             }
 
-            // 调整枪管和火光位置：向外偏移，使弹道起点和火光更靠外
+            // 调整枪管和火光位置：与其他枪一致
             if (gun.barrel != null)
                 gun.barrel.localPosition += new Vector3(1.5f, 0f, 0f);
             if (gun.muzzleParticle != null)
                 gun.muzzleParticle.transform.localPosition += new Vector3(2f, 0f, 0f);
 
-            Plugin.Log.LogInfo($"[AXMC] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}");
+            Plugin.Log.LogInfo($"[RPD] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto");
         }
 
         ResizeColliderToSprite(item);
 
-        var marker = item.gameObject.GetComponent<AXMCItemMarker>();
+        var marker = item.gameObject.GetComponent<RPDItemMarker>();
         if (marker == null)
-            marker = item.gameObject.AddComponent<AXMCItemMarker>();
+            marker = item.gameObject.AddComponent<RPDItemMarker>();
         marker.displayName = DisplayName;
         marker.description = Description;
 
-        Plugin.Log.LogInfo($"[AXMC] Configured spawned item '{ItemKey}' (condition={item.condition}).");
+        Plugin.Log.LogInfo($"[RPD] Configured spawned item '{ItemKey}' (condition={item.condition}).");
     }
 
     public static bool EnsureRegisteredInItemTable()
@@ -126,17 +121,17 @@ public static class AXMCItemSystem
             if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
             {
                 Item.GlobalItems[ItemKey] = CloneItemInfo(source);
-                Plugin.Log.LogInfo($"[AXMC] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                Plugin.Log.LogInfo($"[RPD] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
                 return true;
             }
 
             Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
-            Plugin.Log.LogInfo($"[AXMC] Registered '{ItemKey}' (fallback).");
+            Plugin.Log.LogInfo($"[RPD] Registered '{ItemKey}' (fallback).");
             return true;
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"[AXMC] Failed to register '{ItemKey}': {ex}");
+            Plugin.Log.LogError($"[RPD] Failed to register '{ItemKey}': {ex}");
             return false;
         }
     }
@@ -157,10 +152,10 @@ public static class AXMCItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 5f,
+            weight = 8.5f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 79,
+            value = 64,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -182,9 +177,9 @@ public static class AXMCItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 5f,
+            weight = 8.5f,
             scaleWeightWithCondition = false,
-            value = 79,
+            value = 64,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -201,7 +196,7 @@ public static class AXMCItemSystem
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "axmc.png");
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "rpd.png");
 
             if (File.Exists(iconPath))
             {
@@ -213,29 +208,25 @@ public static class AXMCItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 13.2f);
-                _cachedIcon.name = "axmc-icon";
+                    new Vector2(0.30f, 0.5f), 10f);
+                _cachedIcon.name = "rpd-icon";
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[AXMC] Failed to load icon: {ex.Message}");
+            Plugin.Log.LogWarning($"[RPD] Failed to load icon: {ex.Message}");
         }
 
         return _cachedIcon;
     }
 
-    // ===== No-Mag Icon =====
-
     private static Sprite? TryLoadNoMagIcon()
     {
         if (_cachedNoMagIcon != null) return _cachedNoMagIcon;
-
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "axmc_magout.png");
-
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "rpd_magout.png");
             if (File.Exists(iconPath))
             {
                 var bytes = File.ReadAllBytes(iconPath);
@@ -243,18 +234,16 @@ public static class AXMCItemSystem
                 if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
                 texture.filterMode = FilterMode.Point;
                 texture.wrapMode = TextureWrapMode.Clamp;
-
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 13.2f);
-                _cachedNoMagIcon.name = "axmc-nomag-icon";
+                    new Vector2(0.30f, 0.5f), 10f);
+                _cachedNoMagIcon.name = "rpd-nomag-icon";
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[AXMC] Failed to load no-mag icon: {ex.Message}");
+            Plugin.Log.LogWarning($"[RPD] Failed to load no-mag icon: {ex.Message}");
         }
-
         return _cachedNoMagIcon;
     }
 
@@ -263,9 +252,9 @@ public static class AXMCItemSystem
     private static AudioClip? TryLoadFireSound()
     {
         if (_cachedFireSound != null) return _cachedFireSound;
-        _cachedFireSound = TryLoadSound("axmc_fire", "ax");
+        _cachedFireSound = TryLoadSound("rpd_fire", "rpd");
         if (_cachedFireSound != null)
-            Plugin.Log.LogInfo("[AXMC] Loaded fire sound 'axmc_fire.wav'");
+            Plugin.Log.LogInfo("[RPD] Loaded fire sound 'rpd_fire.wav'");
         return _cachedFireSound;
     }
 
@@ -280,7 +269,7 @@ public static class AXMCItemSystem
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[AXMC] Failed to load sound '{fileName}': {ex.Message}");
+            Plugin.Log.LogWarning($"[RPD] Failed to load sound '{fileName}': {ex.Message}");
         }
         return null;
     }
@@ -316,28 +305,26 @@ public static class AXMCItemSystem
 }
 
 /// <summary>
-/// 物品标记组件。
+/// RPD 物品标记组件。
 /// </summary>
-public sealed class AXMCItemMarker : MonoBehaviour
+public sealed class RPDItemMarker : MonoBehaviour
 {
-    public string displayName = AXMCItemSystem.DisplayName;
-    public string description = AXMCItemSystem.Description;
+    public string displayName = RPDItemSystem.DisplayName;
+    public string description = RPDItemSystem.Description;
 }
 
 /// <summary>
-/// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
+/// RPD 悬停描述补丁。
 /// </summary>
 [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AXMCHoverPatch
+public static class RPDHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
-        var marker = item.GetComponent<AXMCItemMarker>();
+        var marker = item.GetComponent<RPDItemMarker>();
         if (marker == null) return;
-
         if (!item.Stats.rec.recognizable) return;
-
         __result.Item1 = marker.displayName;
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }

@@ -32,7 +32,7 @@ public static class P90ItemSystem
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.12f;
     private const float ConditionLossPerShot = 0.08f;
-    private const float DesiredGasTime = 0.085f;
+    private const float DesiredGasTime = 0.08f;
     private const int FiringModeOverride = 2; // Auto
 
     private static Sprite? _cachedIcon;

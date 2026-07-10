@@ -22,6 +22,7 @@ public static class WeaponItemRegistration
 
         // 枪械类
         prefabs[MP133ItemSystem.ItemKey] = "shotgun";
+        prefabs[MP153ItemSystem.ItemKey] = "shotgun";
         prefabs[SKSItemSystem.ItemKey] = "rifle";
         prefabs[AXMCItemSystem.ItemKey] = "rifle";
         prefabs[DVL10ItemSystem.ItemKey] = "rifle";
@@ -30,6 +31,10 @@ public static class WeaponItemRegistration
         prefabs[Glock17ItemSystem.ItemKey] = "pistol";
         prefabs[M4A1ItemSystem.ItemKey] = "rifle";
         prefabs[P90ItemSystem.ItemKey] = "rifle";
+        prefabs[UMP45ItemSystem.ItemKey] = "rifle";
+        prefabs[RPDItemSystem.ItemKey] = "rifle";
+        prefabs[RedRebelItemSystem.ItemKey] = "bruisekit";
+        prefabs[M2SwordItemSystem.ItemKey] = "bruisekit";
 
         // 弹匣类
         prefabs[AXMCMagItemSystem.ItemKey] = "riflemagazine";
@@ -39,6 +44,8 @@ public static class WeaponItemRegistration
         prefabs[Glock17MagItemSystem.ItemKey] = "riflemagazine";
         prefabs[M4A1MagItemSystem.ItemKey] = "riflemagazine";
         prefabs[P90MagItemSystem.ItemKey] = "riflemagazine";
+        prefabs[UMP45MagItemSystem.ItemKey] = "riflemagazine";
+        prefabs[RPDMagItemSystem.ItemKey] = "riflemagazine";
 
         // 弹药类
         prefabs[Ammo76251BPZItemSystem.ItemKey] = "556round";
@@ -66,6 +73,8 @@ public static class WeaponItemRegistration
         // 枪械
         if (MP133ItemSystem.IsMP133Request(request))
             MP133ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (MP153ItemSystem.IsMP153Request(request))
+            MP153ItemSystem.ConfigureSpawnedItem(item, request);
         else if (SKSItemSystem.IsSKSRequest(request))
             SKSItemSystem.ConfigureSpawnedItem(item, request);
         else if (AXMCItemSystem.IsAXMCRequest(request))
@@ -82,6 +91,14 @@ public static class WeaponItemRegistration
             M4A1ItemSystem.ConfigureSpawnedItem(item, request);
         else if (P90ItemSystem.IsP90Request(request))
             P90ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (UMP45ItemSystem.IsUMP45Request(request))
+            UMP45ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (RPDItemSystem.IsRPDRequest(request))
+            RPDItemSystem.ConfigureSpawnedItem(item, request);
+        else if (RedRebelItemSystem.IsRedRebelRequest(request))
+            RedRebelItemSystem.ConfigureSpawnedItem(item, request);
+        else if (M2SwordItemSystem.IsM2SwordRequest(request))
+            M2SwordItemSystem.ConfigureSpawnedItem(item, request);
         // 弹匣
         else if (AXMCMagItemSystem.IsAXMCMagRequest(request))
             AXMCMagItemSystem.ConfigureSpawnedItem(item, request);
@@ -97,6 +114,10 @@ public static class WeaponItemRegistration
             M4A1MagItemSystem.ConfigureSpawnedItem(item, request);
         else if (P90MagItemSystem.IsP90MagRequest(request))
             P90MagItemSystem.ConfigureSpawnedItem(item, request);
+        else if (UMP45MagItemSystem.IsUMP45MagRequest(request))
+            UMP45MagItemSystem.ConfigureSpawnedItem(item, request);
+        else if (RPDMagItemSystem.IsRPDMagRequest(request))
+            RPDMagItemSystem.ConfigureSpawnedItem(item, request);
         // 弹药
         else if (Ammo76251BPZItemSystem.Is76251BPZRequest(request))
             Ammo76251BPZItemSystem.ConfigureSpawnedItem(item, request);
@@ -134,6 +155,7 @@ public static class WeaponItemRegistryPatch
     public static void Postfix()
     {
         MP133ItemSystem.EnsureRegisteredInItemTable();
+        MP153ItemSystem.EnsureRegisteredInItemTable();
         SKSItemSystem.EnsureRegisteredInItemTable();
         AXMCItemSystem.EnsureRegisteredInItemTable();
         DVL10ItemSystem.EnsureRegisteredInItemTable();
@@ -158,5 +180,11 @@ public static class WeaponItemRegistryPatch
         P90ItemSystem.EnsureRegisteredInItemTable();
         P90MagItemSystem.EnsureRegisteredInItemTable();
         Ammo5728SB193ItemSystem.EnsureRegisteredInItemTable();
+        UMP45ItemSystem.EnsureRegisteredInItemTable();
+        UMP45MagItemSystem.EnsureRegisteredInItemTable();
+        RPDItemSystem.EnsureRegisteredInItemTable();
+        RPDMagItemSystem.EnsureRegisteredInItemTable();
+        RedRebelItemSystem.EnsureRegisteredInItemTable();
+        M2SwordItemSystem.EnsureRegisteredInItemTable();
     }
 }

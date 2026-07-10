@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -1458,6 +1458,458 @@ public sealed class P90MagItemMarker : MonoBehaviour
     public string description = P90MagItemSystem.Description;
 }
 
+// ===== UMP 45 Magazine (.45 ACP, 25 rounds) =====
+
+public static class UMP45MagItemSystem
+{
+    public const string ItemKey = "ump45_mag";
+    public const string BaseGameItemId = "riflemagazine";
+    public const int MaxRounds = 25;
+
+    public static string DisplayName => I18n.Tr("ump45_mag.name");
+    public static string Description => I18n.Tr("ump45_mag.desc");
+
+    private static Sprite? _cachedIcon;
+
+    public static bool IsUMP45MagRequest(MedicalGrantRequest request)
+        => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
+
+    public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
+    {
+        if (!IsUMP45MagRequest(request)) return;
+
+        EnsureRegisteredInItemTable();
+
+        item.id = ItemKey;
+        item.SetCondition(1f);
+
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+        {
+            ammo.itemType = AmmoScript.AmmoItemType.Magazine;
+            ammo.ammoType = GunScript.AmmoType.Pistol;
+            ammo.maxRounds = MaxRounds;
+            ammo.rounds = MaxRounds;
+
+            Plugin.Log.LogInfo($"[UMP45_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
+        }
+
+        var icon = TryLoadIcon();
+        if (icon != null)
+        {
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
+        }
+
+        ResizeColliderToSprite(item);
+
+        var marker = item.gameObject.GetComponent<UMP45MagItemMarker>();
+        if (marker == null)
+            marker = item.gameObject.AddComponent<UMP45MagItemMarker>();
+        marker.displayName = DisplayName;
+        marker.description = Description;
+
+        Plugin.Log.LogInfo($"[UMP45_MAG] Configured spawned item '{ItemKey}'.");
+    }
+
+    public static bool EnsureRegisteredInItemTable()
+    {
+        if (Item.GlobalItems.ContainsKey(ItemKey))
+            return false;
+
+        try
+        {
+            if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
+            {
+                Item.GlobalItems[ItemKey] = CloneItemInfo(source);
+                Plugin.Log.LogInfo($"[UMP45_MAG] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                return true;
+            }
+
+            Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
+            Plugin.Log.LogInfo($"[UMP45_MAG] Registered '{ItemKey}' (fallback).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[UMP45_MAG] Failed to register '{ItemKey}': {ex}");
+            return false;
+        }
+    }
+
+    private static ItemInfo CloneItemInfo(ItemInfo source)
+    {
+        var clone = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = source.category,
+            slotRotation = source.slotRotation,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            weight = 0.2f,
+            scaleWeightWithCondition = false,
+            combineable = true,
+            value = 0,
+            tags = "belttool",
+            rec = new Recognition(10),
+        };
+
+        var useMethod = typeof(UMP45MagItemSystem).GetMethod(
+            nameof(MagUseAction),
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            clone.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        clone.SetTags();
+        return clone;
+    }
+
+    private static ItemInfo CreateFallbackItemInfo()
+    {
+        var info = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            combineable = true,
+            weight = 0.2f,
+            scaleWeightWithCondition = false,
+            value = 0,
+            tags = "belttool",
+            rec = new Recognition(10),
+        };
+
+        var useMethod = typeof(UMP45MagItemSystem).GetMethod(
+            nameof(MagUseAction), BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            info.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        info.SetTags();
+        return info;
+    }
+
+    private static void MagUseAction(Body body, Item item)
+    {
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+            ammo.UnloadRound();
+    }
+
+    private static Sprite? TryLoadIcon()
+    {
+        if (_cachedIcon != null) return _cachedIcon;
+
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "ump45_magazine.png");
+
+            if (!File.Exists(iconPath))
+            {
+                iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "ump45_magazine.webp");
+                if (!File.Exists(iconPath)) return null;
+            }
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            // 在弹匣图标底部添加半透明灰黑色圆圈背景，增加世界掉落辨识度
+            AddGroundCircle(texture);
+
+            _cachedIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 15f);
+            _cachedIcon.name = "ump45-mag-icon";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[UMP45_MAG] Failed to load icon: {ex.Message}");
+        }
+
+        return _cachedIcon;
+    }
+
+    private static void ResizeColliderToSprite(Item item)
+    {
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+        var col = item.GetComponent<BoxCollider2D>();
+        if (col == null) col = item.gameObject.AddComponent<BoxCollider2D>();
+        var bounds = sr.sprite.bounds;
+        col.size = new Vector2(bounds.size.x, bounds.size.y);
+        col.offset = Vector2.zero;
+    }
+
+    /// <summary>
+    /// 在弹匣图标纹理底部绘制半透明灰黑色圆圈背景，增加世界掉落辨识度。
+    /// alpha=51 (约20%)，颜色为深灰 (40,40,40)。
+    /// </summary>
+    private static void AddGroundCircle(Texture2D texture)
+    {
+        try
+        {
+            int w = texture.width;
+            int h = texture.height;
+            var pixels = texture.GetPixels();
+
+            float cx = w * 0.5f;
+            float cy = h * 0.2f;
+            float radius = w * 0.55f;
+
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    float dx = x + 0.5f - cx;
+                    float dy = y + 0.5f - cy;
+                    float dist = Mathf.Sqrt(dx * dx + dy * dy);
+
+                    if (dist <= radius)
+                    {
+                        int idx = y * w + x;
+                        if (pixels[idx].a < 0.1f)
+                        {
+                            float edge = Mathf.Clamp01((radius - dist) / 2f);
+                            pixels[idx] = new Color(0.157f, 0.157f, 0.157f, 0.2f * edge);
+                        }
+                    }
+                }
+            }
+
+            texture.SetPixels(pixels);
+            texture.Apply();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[UMP45_MAG] Failed to add ground circle: {ex.Message}");
+        }
+    }
+}
+
+public sealed class UMP45MagItemMarker : MonoBehaviour
+{
+    public string displayName = UMP45MagItemSystem.DisplayName;
+    public string description = UMP45MagItemSystem.Description;
+}
+
+// ===== RPD Magazine (7.62x39, 100 rounds) =====
+
+public static class RPDMagItemSystem
+{
+    public const string ItemKey = "rpd_mag";
+    public const string BaseGameItemId = "riflemagazine";
+    public const int MaxRounds = 100;
+
+    public static string DisplayName => I18n.Tr("rpd_mag.name");
+    public static string Description => I18n.Tr("rpd_mag.desc");
+
+    private static Sprite? _cachedIcon;
+
+    public static bool IsRPDMagRequest(MedicalGrantRequest request)
+        => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
+
+    public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
+    {
+        if (!IsRPDMagRequest(request)) return;
+
+        EnsureRegisteredInItemTable();
+
+        item.id = ItemKey;
+        item.SetCondition(1f);
+
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+        {
+            ammo.itemType = AmmoScript.AmmoItemType.Magazine;
+            ammo.ammoType = GunScript.AmmoType.Rifle;
+            ammo.maxRounds = MaxRounds;
+            ammo.rounds = MaxRounds;
+
+            Plugin.Log.LogInfo($"[RPD_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
+        }
+
+        var icon = TryLoadIcon();
+        if (icon != null)
+        {
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
+        }
+
+        ResizeColliderToSprite(item);
+
+        var marker = item.gameObject.GetComponent<RPDMagItemMarker>();
+        if (marker == null)
+            marker = item.gameObject.AddComponent<RPDMagItemMarker>();
+        marker.displayName = DisplayName;
+        marker.description = Description;
+
+        Plugin.Log.LogInfo($"[RPD_MAG] Configured spawned item '{ItemKey}'.");
+    }
+
+    public static bool EnsureRegisteredInItemTable()
+    {
+        if (Item.GlobalItems.ContainsKey(ItemKey))
+            return false;
+
+        try
+        {
+            if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
+            {
+                Item.GlobalItems[ItemKey] = CloneItemInfo(source);
+                Plugin.Log.LogInfo($"[RPD_MAG] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                return true;
+            }
+
+            Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
+            Plugin.Log.LogInfo($"[RPD_MAG] Registered '{ItemKey}' (fallback).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[RPD_MAG] Failed to register '{ItemKey}': {ex}");
+            return false;
+        }
+    }
+
+    private static ItemInfo CloneItemInfo(ItemInfo source)
+    {
+        var clone = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = source.category,
+            slotRotation = source.slotRotation,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            weight = 0.2f,
+            scaleWeightWithCondition = false,
+            combineable = true,
+            value = 0,
+            tags = "belttool",
+            rec = new Recognition(10),
+        };
+
+        var useMethod = typeof(RPDMagItemSystem).GetMethod(
+            nameof(MagUseAction),
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            clone.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        clone.SetTags();
+        return clone;
+    }
+
+    private static ItemInfo CreateFallbackItemInfo()
+    {
+        var info = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            combineable = true,
+            weight = 0.2f,
+            scaleWeightWithCondition = false,
+            value = 0,
+            tags = "belttool",
+            rec = new Recognition(10),
+        };
+
+        var useMethod = typeof(RPDMagItemSystem).GetMethod(
+            nameof(MagUseAction), BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            info.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        info.SetTags();
+        return info;
+    }
+
+    private static void MagUseAction(Body body, Item item)
+    {
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+            ammo.UnloadRound();
+    }
+
+    private static Sprite? TryLoadIcon()
+    {
+        if (_cachedIcon != null) return _cachedIcon;
+
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "rpd_magazine.png");
+
+            if (!File.Exists(iconPath))
+            {
+                iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "rpd_magazine.webp");
+                if (!File.Exists(iconPath)) return null;
+            }
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            _cachedIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 35f);
+            _cachedIcon.name = "rpd-mag-icon";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[RPD_MAG] Failed to load icon: {ex.Message}");
+        }
+
+        return _cachedIcon;
+    }
+
+    private static void ResizeColliderToSprite(Item item)
+    {
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+        var col = item.GetComponent<BoxCollider2D>();
+        if (col == null) col = item.gameObject.AddComponent<BoxCollider2D>();
+        var bounds = sr.sprite.bounds;
+        col.size = new Vector2(bounds.size.x, bounds.size.y);
+        col.offset = Vector2.zero;
+    }
+}
+
+public sealed class RPDMagItemMarker : MonoBehaviour
+{
+    public string displayName = RPDMagItemSystem.DisplayName;
+    public string description = RPDMagItemSystem.Description;
+}
+
 // ===== Harmony Patches =====
 
 /// <summary>
@@ -1477,6 +1929,8 @@ public static class GunLoadMagPatch
         { Glock17ItemSystem.ItemKey, Glock17MagItemSystem.ItemKey },
         { M4A1ItemSystem.ItemKey, M4A1MagItemSystem.ItemKey },
         { P90ItemSystem.ItemKey, P90MagItemSystem.ItemKey },
+        { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
+        { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magin音效文件名的映射</summary>
@@ -1489,6 +1943,8 @@ public static class GunLoadMagPatch
         { Glock17ItemSystem.ItemKey, ("glock_magin", "glock") },
         { M4A1ItemSystem.ItemKey, ("m4_magin", "m4") },
         { P90ItemSystem.ItemKey, ("p90_magin", "p90") },
+        { UMP45ItemSystem.ItemKey, ("ump_magin", "ump45") },
+        { RPDItemSystem.ItemKey, ("rpd_magin", "rpd") },
     };
 
     [HarmonyPrefix]
@@ -1580,6 +2036,8 @@ public static class GunUnloadMagPatch
         { Glock17ItemSystem.ItemKey, Glock17MagItemSystem.ItemKey },
         { M4A1ItemSystem.ItemKey, M4A1MagItemSystem.ItemKey },
         { P90ItemSystem.ItemKey, P90MagItemSystem.ItemKey },
+        { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
+        { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magout音效文件名的映射</summary>
@@ -1592,6 +2050,8 @@ public static class GunUnloadMagPatch
         { Glock17ItemSystem.ItemKey, ("glock_magout", "glock") },
         { M4A1ItemSystem.ItemKey, ("m4_magout", "m4") },
         { P90ItemSystem.ItemKey, ("p90_magout", "p90") },
+        { UMP45ItemSystem.ItemKey, ("ump_magout", "ump45") },
+        { RPDItemSystem.ItemKey, ("rpd_magout", "rpd") },
     };
 
     [HarmonyPrefix]
@@ -1680,6 +2140,10 @@ public static class GunUnloadMagPatch
                 M4A1MagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == P90MagItemSystem.ItemKey)
                 P90MagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == UMP45MagItemSystem.ItemKey)
+                UMP45MagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == RPDMagItemSystem.ItemKey)
+                RPDMagItemSystem.ConfigureSpawnedItem(newItem, request);
 
             // 修正弹匣中的子弹数量为退弹时的数量
             var ammo = newItem.GetComponent<AmmoScript>();

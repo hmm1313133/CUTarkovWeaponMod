@@ -23,11 +23,14 @@ public static class CaliberRegistry
         { DVL10ItemSystem.ItemKey,  "762x51"  },
         { SKSItemSystem.ItemKey,    "762x39"  },
         { MP133ItemSystem.ItemKey,  "12g"     },
+        { MP153ItemSystem.ItemKey,  "12g"     },
         { AKMItemSystem.ItemKey,    "762x39"  },
         { DeagleItemSystem.ItemKey, "50ae"    },
         { Glock17ItemSystem.ItemKey, "9x19"    },
         { M4A1ItemSystem.ItemKey,    "556x45"  },
         { P90ItemSystem.ItemKey,      "5728"    },
+        { UMP45ItemSystem.ItemKey,    "45acp"   },
+        { RPDItemSystem.ItemKey,      "762x39"  },
     };
 
     // === 弹药 (Round) ItemKey -> 口径 ===
@@ -54,6 +57,8 @@ public static class CaliberRegistry
         { Glock17MagItemSystem.ItemKey, Ammo919PSOItemSystem.ItemKey },
         { M4A1MagItemSystem.ItemKey,   Ammo55645FMJItemSystem.ItemKey },
         { P90MagItemSystem.ItemKey,     Ammo5728SB193ItemSystem.ItemKey },
+        { UMP45MagItemSystem.ItemKey,   Ammo45FMJItemSystem.ItemKey },
+        { RPDMagItemSystem.ItemKey,     Ammo76239SPItemSystem.ItemKey },
     };
 
     /// <summary>

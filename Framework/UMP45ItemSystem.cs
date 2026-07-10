@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -11,43 +11,40 @@ using CUTarkovMedicalMod.Framework;
 namespace CUTarkovWeaponMod.Framework;
 
 /// <summary>
-/// Accuracy International AXMC .338 LM 栓动式狙击步枪。
+/// HK UMP 45 .45 ACP 全自动冲锋枪。
 /// 基于原版 rifle 预制体克隆，修改 GunScript 字段实现自定义数值。
+/// 配备消音器，射击声音极低。
 /// </summary>
-public static class AXMCItemSystem
+public static class UMP45ItemSystem
 {
-    public const string ItemKey = "axmc";
+    public const string ItemKey = "ump45";
     public const string BaseGameItemId = "rifle";
 
-    public static string DisplayName => I18n.Tr("axmc.name");
-    public static string Description => I18n.Tr("axmc.desc");
+    public static string DisplayName => I18n.Tr("ump45.name");
+    public static string Description => I18n.Tr("ump45.desc");
 
     // === GunScript 数值 ===
-    private const int MagCapacity = 10;
-    private const float KnockBack = 18f;
-    private const float AnimalDamage = 310f;
-    private const float StructureDamage = 299f;
-    private const float Loudness = 6f;
+    private const int MagCapacity = 25;
+    private const float KnockBack = 2.8f;
+    private const float AnimalDamage = 44f;
+    private const float StructureDamage = 27f;
+    private const float Loudness = 0.2f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0f;
-    private const float ConditionLossPerShot = 0.5f;
-    private const float DesiredGasTime = 0f;
-    // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
-    private const int FiringModeOverride = 0; // Pump (栓动)
+    private const float VerticalSpread = 0.1f;
+    private const float ConditionLossPerShot = 0.13f;
+    private const float DesiredGasTime = 0.1f;
+    private const int FiringModeOverride = 2; // Auto
 
     private static Sprite? _cachedIcon;
     private static Sprite? _cachedNoMagIcon;
     private static AudioClip? _cachedFireSound;
 
-    public static bool IsAXMCRequest(MedicalGrantRequest request)
+    public static bool IsUMP45Request(MedicalGrantRequest request)
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// 配置生成的物品实例。
-    /// </summary>
     public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
     {
-        if (!IsAXMCRequest(request)) return;
+        if (!IsUMP45Request(request)) return;
 
         EnsureRegisteredInItemTable();
 
@@ -57,6 +54,7 @@ public static class AXMCItemSystem
         var gun = item.GetComponent<GunScript>();
         if (gun != null)
         {
+            gun.firingMode = (GunScript.FiringMode)FiringModeOverride;
             gun.magCapacity = MagCapacity;
             gun.roundsInMag = 0;
             gun.knockBack = KnockBack;
@@ -67,18 +65,15 @@ public static class AXMCItemSystem
             gun.verticalSpread = VerticalSpread;
             gun.conditionLossPerShot = ConditionLossPerShot;
             gun.desiredGasTime = DesiredGasTime;
-            if (FiringModeOverride >= 0)
-                gun.firingMode = (GunScript.FiringMode)FiringModeOverride;
 
             var fireSound = TryLoadFireSound();
             if (fireSound != null)
                 gun.fireSound = fireSound;
 
-            // 设置拉栓/闭栓音效
-            var rackSound = TryLoadSound("axmc_open", "ax");
+            var rackSound = TryLoadSound("ump_open", "ump45");
             if (rackSound != null)
                 gun.customRack = rackSound;
-            var unrackSound = TryLoadSound("axmc_close", "ax");
+            var unrackSound = TryLoadSound("ump_close", "ump45");
             if (unrackSound != null)
                 gun.customUnrack = unrackSound;
 
@@ -96,24 +91,29 @@ public static class AXMCItemSystem
                     sr.sprite = icon;
             }
 
-            // 调整枪管和火光位置：向外偏移，使弹道起点和火光更靠外
+            // 调整枪管位置：与其他枪一致
             if (gun.barrel != null)
                 gun.barrel.localPosition += new Vector3(1.5f, 0f, 0f);
-            if (gun.muzzleParticle != null)
-                gun.muzzleParticle.transform.localPosition += new Vector3(2f, 0f, 0f);
 
-            Plugin.Log.LogInfo($"[AXMC] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}");
+            // 去掉开枪火光（消音器效果）
+            if (gun.muzzleParticle != null)
+            {
+                var emission = gun.muzzleParticle.emission;
+                emission.enabled = false;
+            }
+
+            Plugin.Log.LogInfo($"[UMP45] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto, loudness={Loudness}");
         }
 
         ResizeColliderToSprite(item);
 
-        var marker = item.gameObject.GetComponent<AXMCItemMarker>();
+        var marker = item.gameObject.GetComponent<UMP45ItemMarker>();
         if (marker == null)
-            marker = item.gameObject.AddComponent<AXMCItemMarker>();
+            marker = item.gameObject.AddComponent<UMP45ItemMarker>();
         marker.displayName = DisplayName;
         marker.description = Description;
 
-        Plugin.Log.LogInfo($"[AXMC] Configured spawned item '{ItemKey}' (condition={item.condition}).");
+        Plugin.Log.LogInfo($"[UMP45] Configured spawned item '{ItemKey}' (condition={item.condition}).");
     }
 
     public static bool EnsureRegisteredInItemTable()
@@ -126,17 +126,17 @@ public static class AXMCItemSystem
             if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
             {
                 Item.GlobalItems[ItemKey] = CloneItemInfo(source);
-                Plugin.Log.LogInfo($"[AXMC] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                Plugin.Log.LogInfo($"[UMP45] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
                 return true;
             }
 
             Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
-            Plugin.Log.LogInfo($"[AXMC] Registered '{ItemKey}' (fallback).");
+            Plugin.Log.LogInfo($"[UMP45] Registered '{ItemKey}' (fallback).");
             return true;
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"[AXMC] Failed to register '{ItemKey}': {ex}");
+            Plugin.Log.LogError($"[UMP45] Failed to register '{ItemKey}': {ex}");
             return false;
         }
     }
@@ -157,10 +157,10 @@ public static class AXMCItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 5f,
+            weight = 2.5f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 79,
+            value = 44,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -182,9 +182,9 @@ public static class AXMCItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 5f,
+            weight = 2.5f,
             scaleWeightWithCondition = false,
-            value = 79,
+            value = 44,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -201,7 +201,7 @@ public static class AXMCItemSystem
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "axmc.png");
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "ump45.png");
 
             if (File.Exists(iconPath))
             {
@@ -213,29 +213,25 @@ public static class AXMCItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 13.2f);
-                _cachedIcon.name = "axmc-icon";
+                    new Vector2(0.45f, 0.5f), 12f);
+                _cachedIcon.name = "ump45-icon";
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[AXMC] Failed to load icon: {ex.Message}");
+            Plugin.Log.LogWarning($"[UMP45] Failed to load icon: {ex.Message}");
         }
 
         return _cachedIcon;
     }
 
-    // ===== No-Mag Icon =====
-
     private static Sprite? TryLoadNoMagIcon()
     {
         if (_cachedNoMagIcon != null) return _cachedNoMagIcon;
-
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "axmc_magout.png");
-
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "ump45_magout.png");
             if (File.Exists(iconPath))
             {
                 var bytes = File.ReadAllBytes(iconPath);
@@ -243,18 +239,16 @@ public static class AXMCItemSystem
                 if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
                 texture.filterMode = FilterMode.Point;
                 texture.wrapMode = TextureWrapMode.Clamp;
-
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 13.2f);
-                _cachedNoMagIcon.name = "axmc-nomag-icon";
+                    new Vector2(0.45f, 0.5f), 12f);
+                _cachedNoMagIcon.name = "ump45-nomag-icon";
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[AXMC] Failed to load no-mag icon: {ex.Message}");
+            Plugin.Log.LogWarning($"[UMP45] Failed to load no-mag icon: {ex.Message}");
         }
-
         return _cachedNoMagIcon;
     }
 
@@ -263,9 +257,9 @@ public static class AXMCItemSystem
     private static AudioClip? TryLoadFireSound()
     {
         if (_cachedFireSound != null) return _cachedFireSound;
-        _cachedFireSound = TryLoadSound("axmc_fire", "ax");
+        _cachedFireSound = TryLoadSound("ump_fire", "ump45");
         if (_cachedFireSound != null)
-            Plugin.Log.LogInfo("[AXMC] Loaded fire sound 'axmc_fire.wav'");
+            Plugin.Log.LogInfo("[UMP45] Loaded fire sound 'ump_fire.wav'");
         return _cachedFireSound;
     }
 
@@ -280,7 +274,7 @@ public static class AXMCItemSystem
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[AXMC] Failed to load sound '{fileName}': {ex.Message}");
+            Plugin.Log.LogWarning($"[UMP45] Failed to load sound '{fileName}': {ex.Message}");
         }
         return null;
     }
@@ -316,28 +310,26 @@ public static class AXMCItemSystem
 }
 
 /// <summary>
-/// 物品标记组件。
+/// UMP 45 物品标记组件。
 /// </summary>
-public sealed class AXMCItemMarker : MonoBehaviour
+public sealed class UMP45ItemMarker : MonoBehaviour
 {
-    public string displayName = AXMCItemSystem.DisplayName;
-    public string description = AXMCItemSystem.Description;
+    public string displayName = UMP45ItemSystem.DisplayName;
+    public string description = UMP45ItemSystem.Description;
 }
 
 /// <summary>
-/// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
+/// UMP 45 悬停描述补丁。
 /// </summary>
 [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AXMCHoverPatch
+public static class UMP45HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
-        var marker = item.GetComponent<AXMCItemMarker>();
+        var marker = item.GetComponent<UMP45ItemMarker>();
         if (marker == null) return;
-
         if (!item.Stats.rec.recognizable) return;
-
         __result.Item1 = marker.displayName;
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
