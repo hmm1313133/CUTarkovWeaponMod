@@ -1910,6 +1910,178 @@ public sealed class RPDMagItemMarker : MonoBehaviour
     public string description = RPDMagItemSystem.Description;
 }
 
+// ===== USP Magazine (.45 ACP, 12 rounds) =====
+
+public static class USPMagItemSystem
+{
+    public const string ItemKey = "usp_mag";
+    public const string BaseGameItemId = "riflemagazine";
+    public const int MaxRounds = 12;
+
+    public static string DisplayName => I18n.Tr("usp_mag.name");
+    public static string Description => I18n.Tr("usp_mag.desc");
+
+    private static Sprite? _cachedIcon;
+
+    public static bool IsUSPMagRequest(MedicalGrantRequest request)
+        => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
+
+    public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
+    {
+        if (!IsUSPMagRequest(request)) return;
+
+        EnsureRegisteredInItemTable();
+
+        item.id = ItemKey;
+        item.SetCondition(1f);
+
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+        {
+            ammo.itemType = AmmoScript.AmmoItemType.Magazine;
+            ammo.ammoType = GunScript.AmmoType.Pistol;
+            ammo.maxRounds = MaxRounds;
+            ammo.rounds = MaxRounds;
+        }
+
+        var icon = TryLoadIcon();
+        if (icon != null)
+        {
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
+        }
+
+        var marker = item.gameObject.GetComponent<USPMagItemMarker>();
+        if (marker == null)
+            marker = item.gameObject.AddComponent<USPMagItemMarker>();
+        marker.displayName = DisplayName;
+        marker.description = Description;
+
+        Plugin.Log.LogInfo($"[USP_MAG] Configured spawned item '{ItemKey}'.");
+    }
+
+    public static bool EnsureRegisteredInItemTable()
+    {
+        if (Item.GlobalItems.ContainsKey(ItemKey))
+            return false;
+
+        try
+        {
+            if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
+            {
+                Item.GlobalItems[ItemKey] = CloneItemInfo(source);
+                Plugin.Log.LogInfo($"[USP_MAG] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                return true;
+            }
+
+            Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
+            Plugin.Log.LogInfo($"[USP_MAG] Registered '{ItemKey}' (fallback).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[USP_MAG] Failed to register '{ItemKey}': {ex}");
+            return false;
+        }
+    }
+
+    private static ItemInfo CloneItemInfo(ItemInfo source)
+    {
+        var clone = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            weight = 0.25f,
+            scaleWeightWithCondition = false,
+            combineable = true,
+            value = 12,
+            tags = "cangetwet",
+            rec = new Recognition(9),
+        };
+        clone.SetTags();
+        var useMethod = typeof(USPMagItemSystem).GetMethod(
+            nameof(MagUseAction), BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+            clone.useAction = (ItemInfo.Use)Delegate.CreateDelegate(typeof(ItemInfo.Use), useMethod);
+        return clone;
+    }
+
+    private static ItemInfo CreateFallbackItemInfo()
+    {
+        var info = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            weight = 0.25f,
+            scaleWeightWithCondition = false,
+            combineable = true,
+            value = 12,
+            tags = "cangetwet",
+            rec = new Recognition(9),
+        };
+        info.SetTags();
+        var useMethod = typeof(USPMagItemSystem).GetMethod(
+            nameof(MagUseAction), BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+            info.useAction = (ItemInfo.Use)Delegate.CreateDelegate(typeof(ItemInfo.Use), useMethod);
+        return info;
+    }
+
+    private static void MagUseAction(Body body, Item item)
+    {
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null) ammo.UnloadRound();
+    }
+
+    private static Sprite? TryLoadIcon()
+    {
+        if (_cachedIcon != null) return _cachedIcon;
+
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "usp_magazine.png");
+
+            if (File.Exists(iconPath))
+            {
+                var bytes = File.ReadAllBytes(iconPath);
+                var texture = new Texture2D(2, 2);
+                if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+                texture.filterMode = FilterMode.Point;
+                texture.wrapMode = TextureWrapMode.Clamp;
+
+                _cachedIcon = Sprite.Create(texture,
+                    new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f), 26.7f);
+                _cachedIcon.name = "usp-mag-icon";
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[USP_MAG] Failed to load icon: {ex.Message}");
+        }
+
+        return _cachedIcon;
+    }
+}
+
+public sealed class USPMagItemMarker : MonoBehaviour
+{
+    public string displayName = USPMagItemSystem.DisplayName;
+    public string description = USPMagItemSystem.Description;
+}
+
 // ===== Harmony Patches =====
 
 /// <summary>
@@ -1931,6 +2103,7 @@ public static class GunLoadMagPatch
         { P90ItemSystem.ItemKey, P90MagItemSystem.ItemKey },
         { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
         { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
+        { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magin音效文件名的映射</summary>
@@ -1945,6 +2118,7 @@ public static class GunLoadMagPatch
         { P90ItemSystem.ItemKey, ("p90_magin", "p90") },
         { UMP45ItemSystem.ItemKey, ("ump_magin", "ump45") },
         { RPDItemSystem.ItemKey, ("rpd_magin", "rpd") },
+        { USPItemSystem.ItemKey, ("usp_magin", "usp") },
     };
 
     [HarmonyPrefix]
@@ -2038,6 +2212,7 @@ public static class GunUnloadMagPatch
         { P90ItemSystem.ItemKey, P90MagItemSystem.ItemKey },
         { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
         { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
+        { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magout音效文件名的映射</summary>
@@ -2052,6 +2227,7 @@ public static class GunUnloadMagPatch
         { P90ItemSystem.ItemKey, ("p90_magout", "p90") },
         { UMP45ItemSystem.ItemKey, ("ump_magout", "ump45") },
         { RPDItemSystem.ItemKey, ("rpd_magout", "rpd") },
+        { USPItemSystem.ItemKey, ("usp_magout", "usp") },
     };
 
     [HarmonyPrefix]
@@ -2144,6 +2320,8 @@ public static class GunUnloadMagPatch
                 UMP45MagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == RPDMagItemSystem.ItemKey)
                 RPDMagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == USPMagItemSystem.ItemKey)
+                USPMagItemSystem.ConfigureSpawnedItem(newItem, request);
 
             // 修正弹匣中的子弹数量为退弹时的数量
             var ammo = newItem.GetComponent<AmmoScript>();

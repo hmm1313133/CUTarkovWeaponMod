@@ -71,7 +71,7 @@ public static class RedRebelItemSystem
                 fullName = DisplayName,
                 description = Description,
                 category = "utility",
-                slotRotation = 0f,
+                slotRotation = -90f,
                 usable = true,           // 可使用（左键攻击）
                 usableOnLimb = false,
                 usableWithLMB = true,    // 左键触发
@@ -83,7 +83,7 @@ public static class RedRebelItemSystem
                 combineable = true,
                 value = 30,
                 tags = "cangetwet,tool",
-                rec = new Recognition(10),
+                rec = new Recognition(5),
             };
             info.SetTags();
 
@@ -189,7 +189,8 @@ public static class RedRebelItemSystem
             attackAnim = Resources.Load<GameObject>("SwingAnim"),
             staminaUse = 0.8f,
             piercing = false,
-            volume = 0f,
+            swingSounds = new string[] { "" },
+            volume = 20f,
             rotateAmount = 15.5f,
         };
 

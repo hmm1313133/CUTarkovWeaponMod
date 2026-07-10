@@ -67,7 +67,7 @@ public static class M2SwordItemSystem
                 fullName = DisplayName,
                 description = Description,
                 category = "utility",
-                slotRotation = 0f,
+                slotRotation = -90f,
                 usable = true,
                 usableOnLimb = false,
                 usableWithLMB = true,
@@ -77,9 +77,9 @@ public static class M2SwordItemSystem
                 weight = 1.3f,
                 scaleWeightWithCondition = false,
                 combineable = true,
-                value = 45,
+                value = 30,
                 tags = "cangetwet,tool",
-                rec = new Recognition(10),
+                rec = new Recognition(5),
             };
             info.SetTags();
 
@@ -131,7 +131,7 @@ public static class M2SwordItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 22.5f);
+                    new Vector2(0.5f, 0.25f), 22.5f);
                 _cachedIcon.name = "m2sword-icon";
             }
         }
@@ -163,10 +163,6 @@ public static class M2SwordItemSystem
 
     private const float ConditionLossPerAttack = 0.002f;
 
-    /// <summary>
-    /// M-2 战术剑攻击委托。
-    /// 生物伤害87，结构伤害31，攻击距离7，击退320，穿刺。
-    /// </summary>
     private static void M2SwordUseAction(Body body, Item item)
     {
         var atk = new AttackInfo
@@ -180,7 +176,8 @@ public static class M2SwordItemSystem
             attackAnim = Resources.Load<GameObject>("SwingAnim"),
             staminaUse = 0.8f,
             piercing = false,
-            volume = 0f,
+            swingSounds = new string[] { "" },
+            volume = 20f,
             rotateAmount = 15.5f,
         };
 

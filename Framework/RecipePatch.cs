@@ -131,6 +131,15 @@ public static class RecipePatch
                 Specific("casing", 7),
                 ByQuality("hammering"));
 
+            // 45fmj: 与919pso相同配方 → 7发
+            AddRecipe(recipes, Ammo45FMJItemSystem.ItemKey, 7,
+                Specific("scraptube", 1),
+                Specific("scrappanel", 1),
+                Specific("flammablepowder", 2),
+                Liquid("biochem", 15f),
+                Specific("casing", 7),
+                ByQuality("hammering"));
+
             // 55645fmj: 2废料管+1废料板+1塑料块+2易燃粉末+20ml生化流体+5弹壳+锤打工具 → 5发
             AddRecipe(recipes, Ammo55645FMJItemSystem.ItemKey, 5,
                 Specific("scraptube", 2),
@@ -207,7 +216,15 @@ public static class RecipePatch
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 9 magazine recipes.");
+            // usp_mag: 3废料板+1弹匣基座+10ml生化流体+切割+锤打 → 1个USP弹匣
+            AddRecipe(recipes, USPMagItemSystem.ItemKey, 1,
+                Specific("scrappanel", 3),
+                Specific("magazinebase", 1),
+                Liquid("biochem", 10f),
+                ByQuality("cutting"),
+                ByQuality("hammering"));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 10 magazine recipes.");
 
             // 注入自定义弹药名称到 Language.main 字典
             LocalePatch.InjectCustomEntries();

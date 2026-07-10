@@ -89,5 +89,9 @@
     "redrebel.name": "Red Rebel Ice Axe [Red Rebel]",
     "redrebel.desc": "A perfectly balanced ice axe with a tip made of high-hardness metal. Centuries ago, it was the most desired equipment for all mountaineers.\n\n<color=#ffcc00>[Special Effect] When held in the main hand, the ice axe grants climbing ability.</color>",
     "m2sword.name": "Miller Bros. Blades M-2 Tactical Sword [M-2]",
-    "m2sword.desc": "The \u201cM-2\u201d tactical short sword crafted by Miller Bros Blades.\n\n<color=#4fc3f7>Single attack: Creature 87 / Block 31</color>"
+    "m2sword.desc": "The \u201cM-2\u201d tactical short sword crafted by Miller Bros Blades.\n\n<color=#4fc3f7>Single attack: Creature 87 / Block 31</color>",
+    "usp.name": "HK USP .45 ACP Pistol [USP]",
+    "usp.desc": "The HK USP (Universelle Selbstladepistole) earned widespread acclaim in the international market for its outstanding accuracy and reliability. The USP employs an improved Browning-style action with a patented recoil reduction system that reduces wear on firearm components while also mitigating felt recoil for the shooter. This .45 ACP variant was designed and manufactured by Heckler & Koch.\n\n<color=#4fc3f7>Single-shot damage: Creature 40 / Block 42</color>",
+    "usp_mag.name": "USP .45 ACP Magazine [12-Round]",
+    "usp_mag.desc": "HK USP pistol magazine, 12-round capacity."
 }

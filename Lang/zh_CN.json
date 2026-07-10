@@ -89,5 +89,9 @@
     "redrebel.name": "Red Rebel冰镐【Red Rebel】",
     "redrebel.desc": "完美平衡的冰镐，顶端由一块高硬度金属制成。在几个世纪前是所有登山者最心仪的装备。\n\n<color=#ffcc00>【特殊功能】在主手上时，冰镐拥有攀爬的效果。</color>",
     "m2sword.name": "Miller Bros. Blades M-2 战术剑【M-2】",
-    "m2sword.desc": "由 Miller Bros 刀具公司打造的\u201cM-2\u201d战术短剑。\n\n<color=#4fc3f7>单次攻击：生物 87 / 方块 31</color>"
+    "m2sword.desc": "由 Miller Bros 刀具公司打造的\u201cM-2\u201d战术短剑。\n\n<color=#4fc3f7>单次攻击：生物 87 / 方块 31</color>",
+    "usp.name": "HK USP .45 ACP手枪【USP】",
+    "usp.desc": "HK USP（德语\u201c通用半自动手枪\u201d的缩写），因出色的精度表现与绝佳的可靠性而在当时的国际市场上广受赞誉。USP 手枪采用改良型勃朗宁式枪机结构，并配备特殊专利后座缓冲系统，这套系统既能减轻后座力对枪械部件的影响，同时也能降低射手在开火时的体感后座。.45 ACP 口径版本，由 HK 公司设计制造。\n\n<color=#4fc3f7>单发伤害：生物 40 / 方块 42</color>",
+    "usp_mag.name": "USP .45 ACP 弹匣【12发】",
+    "usp_mag.desc": "HK USP 手枪专属弹匣，12发容量。"
 }

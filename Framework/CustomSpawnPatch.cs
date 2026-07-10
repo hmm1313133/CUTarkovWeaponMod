@@ -19,22 +19,59 @@ namespace CUTarkovWeaponMod.Framework;
 /// </summary>
 public static class CustomSpawnPatch
 {
-    // === 自定义枪械 ID 列表 ===
-    internal static readonly string[] CustomGunIds =
+    // === 枪械分类列表（用于加权随机） ===
+    private static readonly string[] PistolIds  = { DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, USPItemSystem.ItemKey };
+    private static readonly string[] SksShotgunIds = { SKSItemSystem.ItemKey, MP133ItemSystem.ItemKey, MP153ItemSystem.ItemKey };
+    private static readonly string[] SmgIds     = { P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey };
+    private static readonly string[] RifleIds   = { AKMItemSystem.ItemKey, M4A1ItemSystem.ItemKey };
+    private static readonly string[] SniperIds  = { AXMCItemSystem.ItemKey, DVL10ItemSystem.ItemKey };
+    private static readonly string[] LmgIds     = { RPDItemSystem.ItemKey };
+
+    // 保留旧数组兼容性（供外部诊断统计用）
+    internal static readonly string[] CustomGunIds = ConcatGunIds();
+
+    private static string[] ConcatGunIds()
     {
-        AKMItemSystem.ItemKey,       // akm
-        AXMCItemSystem.ItemKey,      // axmc
-        DeagleItemSystem.ItemKey,    // deagle
-        DVL10ItemSystem.ItemKey,     // dvl10
-        Glock17ItemSystem.ItemKey,   // glock17
-        M4A1ItemSystem.ItemKey,      // m4a1
-        MP133ItemSystem.ItemKey,     // mp133
-        MP153ItemSystem.ItemKey,     // mp153
-        P90ItemSystem.ItemKey,       // p90
-        SKSItemSystem.ItemKey,       // sks
-        UMP45ItemSystem.ItemKey,     // ump45
-        RPDItemSystem.ItemKey,       // rpd
-    };
+        var list = new List<string>();
+        list.AddRange(PistolIds);
+        list.AddRange(SksShotgunIds);
+        list.AddRange(SmgIds);
+        list.AddRange(RifleIds);
+        list.AddRange(SniperIds);
+        list.AddRange(LmgIds);
+        return list.ToArray();
+    }
+
+    // === 近战武器列表（物资箱专属） ===
+    private static readonly string[] MeleeIds = { RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey };
+
+    /// <summary>加权随机选一把枪械 ID</summary>
+    private static string GetRandomGunId()
+    {
+        float roll = UnityEngine.Random.Range(0f, 100f);
+        if (roll < 35f) // 35% 手枪
+            return PistolIds[UnityEngine.Random.Range(0, PistolIds.Length)];
+        roll -= 35f;
+        if (roll < 20f) // 20% SKS + 霰弹枪
+            return SksShotgunIds[UnityEngine.Random.Range(0, SksShotgunIds.Length)];
+        roll -= 20f;
+        if (roll < 17f) // 17% 冲锋枪
+            return SmgIds[UnityEngine.Random.Range(0, SmgIds.Length)];
+        roll -= 17f;
+        if (roll < 13f) // 13% 步枪
+            return RifleIds[UnityEngine.Random.Range(0, RifleIds.Length)];
+        roll -= 13f;
+        if (roll < 10f) // 10% 狙击枪
+            return SniperIds[UnityEngine.Random.Range(0, SniperIds.Length)];
+        // 5% 轻机枪
+        return LmgIds[UnityEngine.Random.Range(0, LmgIds.Length)];
+    }
+
+    /// <summary>加权随机选一把近战武器 ID（40%冰镐 60%M2）</summary>
+    private static string GetRandomMeleeId()
+    {
+        return UnityEngine.Random.Range(0f, 1f) < 0.4f ? MeleeIds[0] : MeleeIds[1];
+    }
 
     // === 自定义弹匣 ID 列表 ===
     internal static readonly string[] CustomMagIds =
@@ -126,14 +163,22 @@ public static class CustomSpawnPatch
         }
     }
 
-    /// <summary>以指定概率在指定位置生成一把随机自定义枪械</summary>
+    /// <summary>以指定概率在指定位置生成一把加权随机枪械</summary>
     internal static void TrySpawnRandomGun(Vector2 pos, float chance)
     {
         GunAttempts++;
         if (UnityEngine.Random.Range(0f, 1f) > chance) return;
         GunSpawned++;
-        var gunId = CustomGunIds[UnityEngine.Random.Range(0, CustomGunIds.Length)];
+        var gunId = GetRandomGunId();
         SpawnCustomItemAt(gunId, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成一把随机近战武器（40%冰镐 60%M2）</summary>
+    internal static void TrySpawnRandomMelee(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        var meleeId = GetRandomMeleeId();
+        SpawnCustomItemAt(meleeId, pos);
     }
 
     /// <summary>以指定概率在指定位置生成一个随机自定义弹匣（子弹0~满随机）</summary>
@@ -192,9 +237,10 @@ public static class CustomSpawnPatch
                 }
                 else
                 {
-                    // 物资箱: 6.6% 枪械 + 10% 弹匣
+                    // 物资箱: 6.6% 枪械 + 10% 弹匣 + 13% 近战武器（40%冰镐 60%M2）
                     TrySpawnRandomGun(pos, 0.066f);
                     TrySpawnRandomMag(pos, 0.10f);
+                    TrySpawnRandomMelee(pos, 0.13f);
                 }
 
                 Plugin.Log.LogInfo($"[CustomSpawn] Stats so far: Container={ContainerCalls}(dup={ContainerSkippedDup}) Gun={GunSpawned}/{GunAttempts} Mag={MagSpawned}/{MagAttempts} Corpse={CorpseCalls}(animal={CorpseSkippedAnimal}) ItemStart={ItemStartCalls}(mag={ItemStartMagReplaced})");

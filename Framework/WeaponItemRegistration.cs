@@ -34,7 +34,7 @@ public static class WeaponItemRegistration
         prefabs[UMP45ItemSystem.ItemKey] = "rifle";
         prefabs[RPDItemSystem.ItemKey] = "rifle";
         prefabs[RedRebelItemSystem.ItemKey] = "bruisekit";
-        prefabs[M2SwordItemSystem.ItemKey] = "bruisekit";
+        prefabs[USPItemSystem.ItemKey] = "pistol";
 
         // 弹匣类
         prefabs[AXMCMagItemSystem.ItemKey] = "riflemagazine";
@@ -46,6 +46,7 @@ public static class WeaponItemRegistration
         prefabs[P90MagItemSystem.ItemKey] = "riflemagazine";
         prefabs[UMP45MagItemSystem.ItemKey] = "riflemagazine";
         prefabs[RPDMagItemSystem.ItemKey] = "riflemagazine";
+        prefabs[USPMagItemSystem.ItemKey] = "riflemagazine";
 
         // 弹药类
         prefabs[Ammo76251BPZItemSystem.ItemKey] = "556round";
@@ -97,8 +98,8 @@ public static class WeaponItemRegistration
             RPDItemSystem.ConfigureSpawnedItem(item, request);
         else if (RedRebelItemSystem.IsRedRebelRequest(request))
             RedRebelItemSystem.ConfigureSpawnedItem(item, request);
-        else if (M2SwordItemSystem.IsM2SwordRequest(request))
-            M2SwordItemSystem.ConfigureSpawnedItem(item, request);
+        else if (USPItemSystem.IsUSPRequest(request))
+            USPItemSystem.ConfigureSpawnedItem(item, request);
         // 弹匣
         else if (AXMCMagItemSystem.IsAXMCMagRequest(request))
             AXMCMagItemSystem.ConfigureSpawnedItem(item, request);
@@ -118,6 +119,8 @@ public static class WeaponItemRegistration
             UMP45MagItemSystem.ConfigureSpawnedItem(item, request);
         else if (RPDMagItemSystem.IsRPDMagRequest(request))
             RPDMagItemSystem.ConfigureSpawnedItem(item, request);
+        else if (USPMagItemSystem.IsUSPMagRequest(request))
+            USPMagItemSystem.ConfigureSpawnedItem(item, request);
         // 弹药
         else if (Ammo76251BPZItemSystem.Is76251BPZRequest(request))
             Ammo76251BPZItemSystem.ConfigureSpawnedItem(item, request);
@@ -185,6 +188,7 @@ public static class WeaponItemRegistryPatch
         RPDItemSystem.EnsureRegisteredInItemTable();
         RPDMagItemSystem.EnsureRegisteredInItemTable();
         RedRebelItemSystem.EnsureRegisteredInItemTable();
-        M2SwordItemSystem.EnsureRegisteredInItemTable();
+        USPItemSystem.EnsureRegisteredInItemTable();
+        USPMagItemSystem.EnsureRegisteredInItemTable();
     }
 }

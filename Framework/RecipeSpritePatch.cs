@@ -51,6 +51,7 @@ public static class RecipeSpritePatch
         P90MagItemSystem.ItemKey,
         UMP45MagItemSystem.ItemKey,
         RPDMagItemSystem.ItemKey,
+        USPMagItemSystem.ItemKey,
     };
 
     // 弹匣 ItemKey → 图标文件名的映射（文件名不含扩展名）
@@ -65,6 +66,7 @@ public static class RecipeSpritePatch
         { P90MagItemSystem.ItemKey, "p90_magazine" },
         { UMP45MagItemSystem.ItemKey, "ump45_magazine" },
         { RPDMagItemSystem.ItemKey, "rpd_magazine" },
+        { USPMagItemSystem.ItemKey, "usp_magazine" },
     };
 
     [HarmonyPrefix]
@@ -200,6 +202,7 @@ public static class RecipeSpritePatch
                 case Glock17MagItemSystem.ItemKey: return "smallmagazine";
                 case DeagleMagItemSystem.ItemKey: return "smallmagazine";
                 case UMP45MagItemSystem.ItemKey: return "smallmagazine";
+                case USPMagItemSystem.ItemKey: return "smallmagazine";
                 default: return "riflemagazine";
             }
         }

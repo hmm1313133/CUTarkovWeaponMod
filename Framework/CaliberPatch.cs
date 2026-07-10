@@ -31,6 +31,7 @@ public static class CaliberRegistry
         { P90ItemSystem.ItemKey,      "5728"    },
         { UMP45ItemSystem.ItemKey,    "45acp"   },
         { RPDItemSystem.ItemKey,      "762x39"  },
+        { USPItemSystem.ItemKey,      "45acp"   },
     };
 
     // === 弹药 (Round) ItemKey -> 口径 ===
@@ -59,6 +60,7 @@ public static class CaliberRegistry
         { P90MagItemSystem.ItemKey,     Ammo5728SB193ItemSystem.ItemKey },
         { UMP45MagItemSystem.ItemKey,   Ammo45FMJItemSystem.ItemKey },
         { RPDMagItemSystem.ItemKey,     Ammo76239SPItemSystem.ItemKey },
+        { USPMagItemSystem.ItemKey,      Ammo45FMJItemSystem.ItemKey },
     };
 
     /// <summary>
