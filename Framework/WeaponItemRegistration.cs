@@ -34,6 +34,7 @@ public static class WeaponItemRegistration
         prefabs[UMP45ItemSystem.ItemKey] = "rifle";
         prefabs[RPDItemSystem.ItemKey] = "rifle";
         prefabs[RedRebelItemSystem.ItemKey] = "bruisekit";
+        prefabs[M2SwordItemSystem.ItemKey] = "bruisekit";
         prefabs[USPItemSystem.ItemKey] = "pistol";
 
         // 弹匣类
@@ -98,6 +99,8 @@ public static class WeaponItemRegistration
             RPDItemSystem.ConfigureSpawnedItem(item, request);
         else if (RedRebelItemSystem.IsRedRebelRequest(request))
             RedRebelItemSystem.ConfigureSpawnedItem(item, request);
+        else if (M2SwordItemSystem.IsM2SwordRequest(request))
+            M2SwordItemSystem.ConfigureSpawnedItem(item, request);
         else if (USPItemSystem.IsUSPRequest(request))
             USPItemSystem.ConfigureSpawnedItem(item, request);
         // 弹匣
@@ -188,6 +191,7 @@ public static class WeaponItemRegistryPatch
         RPDItemSystem.EnsureRegisteredInItemTable();
         RPDMagItemSystem.EnsureRegisteredInItemTable();
         RedRebelItemSystem.EnsureRegisteredInItemTable();
+        M2SwordItemSystem.EnsureRegisteredInItemTable();
         USPItemSystem.EnsureRegisteredInItemTable();
         USPMagItemSystem.EnsureRegisteredInItemTable();
     }

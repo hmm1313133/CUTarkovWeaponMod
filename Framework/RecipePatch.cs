@@ -45,25 +45,28 @@ public static class RecipePatch
 
             // === 移除被封禁的原版配方 ===
             // 必须在添加自定义配方之前执行，确保索引连续
-            int blockedRecipes = 0;
-            for (int i = recipes.Count - 1; i >= 0; i--)
+            if (VanillaBlockPatch.BlockEnabled)
             {
-                var recipe = recipes[i];
-                if (recipe.result != null && VanillaBlockPatch.IsBlocked(recipe.result.id))
+                int blockedRecipes = 0;
+                for (int i = recipes.Count - 1; i >= 0; i--)
                 {
-                    recipes.RemoveAt(i);
-                    blockedRecipes++;
+                    var recipe = recipes[i];
+                    if (recipe.result != null && VanillaBlockPatch.IsBlocked(recipe.result.id))
+                    {
+                        recipes.RemoveAt(i);
+                        blockedRecipes++;
+                    }
                 }
-            }
 
-            // 重建配方索引（移除后有间隙）
-            for (int i = 0; i < recipes.Count; i++)
-            {
-                recipes[i].index = i;
-            }
+                // 重建配方索引（移除后有间隙）
+                for (int i = 0; i < recipes.Count; i++)
+                {
+                    recipes[i].index = i;
+                }
 
-            if (blockedRecipes > 0)
-                Plugin.Log.LogInfo($"[RecipePatch] Removed {blockedRecipes} blocked vanilla weapon/ammo/mag recipes.");
+                if (blockedRecipes > 0)
+                    Plugin.Log.LogInfo($"[RecipePatch] Removed {blockedRecipes} blocked vanilla weapon/ammo/mag recipes.");
+            }
 
             // === 自定义子弹合成配方 ===
             // category = Materials(0), INT = 9

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using UnityEngine;
-
-using CUTarkovMedicalMod.Framework;
 
 namespace CUTarkovWeaponMod.Framework;
 
@@ -31,6 +28,9 @@ namespace CUTarkovWeaponMod.Framework;
 /// </summary>
 public static class VanillaBlockPatch
 {
+    /// <summary>是否启用原版物品封禁。默认 true，可通过控制台 toggle</summary>
+    internal static bool BlockEnabled = true;
+
     /// <summary>被封禁的原版物品ID集合</summary>
     internal static readonly HashSet<string> BlockedVanillaIds = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -60,6 +60,7 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix()
         {
+            if (!BlockEnabled) return;
             try
             {
                 // ItemLootPool.pool 是 static Dictionary<string, List<string>>
@@ -101,6 +102,7 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix(TraderScript __instance)
         {
+            if (!BlockEnabled) return;
             try
             {
                 // TraderScript.items 是 List<TraderItem>
@@ -161,17 +163,62 @@ public static class VanillaBlockPatch
         [HarmonyPrefix]
         public static bool Prefix(string id, ref GameObject __result)
         {
+            if (!BlockEnabled) return true;
             if (id != null && IsBlocked(id))
             {
                 Plugin.Log.LogInfo($"[VanillaBlock] Blocked Utils.Create for '{id}'.");
-                __result = null;
+                __result = null!;
                 return false;
             }
             return true;
         }
     }
 
-    // === 4. Item.Start 拦截（终极防线） ===
+    // === 4. 控制台命令: spawn vanilla_on / spawn vanilla_off ===
+    // 也支持直接输入 vanilla_on / vanilla_off
+
+    [HarmonyPatch(typeof(ConsoleScript), nameof(ConsoleScript.TryExecuteCommand))]
+    public static class VanillaSpawnCommandPatch
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(ConsoleScript __instance, string[] args, bool addToLog)
+        {
+            if (args == null || args.Length < 1) return true;
+
+            bool? enable = null;
+            // 格式1: spawn vanilla_on / spawn vanilla_off
+            if (args.Length >= 2 && args[0].Equals("spawn", StringComparison.OrdinalIgnoreCase))
+            {
+                if (args[1].Equals("vanilla_on", StringComparison.OrdinalIgnoreCase))
+                    enable = true;
+                else if (args[1].Equals("vanilla_off", StringComparison.OrdinalIgnoreCase))
+                    enable = false;
+            }
+            // 格式2: vanilla_on / vanilla_off (直接输入)
+            if (enable == null)
+            {
+                if (args[0].Equals("vanilla_on", StringComparison.OrdinalIgnoreCase))
+                    enable = true;
+                else if (args[0].Equals("vanilla_off", StringComparison.OrdinalIgnoreCase))
+                    enable = false;
+            }
+
+            if (enable == null) return true;
+
+            VanillaBlockPatch.BlockEnabled = !enable.Value;
+
+            var logMethod = AccessTools.Method(typeof(ConsoleScript), "LogToConsole");
+            string msg = enable.Value
+                ? "[WeaponMod] Vanilla weapon/ammo/mag spawn, crafting and trading ENABLED."
+                : "[WeaponMod] Vanilla weapon/ammo/mag spawn, crafting and trading DISABLED.";
+            Plugin.Log.LogInfo(msg);
+            logMethod?.Invoke(__instance, new object[] { msg });
+
+            return false;
+        }
+    }
+
+    // === 5. Item.Start 拦截（终极防线） ===
     // GenerateCollapsedPods/GenerateLifePods 实例化的预制体（如 LifepodCollapsed）包含子物体
     // 这些子物体带有 Item 组件，id 字段在预制体中已序列化
     // Item.Start 在物品完全初始化后被调用，此时可以安全销毁被封禁的物品
@@ -183,6 +230,7 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix(Item __instance)
         {
+            if (!BlockEnabled) return;
             try
             {
                 if (string.IsNullOrEmpty(__instance.id) || !IsBlocked(__instance.id))

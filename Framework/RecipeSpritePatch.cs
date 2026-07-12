@@ -5,8 +5,6 @@ using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
 
-using CUTarkovMedicalMod.Framework;
-
 namespace CUTarkovWeaponMod.Framework;
 
 /// <summary>
@@ -95,15 +93,17 @@ public static class RecipeSpritePatch
 
         // 自定义图标加载失败，也跳过原版（避免 NullRefException）
         // 使用原版同类物品的图标作为 fallback
-        var fallbackSprite = GetFallbackSprite(resultId);
-        __result = new ValueTuple<Sprite, Color>(fallbackSprite ?? GetBaseGameSprite(resultId), Color.white);
+        var fallbackSprite = GetFallbackSprite(resultId) ?? GetBaseGameSprite(resultId);
+        if (fallbackSprite == null)
+            return true; // 完全找不到图标，放行原版
+        __result = new ValueTuple<Sprite, Color>(fallbackSprite, Color.white);
         return false;
     }
 
     /// <summary>
     /// 从插件 Assets 目录加载自定义弹药图标（PNG/WebP）
     /// </summary>
-    private static Sprite GetOrLoadSprite(string ammoId)
+    private static Sprite? GetOrLoadSprite(string ammoId)
     {
         if (_spriteCache.TryGetValue(ammoId, out var cached))
             return cached;
@@ -153,8 +153,9 @@ public static class RecipeSpritePatch
     /// <summary>
     /// 获取 fallback Sprite（自定义图标加载失败时使用）
     /// </summary>
-    private static Sprite GetFallbackSprite(string ammoId)
+    private static Sprite? GetFallbackSprite(string ammoId)
     {
+        _ = ammoId; // 保留参数签名供调用方统一
         // 尝试从缓存的其他弹药图标中选一个
         foreach (var kvp in _spriteCache)
         {
@@ -168,7 +169,7 @@ public static class RecipeSpritePatch
     /// 获取原版同类弹药的 Sprite 作为最后 fallback
     /// 使用 Resources.Load 加载原版弹药预制体（这些在游戏 Resources 中存在）
     /// </summary>
-    private static Sprite GetBaseGameSprite(string ammoId)
+    private static Sprite? GetBaseGameSprite(string ammoId)
     {
         try
         {

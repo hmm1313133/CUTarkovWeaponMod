@@ -210,7 +210,7 @@ public static class AXMCMagItemSystem
 
             _cachedIcon = Sprite.Create(texture,
                 new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f), 13.35f);
+                new Vector2(0.5f, 0.5f), 26.7f);
             _cachedIcon.name = "axmc-mag-icon";
         }
         catch (Exception ex)
@@ -619,7 +619,7 @@ public static class AKMMagItemSystem
 
             _cachedIcon = Sprite.Create(texture,
                 new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f), 26.7f);
+                new Vector2(0.5f, 0.5f), 20f);
             _cachedIcon.name = "akm-mag-icon";
         }
         catch (Exception ex)
