@@ -6,7 +6,7 @@
     <AssemblyName>CUTarkovWeaponMod</AssemblyName>
     <RootNamespace>CUTarkovWeaponMod</RootNamespace>
     <Product>Casualties: Unknown - Tarkov-Style Weapon Mod</Product>
-    <Version>0.2.1.0</Version>
+    <Version>1.0.1.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>$(NoWarn);0649</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>

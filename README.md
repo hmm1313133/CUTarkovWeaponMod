@@ -2,7 +2,7 @@
 
 > `未知伤亡（Casualties: Unknown）：塔科夫武器模组`
 >
-> **v0.2.1**
+> **v1.0.1**
 
 一个为 **Casualties: Unknown Demo** 开发的 BepInEx 模组，将《逃离塔科夫》中的自定义枪械、弹药、弹匣、近战武器及完整武器系统引入游戏。
 
