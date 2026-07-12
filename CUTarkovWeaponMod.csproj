@@ -6,7 +6,7 @@
     <AssemblyName>CUTarkovWeaponMod</AssemblyName>
     <RootNamespace>CUTarkovWeaponMod</RootNamespace>
     <Product>Casualties: Unknown - Tarkov-Style Weapon Mod</Product>
-    <Version>1.0.1.0</Version>
+    <Version>1.0.2.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>$(NoWarn);0649</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
@@ -57,8 +57,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CUTarkovMedicalMod-test1\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj">
+    <ProjectReference Include="..\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj">
       <Private>false</Private>
+    </ProjectReference>
+
+    <!-- CUCoreLib 引用程序集（桩），运行时由真实 CUCoreLib.dll 替代。Private=false 不复制到输出。 -->
+    <ProjectReference Include="../CUCoreLibRef/CUCoreLibRef.csproj">
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
 

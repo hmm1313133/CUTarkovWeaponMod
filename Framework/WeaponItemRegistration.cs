@@ -13,6 +13,32 @@ namespace CUTarkovWeaponMod.Framework;
 public static class WeaponItemRegistration
 {
     /// <summary>
+    /// 所有武器物品 ID 集合（15 枪械/近战 + 10 弹匣 + 9 弹药 = 34 个）。
+    /// 用于 CUCoreLib 模式下将武器物品注册到 ItemRegistry。
+    /// </summary>
+    public static readonly HashSet<string> WeaponItemIds = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // 枪械/近战
+        MP133ItemSystem.ItemKey, MP153ItemSystem.ItemKey, SKSItemSystem.ItemKey,
+        AXMCItemSystem.ItemKey, DVL10ItemSystem.ItemKey, AKMItemSystem.ItemKey,
+        DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, M4A1ItemSystem.ItemKey,
+        P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey, RPDItemSystem.ItemKey,
+        RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey, USPItemSystem.ItemKey,
+        // 弹匣
+        AXMCMagItemSystem.ItemKey, DVL10MagItemSystem.ItemKey, AKMMagItemSystem.ItemKey,
+        DeagleMagItemSystem.ItemKey, Glock17MagItemSystem.ItemKey, M4A1MagItemSystem.ItemKey,
+        P90MagItemSystem.ItemKey, UMP45MagItemSystem.ItemKey, RPDMagItemSystem.ItemKey,
+        USPMagItemSystem.ItemKey,
+        // 弹药
+        Ammo76251BPZItemSystem.ItemKey, Ammo76239SPItemSystem.ItemKey, Ammo12g85ItemSystem.ItemKey,
+        Ammo338UCWItemSystem.ItemKey, Ammo50CopperItemSystem.ItemKey, Ammo45FMJItemSystem.ItemKey,
+        Ammo919PSOItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey, Ammo5728SB193ItemSystem.ItemKey,
+    };
+
+    /// <summary>判断是否为武器模组自定义物品 ID</summary>
+    public static bool IsWeaponItem(string id) => WeaponItemIds.Contains(id);
+
+    /// <summary>
     /// 注册所有枪械物品到控制台生成系统和物品配置系统。
     /// </summary>
     public static void Register()
@@ -194,5 +220,8 @@ public static class WeaponItemRegistryPatch
         M2SwordItemSystem.EnsureRegisteredInItemTable();
         USPItemSystem.EnsureRegisteredInItemTable();
         USPMagItemSystem.EnsureRegisteredInItemTable();
+
+        // 通知集成模式武器物品已注册到 GlobalItems
+        Plugin.IntegrationMode?.OnItemsSetup();
     }
 }

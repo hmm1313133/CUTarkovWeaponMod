@@ -6,18 +6,22 @@ using BepInEx.Logging;
 using HarmonyLib;
 using CUTarkovMedicalMod.Framework;
 using CUTarkovWeaponMod.Framework;
+using CUTarkovWeaponMod.Integration;
 
 namespace CUTarkovWeaponMod;
 
 [BepInPlugin(ModGuid, ModName, ModVersion)]
 [BepInDependency("com.yourname.cu.tarkovmedicalmod", BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency("net.cucorelib", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("org.bepinex.plugins.qol_unknown", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BaseUnityPlugin
 {
     public const string ModGuid = "com.yourname.cu.tarkovweaponmod";
     public const string ModName = "Casualties: Unknown - Tarkov-Style Weapon Mod";
-    public const string ModVersion = "1.0.1.0";
+    public const string ModVersion = "1.0.2.0";
 
     internal static ManualLogSource Log = null!;
+    internal static IWeaponIntegrationMode IntegrationMode = null!;
 
     private WeaponUpdateNotifier _updateNotifier = null!;
 
@@ -74,6 +78,18 @@ public sealed class Plugin : BaseUnityPlugin
         catch (Exception ex)
         {
             Log.LogError($"PatchAll() threw: {ex}");
+        }
+
+        // Initialize integration mode (CUCoreLib vs Legacy).
+        // MedicalMod loads first (HardDependency), so Chainloader.PluginInfos is populated.
+        try
+        {
+            IntegrationMode = WeaponIntegrationModeFactory.Create();
+            IntegrationMode.Initialize(new Harmony(ModGuid));
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"WeaponIntegrationMode.Initialize() threw: {ex}");
         }
 
         Log.LogInfo($"{ModName} loaded.");
