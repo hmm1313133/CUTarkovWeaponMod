@@ -107,7 +107,7 @@ public static class Ammo76251BPZItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -129,7 +129,7 @@ public static class Ammo76251BPZItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -274,7 +274,7 @@ public static class Ammo76239SPItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -296,7 +296,7 @@ public static class Ammo76239SPItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -441,7 +441,7 @@ public static class Ammo12g85ItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -463,7 +463,7 @@ public static class Ammo12g85ItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -608,7 +608,7 @@ public static class Ammo338UCWItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(10),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -630,7 +630,7 @@ public static class Ammo338UCWItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(10),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -774,7 +774,7 @@ public static class Ammo50CopperItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -796,7 +796,7 @@ public static class Ammo50CopperItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -940,7 +940,7 @@ public static class Ammo45FMJItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -962,7 +962,7 @@ public static class Ammo45FMJItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -1107,7 +1107,7 @@ public static class Ammo919PSOItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -1129,7 +1129,7 @@ public static class Ammo919PSOItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -1274,7 +1274,7 @@ public static class Ammo55645FMJItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -1296,7 +1296,7 @@ public static class Ammo55645FMJItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -1441,7 +1441,7 @@ public static class Ammo5728SB193ItemSystem
             combineable = true,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -1463,7 +1463,7 @@ public static class Ammo5728SB193ItemSystem
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
-            rec = new Recognition(9),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;

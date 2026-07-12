@@ -167,7 +167,7 @@ public static class MP153ItemSystem
             combineable = source.combineable,
             value = 52,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(9),
         };
         clone.SetTags();
         return clone;
@@ -191,7 +191,7 @@ public static class MP153ItemSystem
             scaleWeightWithCondition = false,
             value = 52,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(9),
         };
         info.SetTags();
         return info;

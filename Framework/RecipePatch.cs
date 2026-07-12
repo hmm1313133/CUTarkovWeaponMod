@@ -157,23 +157,23 @@ public static class RecipePatch
             // 所有弹匣统一配方：3废料板+1弹匣基座+10ml生化流体+切割工具+锤打工具 → 1个
 
             AddRecipe(recipes, AXMCMagItemSystem.ItemKey, 1,
-                Specific("scrappanel", 3),
-                Specific("magazinebase", 1),
-                Liquid("biochem", 10f),
+                Specific("scrappanel", 4),
+                Specific("magazinebase", 2),
+                Liquid("biochem", 15f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
             AddRecipe(recipes, DVL10MagItemSystem.ItemKey, 1,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
-                Liquid("biochem", 10f),
+                Liquid("biochem", 15f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
             AddRecipe(recipes, AKMMagItemSystem.ItemKey, 1,
-                Specific("scrappanel", 3),
+                Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
-                Liquid("biochem", 10f),
+                Liquid("biochem", 15f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
@@ -192,15 +192,16 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, M4A1MagItemSystem.ItemKey, 1,
-                Specific("scrappanel", 3),
+                Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
-                Liquid("biochem", 10f),
+                Liquid("biochem", 15f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
             AddRecipe(recipes, P90MagItemSystem.ItemKey, 1,
-                Specific("scrappanel", 3),
-                Specific("magazinebase", 1),
+                Specific("scrappanel", 5),
+                Specific("magazinebase", 3),
+                Specific("wood", 1),
                 Liquid("biochem", 10f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));

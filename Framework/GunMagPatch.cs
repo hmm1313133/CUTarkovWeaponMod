@@ -121,12 +121,12 @@ public static class AXMCMagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.55f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(9),
+            rec = new Recognition(7),
         };
 
         // 设置 useAction 为 UnloadRound
@@ -155,11 +155,11 @@ public static class AXMCMagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.55f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(9),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(AXMCMagItemSystem).GetMethod(
@@ -330,12 +330,12 @@ public static class DVL10MagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.35f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(9),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(DVL10MagItemSystem).GetMethod(
@@ -363,11 +363,11 @@ public static class DVL10MagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.35f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(9),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(DVL10MagItemSystem).GetMethod(
@@ -535,12 +535,12 @@ public static class AKMMagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.4f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(AKMMagItemSystem).GetMethod(
@@ -568,11 +568,11 @@ public static class AKMMagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.4f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(AKMMagItemSystem).GetMethod(
@@ -739,12 +739,12 @@ public static class DeagleMagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(DeagleMagItemSystem).GetMethod(
@@ -772,11 +772,11 @@ public static class DeagleMagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(DeagleMagItemSystem).GetMethod(
@@ -943,12 +943,12 @@ public static class Glock17MagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(Glock17MagItemSystem).GetMethod(
@@ -976,11 +976,11 @@ public static class Glock17MagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(Glock17MagItemSystem).GetMethod(
@@ -1145,12 +1145,12 @@ public static class M4A1MagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.4f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(M4A1MagItemSystem).GetMethod(
@@ -1178,11 +1178,11 @@ public static class M4A1MagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.4f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(M4A1MagItemSystem).GetMethod(
@@ -1347,12 +1347,12 @@ public static class P90MagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.5f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(P90MagItemSystem).GetMethod(
@@ -1380,11 +1380,11 @@ public static class P90MagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.5f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(P90MagItemSystem).GetMethod(
@@ -1549,12 +1549,12 @@ public static class UMP45MagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(UMP45MagItemSystem).GetMethod(
@@ -1582,11 +1582,11 @@ public static class UMP45MagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(UMP45MagItemSystem).GetMethod(
@@ -1799,12 +1799,12 @@ public static class RPDMagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.2f,
+            weight = 1f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(RPDMagItemSystem).GetMethod(
@@ -1832,11 +1832,11 @@ public static class RPDMagItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.2f,
+            weight = 1f,
             scaleWeightWithCondition = false,
             value = 0,
             tags = "belttool",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
 
         var useMethod = typeof(RPDMagItemSystem).GetMethod(
@@ -1997,12 +1997,12 @@ public static class USPMagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.25f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 12,
             tags = "cangetwet",
-            rec = new Recognition(9),
+            rec = new Recognition(7),
         };
         clone.SetTags();
         var useMethod = typeof(USPMagItemSystem).GetMethod(
@@ -2023,12 +2023,12 @@ public static class USPMagItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.25f,
+            weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 12,
             tags = "cangetwet",
-            rec = new Recognition(9),
+            rec = new Recognition(7),
         };
         info.SetTags();
         var useMethod = typeof(USPMagItemSystem).GetMethod(

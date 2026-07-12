@@ -187,7 +187,7 @@ public static class RedRebelItemSystem
             knockBack = 270f,
             cooldown = 0.3f,
             attackAnim = Resources.Load<GameObject>("SwingAnim"),
-            staminaUse = 0.8f,
+            staminaUse = 0.95f,
             piercing = false,
             swingSounds = new string[] { "" },
             volume = 20f,
@@ -252,12 +252,14 @@ public static class RedRebelHoverPatch
 
 /// <summary>
 /// Red Rebel 攀爬补丁 - 在 Body.Jump Postfix 中检测主手是否持有冰镐，
-/// 如果持有则设置 firstWallJump=true（允许连续蹬墙跳），每次消耗 0.002 耐久。
+/// 如果持有则设置 firstWallJump=true（允许连续蹬墙跳），
+/// 每次消耗 0.002 耐久 + 1.0 体力。
 /// </summary>
 [HarmonyPatch(typeof(Body), nameof(Body.Jump))]
 public static class RedRebelJumpPatch
 {
     private const float ConditionLossPerJump = 0.002f;
+    private const float StaminaPerJump = 1.0f;
 
     [HarmonyPostfix]
     public static void Postfix(Body __instance)
@@ -273,8 +275,9 @@ public static class RedRebelJumpPatch
             if (!handItem.id.Equals(RedRebelItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            // 检查耐久
+            // 检查耐久和体力
             if (handItem.condition <= 0f) return;
+            if (__instance.stamina < StaminaPerJump) return;
 
             // 检查是否在蹬墙跳场景（jumpCooldown 被设为 0.25 表示刚跳过）
             if (__instance.jumpCooldown > 0f && __instance.jumpCooldown <= 0.25f)
@@ -282,10 +285,11 @@ public static class RedRebelJumpPatch
                 // 设置 firstWallJump=true，允许连续蹬墙跳
                 __instance.firstWallJump = true;
 
-                // 消耗耐久
+                // 消耗耐久和体力
                 handItem.condition -= ConditionLossPerJump;
+                __instance.stamina -= StaminaPerJump;
 
-                Plugin.Log.LogInfo($"[RedRebel] Wall jump enabled, condition -{ConditionLossPerJump} (now {handItem.condition}).");
+                Plugin.Log.LogInfo($"[RedRebel] Wall jump enabled, condition -{ConditionLossPerJump}, stamina -{StaminaPerJump}.");
             }
         }
         catch (Exception ex)

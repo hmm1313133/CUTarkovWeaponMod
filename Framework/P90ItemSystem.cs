@@ -151,7 +151,7 @@ public static class P90ItemSystem
             combineable = source.combineable,
             value = 57,
             tags = "cangetwet,gun",
-            rec = new Recognition(12),
+            rec = new Recognition(13),
         };
         clone.SetTags();
         return clone;
@@ -175,7 +175,7 @@ public static class P90ItemSystem
             scaleWeightWithCondition = false,
             value = 57,
             tags = "cangetwet,gun",
-            rec = new Recognition(12),
+            rec = new Recognition(13),
         };
         info.SetTags();
         return info;

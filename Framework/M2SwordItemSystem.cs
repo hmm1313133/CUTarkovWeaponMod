@@ -174,7 +174,7 @@ public static class M2SwordItemSystem
             knockBack = 320f,
             cooldown = 0.3f,
             attackAnim = Resources.Load<GameObject>("SwingAnim"),
-            staminaUse = 0.8f,
+            staminaUse = 0.85f,
             piercing = false,
             swingSounds = new string[] { "" },
             volume = 20f,

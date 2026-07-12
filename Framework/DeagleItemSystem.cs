@@ -156,7 +156,7 @@ public static class DeagleItemSystem
             combineable = source.combineable,
             value = 39,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -180,7 +180,7 @@ public static class DeagleItemSystem
             scaleWeightWithCondition = false,
             value = 39,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;

@@ -163,7 +163,7 @@ public static class AKMItemSystem
             combineable = source.combineable,
             value = 69,
             tags = "cangetwet,gun",
-            rec = new Recognition(12),
+            rec = new Recognition(10),
         };
         clone.SetTags();
         return clone;
@@ -187,7 +187,7 @@ public static class AKMItemSystem
             scaleWeightWithCondition = false,
             value = 69,
             tags = "cangetwet,gun",
-            rec = new Recognition(12),
+            rec = new Recognition(10),
         };
         info.SetTags();
         return info;

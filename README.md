@@ -2,7 +2,7 @@
 
 > `未知伤亡（Casualties: Unknown）：塔科夫武器模组`
 >
-> **v1.0.0.0**
+> **v0.2.1**
 
 一个为 **Casualties: Unknown Demo** 开发的 BepInEx 模组，将《逃离塔科夫》中的自定义枪械、弹药、弹匣、近战武器及完整武器系统引入游戏。
 
@@ -26,7 +26,16 @@
 | AXMC 瞄准镜 | AXMC 狙击步枪装备时扩展视野范围 |
 | UMP45 消音器 | UMP45 内置消音器，噪音仅 0.2，禁用枪口火光 |
 | 控制台 Spawn | 控制台 `spawn` 命令支持所有自定义物品 ID |
+| 原版物品开关 | `spawn vanilla_on` / `spawn vanilla_off` 切换原版武器生成/合成/交易 |
 | 多语言支持 | 中/英双语，通过医疗模组的 I18n 系统加载 |
+
+## 控制台命令
+
+| 命令 | 说明 |
+|------|------|
+| `spawn [itemKey]` | 生成指定物品（支持 Tab 自动补全原生物品） |
+| `spawn vanilla_on` | 启用原版武器/弹药/弹匣的世界生成、合成和商人出售 |
+| `spawn vanilla_off` | 禁用原版武器/弹药/弹匣（默认状态） |
 
 ## 13 把枪械一览
 
@@ -145,6 +154,7 @@ CUTarkovWeaponMod/
 └── Framework/
     ├── WeaponItemRegistration.cs          # 物品注册到医疗模组系统
     ├── MeleeSoundCache.cs                 # 近战挥砍音效预加载缓存
+    ├── ConsoleAutofillPatch.cs             # 控制台命令自动补全注入
     ├── ScopeZoomPatch.cs                  # AXMC 瞄准镜视野扩展
     ├── [Key]ItemSystem.cs                 # 枪械/近战物品系统（每把一个）
     ├── AmmoItemSystem.cs                  # 所有自定义弹药定义
