@@ -25,6 +25,7 @@ namespace CUTarkovWeaponMod.Framework;
 /// - 弹药：556round, 9mmround, 12gauge, boxof12gauge
 /// - 武器：pistol, rifle, shotgun, makeshiftrifle
 /// - 弹匣：smallmagazine, riflemagazine
+/// - 头盔：bikehelmet, riothelmet
 /// </summary>
 public static class VanillaBlockPatch
 {
@@ -47,6 +48,9 @@ public static class VanillaBlockPatch
         // 弹匣
         "smallmagazine",
         "riflemagazine",
+        // 头盔
+        "bikehelmet",
+        "riothelmet",
     };
 
     /// <summary>判断物品ID是否被封禁</summary>
@@ -209,8 +213,8 @@ public static class VanillaBlockPatch
 
             var logMethod = AccessTools.Method(typeof(ConsoleScript), "LogToConsole");
             string msg = enable.Value
-                ? "[WeaponMod] Vanilla weapon/ammo/mag spawn, crafting and trading ENABLED."
-                : "[WeaponMod] Vanilla weapon/ammo/mag spawn, crafting and trading DISABLED.";
+                ? "[WeaponMod] Vanilla weapon/ammo/mag/helmet spawn, crafting and trading ENABLED."
+                : "[WeaponMod] Vanilla weapon/ammo/mag/helmet spawn, crafting and trading DISABLED.";
             Plugin.Log.LogInfo(msg);
             logMethod?.Invoke(__instance, new object[] { msg });
 

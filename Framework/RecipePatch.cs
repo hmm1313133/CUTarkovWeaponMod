@@ -65,7 +65,7 @@ public static class RecipePatch
                 }
 
                 if (blockedRecipes > 0)
-                    Plugin.Log.LogInfo($"[RecipePatch] Removed {blockedRecipes} blocked vanilla weapon/ammo/mag recipes.");
+                    Plugin.Log.LogInfo($"[RecipePatch] Removed {blockedRecipes} blocked vanilla weapon/ammo/mag/helmet recipes.");
             }
 
             // === 自定义子弹合成配方 ===
@@ -228,7 +228,109 @@ public static class RecipePatch
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 10 magazine recipes.");
+            // === 自定义插板合成配方 ===
+            // category = Utilities(3)
+
+            // 普通插板: 3废料板+1塑料+20ml生化流体+热源+锤打 -> 1个 (INT=8)
+            AddArmorRecipe(recipes, ArmorPlateItemSystem.CheapPlateKey, 8,
+                Specific("scrappanel", 3),
+                Specific("plasticchunk", 1),
+                Liquid("biochem", 20f),
+                ByQuality("heatsource"),
+                ByQuality("hammering"));
+
+            // 高级插板: 2钛板+2塑料+1废料板+20ml生化流体+热源+锤打 -> 1个 (INT=10)
+            AddArmorRecipe(recipes, ArmorPlateItemSystem.AdvancedPlateKey, 10,
+                Specific("titaniumsheet", 2),
+                Specific("plasticchunk", 2),
+                Specific("scrappanel", 1),
+                Liquid("biochem", 20f),
+                ByQuality("heatsource"),
+                ByQuality("hammering"));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 10 magazine recipes + 2 plate recipes.");
+
+            // === Scav背包合成配方（与原版 bigpack 相同配方）===
+            // 2绳+1木板+5帆布+3线+切割工具 → 1个，INT=13，Utilities
+            AddArmorRecipe(recipes, ScavPackItemSystem.ItemKey, 13,
+                Specific("rope", 2),
+                Specific("woodpanel", 1),
+                Specific("canvas", 5),
+                Specific("string", 3),
+                ByQuality("cutting"));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 1 backpack recipe (scavpack).");
+
+            // === 护甲修复配方 ===
+            // isRepair=true: 材料匹配时不忽略产物自身ID（允许用损坏的护甲作为材料）
+            // resultCondition=1f: 修复后耐久满值
+            // 材料需要：1个损坏的护甲（condition>0 不要求，任意耐久均可）+ 插板
+            // 所有修理配方统一 INT=7
+
+            // TV115、MBSS: 2普通插板
+            AddRepairRecipe(recipes, TV115ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+            AddRepairRecipe(recipes, MBSSItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+
+            // MK4A、Thor、6B13: 1普通+1高级
+            AddRepairRecipe(recipes, MK4AItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 1),
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 1));
+            AddRepairRecipe(recipes, ThorItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 1),
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 1));
+            AddRepairRecipe(recipes, SixB13ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 1),
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 1));
+
+            // SPPCV2、6B45、TV110、Trooper、SiegeR: 2高级
+            AddRepairRecipe(recipes, SPPCV2ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2));
+            AddRepairRecipe(recipes, SixB45ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2));
+            AddRepairRecipe(recipes, TV110ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2));
+            AddRepairRecipe(recipes, TrooperItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2));
+            AddRepairRecipe(recipes, SiegeRItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2));
+
+            // RedutT5: 4普通+2高级
+            AddRepairRecipe(recipes, RedutT5ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 4),
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2));
+
+            // GzhelK、HPC: 2高级+1普通
+            AddRepairRecipe(recipes, GzhelKItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 1));
+            AddRepairRecipe(recipes, HPCItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 2),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 1));
+
+            // AVSTE、TTSK、LV119、Slick、HGrid: 3高级+2普通
+            AddRepairRecipe(recipes, AVSTEItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 3),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+            AddRepairRecipe(recipes, TTSKItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 3),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+            AddRepairRecipe(recipes, LV119ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 3),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+            AddRepairRecipe(recipes, SlickItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 3),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+            AddRepairRecipe(recipes, HGridItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 3),
+                Specific(ArmorPlateItemSystem.CheapPlateKey, 2));
+
+            // 6B43: 5高级
+            AddRepairRecipe(recipes, SixB43ItemSystem.ItemKey, 7,
+                Specific(ArmorPlateItemSystem.AdvancedPlateKey, 5));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 19 armor repair recipes.");
 
             // 注入自定义弹药名称到 Language.main 字典
             LocalePatch.InjectCustomEntries();
@@ -321,5 +423,77 @@ public static class RecipePatch
         recipe.index = recipes.Count;
         recipes.Add(recipe);
         Plugin.Log.LogInfo($"[RecipePatch] Added recipe: -> {resultAmount}x {ammoId} (index={recipe.index}, items={allItems.Count})");
+    }
+
+    /// <summary>
+    /// 添加护甲合成配方。
+    /// category = Utilities(3), INT 由参数指定。
+    /// </summary>
+    private static void AddArmorRecipe(List<Recipe> recipes, string armorId, int intReq, params RecipeItem[][] materials)
+    {
+        var allItems = new List<RecipeItem>();
+        foreach (var group in materials)
+        {
+            allItems.AddRange(group);
+        }
+
+        var recipe = new Recipe
+        {
+            INT = intReq,
+            result = new RecipeResult
+            {
+                id = armorId,
+                amount = 1,
+                resultCondition = 1f,
+            },
+            items = allItems,
+            category = (Recipes.RecipeCategory)3, // Utilities
+        };
+
+        recipe.index = recipes.Count;
+        recipes.Add(recipe);
+        Plugin.Log.LogInfo($"[RecipePatch] Added armor recipe: -> 1x {armorId} (index={recipe.index}, INT={intReq}, items={allItems.Count})");
+    }
+
+    /// <summary>
+    /// 添加护甲修复配方。
+    /// isRepair=true 使材料匹配时不忽略产物自身ID（允许用损坏的护甲作为材料）。
+    /// 材料列表自动追加1个产物自身（任意耐久），合成后消耗。
+    /// category = Utilities(3), resultCondition = 1f（修复到满耐久）。
+    /// </summary>
+    private static void AddRepairRecipe(List<Recipe> recipes, string armorId, int intReq, params RecipeItem[][] materials)
+    {
+        var allItems = new List<RecipeItem>();
+        // 被修复的护甲本身（任意耐久，合成后消耗）
+        allItems.Add(new RecipeItem(0f)
+        {
+            specific = true,
+            specificId = armorId,
+            minimumCondition = 0f,
+            destroyItem = true,
+            ignoredId = "", // 修复配方不忽略产物自身
+        });
+        foreach (var group in materials)
+        {
+            allItems.AddRange(group);
+        }
+
+        var recipe = new Recipe
+        {
+            INT = intReq,
+            result = new RecipeResult
+            {
+                id = armorId,
+                amount = 1,
+                resultCondition = 1f,
+            },
+            items = allItems,
+            category = (Recipes.RecipeCategory)3, // Utilities
+            isRepair = true,
+        };
+
+        recipe.index = recipes.Count;
+        recipes.Add(recipe);
+        Plugin.Log.LogInfo($"[RecipePatch] Added repair recipe: -> 1x {armorId} (index={recipe.index}, INT={intReq}, items={allItems.Count})");
     }
 }

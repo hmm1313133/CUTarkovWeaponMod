@@ -52,6 +52,56 @@ public static class RecipeSpritePatch
         USPMagItemSystem.ItemKey,
     };
 
+    // 所有自定义护甲 ItemKey 列表
+    private static readonly HashSet<string> CustomArmorIds = new()
+    {
+        MBSSItemSystem.ItemKey,
+        TV115ItemSystem.ItemKey,
+        TV110ItemSystem.ItemKey,
+        SPPCV2ItemSystem.ItemKey,
+        MK4AItemSystem.ItemKey,
+        SiegeRItemSystem.ItemKey,
+        SixB516ItemSystem.ItemKey,
+        // 新增护甲和插板
+        SixB45ItemSystem.ItemKey,
+        LV119ItemSystem.ItemKey,
+        IDEAItemSystem.ItemKey,
+        BankRobberItemSystem.ItemKey,
+        Type56ItemSystem.ItemKey,
+        WTChestRigItemSystem.ItemKey,
+        LBCRItemSystem.ItemKey,
+        CommandoItemSystem.ItemKey,
+        UmkaItemSystem.ItemKey,
+        BlackRockItemSystem.ItemKey,
+        PACAItemSystem.ItemKey,
+        MFUNItemSystem.ItemKey,
+        DRDItemSystem.ItemKey,
+        ThorItemSystem.ItemKey,
+        TrooperItemSystem.ItemKey,
+        SixB13ItemSystem.ItemKey,
+        HPCItemSystem.ItemKey,
+        GzhelKItemSystem.ItemKey,
+        RedutT5ItemSystem.ItemKey,
+        SlickItemSystem.ItemKey,
+        HGridItemSystem.ItemKey,
+        SixB43ItemSystem.ItemKey,
+        ArmorPlateItemSystem.CheapPlateKey,
+        ArmorPlateItemSystem.AdvancedPlateKey,
+        RysTItemSystem.ItemKey,
+        // 背包
+        LK3FItemSystem.ItemKey,
+        ReadyPackItemSystem.ItemKey,
+        PartizanItemSystem.ItemKey,
+        DayPackItemSystem.ItemKey,
+        BerkutItemSystem.ItemKey,
+        ScavPackItemSystem.ItemKey,
+        MysteryRanch2DayItemSystem.ItemKey,
+        PilgrimItemSystem.ItemKey,
+        SsoAttack2ItemSystem.ItemKey,
+        SH118ItemSystem.ItemKey,
+        LBT2670ItemSystem.ItemKey,
+    };
+
     // 弹匣 ItemKey → 图标文件名的映射（文件名不含扩展名）
     private static readonly Dictionary<string, string> MagIconFileMap = new()
     {
@@ -65,6 +115,13 @@ public static class RecipeSpritePatch
         { UMP45MagItemSystem.ItemKey, "ump45_magazine" },
         { RPDMagItemSystem.ItemKey, "rpd_magazine" },
         { USPMagItemSystem.ItemKey, "usp_magazine" },
+    };
+
+    // 护甲 ItemKey -> 图标文件名的映射（仅 ItemKey 与文件名不一致的条目）
+    private static readonly Dictionary<string, string> ArmorIconFileMap = new()
+    {
+        { RedutT5ItemSystem.ItemKey, "RedutT5" },
+        { GzhelKItemSystem.ItemKey, "GZHEL_K" },
     };
 
     // 弹匣图标文件名 -> 所在枪械文件夹名的映射
@@ -91,15 +148,30 @@ public static class RecipeSpritePatch
 
         bool isCustomAmmo = CustomAmmoIds.Contains(resultId);
         bool isCustomMag = CustomMagIds.Contains(resultId);
+        bool isCustomArmor = CustomArmorIds.Contains(resultId);
 
-        if (!isCustomAmmo && !isCustomMag)
-            return true; // 不是自定义弹药或弹匣，走原版逻辑
+        if (!isCustomAmmo && !isCustomMag && !isCustomArmor)
+            return true; // 不是自定义弹药/弹匣/护甲，走原版逻辑
 
-        // 弹匣图标文件名可能与 ItemKey 不同，需映射
-        string iconFileName = isCustomMag && MagIconFileMap.TryGetValue(resultId, out var magIcon)
-            ? magIcon : resultId;
+        // 图标文件名可能与 ItemKey 不同，需映射
+        string iconFileName;
+        if (isCustomMag && MagIconFileMap.TryGetValue(resultId, out var magIcon))
+            iconFileName = magIcon;
+        else if (isCustomArmor && ArmorIconFileMap.TryGetValue(resultId, out var armorIcon))
+            iconFileName = armorIcon;
+        else
+            iconFileName = resultId;
 
-        var sprite = GetOrLoadSprite(iconFileName);
+        // 确定图标所在子目录
+        string iconSubDir;
+        if (isCustomArmor)
+            iconSubDir = "equipment";
+        else if (isCustomMag && MagIconDirMap.TryGetValue(iconFileName, out var gunFolder))
+            iconSubDir = Path.Combine("guns", gunFolder);
+        else
+            iconSubDir = "ammo";
+
+        var sprite = GetOrLoadSprite(iconFileName, iconSubDir);
         if (sprite != null)
         {
             __result = new ValueTuple<Sprite, Color>(sprite, Color.white);
@@ -116,9 +188,11 @@ public static class RecipeSpritePatch
     }
 
     /// <summary>
-    /// 从插件 Assets 目录加载自定义弹药图标（PNG/WebP）
+    /// 从插件 Assets 目录加载自定义物品图标（PNG/WebP）
     /// </summary>
-    private static Sprite? GetOrLoadSprite(string iconId)
+    /// <param name="iconId">图标文件名（不含扩展名）</param>
+    /// <param name="subDir">Assets 下的子目录路径（如 "ammo", "equipment", "guns/akm"）</param>
+    private static Sprite? GetOrLoadSprite(string iconId, string subDir)
     {
         if (_spriteCache.TryGetValue(iconId, out var cached))
             return cached;
@@ -128,16 +202,8 @@ public static class RecipeSpritePatch
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
                               ?? BepInEx.Paths.PluginPath;
 
-            // 弹匣图标在 guns/<folder>/ 目录，弹药图标在 ammo/ 目录
-            string[] subDirs;
-            if (MagIconDirMap.TryGetValue(iconId, out var gunFolder))
-                subDirs = new[] { "guns", gunFolder };
-            else
-                subDirs = new[] { "ammo" };
-
             var iconPath = Path.Combine(assemblyDir, "Framework", "Assets");
-            foreach (var d in subDirs)
-                iconPath = Path.Combine(iconPath, d);
+            iconPath = Path.Combine(iconPath, subDir);
             iconPath = Path.Combine(iconPath, $"{iconId}.png");
 
             if (!File.Exists(iconPath))

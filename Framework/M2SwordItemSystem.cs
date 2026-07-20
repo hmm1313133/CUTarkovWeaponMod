@@ -118,7 +118,7 @@ public static class M2SwordItemSystem
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "m2sword.png");
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "knife", "m2sword.png");
 
             Plugin.Log.LogInfo($"[M2Sword] Looking for icon at: {iconPath}");
 

@@ -1,6 +1,2 @@
 bin/
 obj/
-*.user
-*.suo
-build_out.txt
-*.pdb

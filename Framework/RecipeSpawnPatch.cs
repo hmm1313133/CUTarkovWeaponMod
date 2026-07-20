@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Reflection;
+
 using HarmonyLib;
 using UnityEngine;
 
+using CUCoreLib.Registries;
 using CUTarkovMedicalMod.Framework;
 
 namespace CUTarkovWeaponMod.Framework;
@@ -21,10 +22,6 @@ namespace CUTarkovWeaponMod.Framework;
 [HarmonyPatch(typeof(RecipeResult), nameof(RecipeResult.SpawnResult))]
 public static class RecipeSpawnPatch
 {
-    /// <summary>SpawnResult 方法参数：recipeInt（配方要求的智力值）</summary>
-    private static readonly MethodInfo? BodyAutoPickUpItemMethod =
-        AccessTools.Method(typeof(Body), nameof(Body.AutoPickUpItem));
-
     [HarmonyPrefix]
     public static bool Prefix(RecipeResult __instance, int recipeInt)
     {
@@ -32,6 +29,11 @@ public static class RecipeSpawnPatch
 
         // 只拦截自定义物品 ID，原版物品走原版逻辑
         if (resultId == null || !ConsoleSpawnPatch.IsCustomItemKey(resultId))
+            return true;
+
+        // CUCoreLib 模式下已注册到 ItemRegistry 的物品由 CUCoreLib 的 SpawnCustomResult 处理，
+        // 此处不重复拦截，避免双重生成
+        if (ItemRegistry.TryGetCustomInfo(resultId, out _))
             return true;
 
         // 液体结果也走原版逻辑（我们的自定义弹药/弹匣都不是液体）

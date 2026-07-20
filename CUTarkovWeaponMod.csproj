@@ -6,9 +6,9 @@
     <AssemblyName>CUTarkovWeaponMod</AssemblyName>
     <RootNamespace>CUTarkovWeaponMod</RootNamespace>
     <Product>Casualties: Unknown - Tarkov-Style Weapon Mod</Product>
-    <Version>1.0.3.0</Version>
+    <Version>1.1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn>$(NoWarn);0649</NoWarn>
+    <NoWarn>$(NoWarn);0649;CS0162</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
@@ -22,6 +22,11 @@
     <!-- Override PluginDirName from vars.targets -->
     <PluginDirName>CUTarkovWeaponMod</PluginDirName>
   </PropertyGroup>
+
+  <!-- Program.cs 属于 DecompileClaw 调试项目，不编译进插件 -->
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
@@ -87,6 +92,18 @@
     <Content Include="Framework\Assets\ammo\*.webp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Framework\Assets\knife\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Framework\Assets\knife\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Framework\Assets\equipment\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Framework\Assets\equipment\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Lang\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -113,6 +130,8 @@
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/rpd" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/mp153" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/knife" />
+    <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" />
+    <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Lang" />
     <CombinePath BasePath="$(OutDir)" Paths="$(RequiredFilesToCopy)">
       <Output TaskParameter="CombinedPaths" ItemName="RequiredFilesToCopy_Combined" />
@@ -122,11 +141,15 @@
       <PluginAssets Include="$(OutDir)Framework\Assets\*.*" />
       <PluginGunSounds Include="$(OutDir)Framework\Assets\guns\**\*.*" />
       <PluginAmmo Include="$(OutDir)Framework\Assets\ammo\*.*" />
+      <PluginKnife Include="$(OutDir)Framework\Assets\knife\*.*" />
+      <PluginEquipment Include="$(OutDir)Framework\Assets\equipment\*.*" />
       <PluginLang Include="$(OutDir)Lang\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginAssets)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginGunSounds)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/%(RecursiveDir)" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginAmmo)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/ammo" Condition="Exists('%(Identity)')" />
+    <Copy SourceFiles="@(PluginKnife)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" Condition="Exists('%(Identity)')" />
+    <Copy SourceFiles="@(PluginEquipment)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginLang)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Lang" Condition="Exists('%(Identity)')" />
   </Target>
 </Project>

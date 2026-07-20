@@ -122,7 +122,7 @@ public static class RedRebelItemSystem
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "redrebel.png");
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "knife", "redrebel.png");
 
             Plugin.Log.LogInfo($"[RedRebel] Looking for icon at: {iconPath}");
 
