@@ -71,6 +71,15 @@ public static class SsoAttack2ItemSystem
         Plugin.Log.LogInfo($"[SsoAttack2] Configured spawned item '{ItemKey}'.");
     }
 
+    public static void ForceApplyIcon(Item item)
+    {
+        if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
+        var icon = TryLoadIcon();
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (icon != null && sr != null)
+            sr.sprite = icon;
+    }
+
     public static bool EnsureRegisteredInItemTable()
     {
         if (Item.GlobalItems.ContainsKey(ItemKey))
@@ -99,8 +108,7 @@ public static class SsoAttack2ItemSystem
 
             info.wearableIsolation = WearableIsolation;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
-            info.rotSpeed = DecayRatePerSecond * 100f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
             Plugin.Log.LogInfo($"[SsoAttack2] Registered '{ItemKey}' as wearable backpack (no armor, decays over time, tearable).");
@@ -148,8 +156,6 @@ public static class SsoAttack2ItemSystem
 
     public static void TickDecay()
     {
-        // 衰减现在由游戏原生 Item.HandleDecay 通过 rotSpeed + decayInfo(NoDecayWhenNotWorn) 处理
-        return;
         var cam = PlayerCamera.main;
         if (cam == null) return;
         var body = cam.body;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -30,7 +30,7 @@ public static class AXMCItemSystem
     private const float Loudness = 6f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0f;
-    private const float ConditionLossPerShot = 0.5f;
+    private const float ConditionLossPerShot = 0.7f;
     private const float DesiredGasTime = 0f;
     // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
     private const int FiringModeOverride = 0; // Pump (栓动)

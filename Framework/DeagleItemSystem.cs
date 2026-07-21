@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -31,7 +31,7 @@ public static class DeagleItemSystem
     private const float Loudness = 5.5f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.2f;
-    private const float ConditionLossPerShot = 0.7f;
+    private const float ConditionLossPerShot = 0.9f;
     private const float DesiredGasTime = 0.3f;
     // FiringMode: pistol base is already SemiAuto(1), inherit from base
     // No override needed

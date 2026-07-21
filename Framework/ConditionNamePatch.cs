@@ -24,6 +24,7 @@ public static class ConditionNamePatch
         DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, M4A1ItemSystem.ItemKey,
         P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey, RPDItemSystem.ItemKey,
         USPItemSystem.ItemKey,
+        VSSItemSystem.ItemKey,
         // 近战武器
         RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey,
         // 防弹衣类
@@ -38,6 +39,10 @@ public static class ConditionNamePatch
         B47ItemSystem.ItemKey,
         Ssh68ItemSystem.ItemKey,
         CalmanItemSystem.ItemKey,
+        FastMtItemSystem.ItemKey,
+        Pvs14ItemSystem.ItemKey,
+        Gpnvg18ItemSystem.ItemKey,
+        Pvs31aItemSystem.ItemKey,
         // 弹挂类
         IDEAItemSystem.ItemKey, BankRobberItemSystem.ItemKey, Type56ItemSystem.ItemKey,
         WTChestRigItemSystem.ItemKey, UmkaItemSystem.ItemKey, CommandoItemSystem.ItemKey,
@@ -59,6 +64,8 @@ public static class ConditionNamePatch
         SsoAttack2ItemSystem.ItemKey,
         SH118ItemSystem.ItemKey,
         LBT2670ItemSystem.ItemKey,
+        // 工具
+        WeaponRepairKitItemSystem.ItemKey,
     };
 
     [HarmonyPostfix]

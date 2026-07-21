@@ -24,6 +24,7 @@ public static class WeaponItemRegistration
         DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, M4A1ItemSystem.ItemKey,
         P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey, RPDItemSystem.ItemKey,
         RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey, USPItemSystem.ItemKey,
+        VSSItemSystem.ItemKey,
         // 护甲/胸挂
         MBSSItemSystem.ItemKey,
         TV115ItemSystem.ItemKey,
@@ -65,6 +66,10 @@ public static class WeaponItemRegistration
         Ssh68ItemSystem.ItemKey,
         CalmanItemSystem.ItemKey,
         LK3FItemSystem.ItemKey,
+        FastMtItemSystem.ItemKey,
+        Pvs14ItemSystem.ItemKey,
+        Gpnvg18ItemSystem.ItemKey,
+        Pvs31aItemSystem.ItemKey,
         ReadyPackItemSystem.ItemKey,
         PartizanItemSystem.ItemKey,
         DayPackItemSystem.ItemKey,
@@ -80,10 +85,12 @@ public static class WeaponItemRegistration
         DeagleMagItemSystem.ItemKey, Glock17MagItemSystem.ItemKey, M4A1MagItemSystem.ItemKey,
         P90MagItemSystem.ItemKey, UMP45MagItemSystem.ItemKey, RPDMagItemSystem.ItemKey,
         USPMagItemSystem.ItemKey,
-        // 弹药
+        VSSMagItemSystem.ItemKey,
         Ammo76251BPZItemSystem.ItemKey, Ammo76239SPItemSystem.ItemKey, Ammo12g85ItemSystem.ItemKey,
         Ammo338UCWItemSystem.ItemKey, Ammo50CopperItemSystem.ItemKey, Ammo45FMJItemSystem.ItemKey,
         Ammo919PSOItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey, Ammo5728SB193ItemSystem.ItemKey,
+        Ammo939SP5ItemSystem.ItemKey,
+        WeaponRepairKitItemSystem.ItemKey,
     };
 
     /// <summary>判断是否为武器模组自定义物品 ID</summary>
@@ -113,6 +120,7 @@ public static class WeaponItemRegistration
         prefabs[RedRebelItemSystem.ItemKey] = "bruisekit";
         prefabs[M2SwordItemSystem.ItemKey] = "bruisekit";
         prefabs[USPItemSystem.ItemKey] = "pistol";
+        prefabs[VSSItemSystem.ItemKey] = "rifle";
 
         // 护甲/胸挂
         prefabs[MBSSItemSystem.ItemKey] = "bruisekit";
@@ -155,6 +163,10 @@ public static class WeaponItemRegistration
         prefabs[Ssh68ItemSystem.ItemKey] = "bruisekit";
         prefabs[CalmanItemSystem.ItemKey] = "bruisekit";
         prefabs[LK3FItemSystem.ItemKey] = "bruisekit";
+        prefabs[FastMtItemSystem.ItemKey] = "bruisekit";
+        prefabs[Pvs14ItemSystem.ItemKey] = "bruisekit";
+        prefabs[Gpnvg18ItemSystem.ItemKey] = "bruisekit";
+        prefabs[Pvs31aItemSystem.ItemKey] = "bruisekit";
         prefabs[ReadyPackItemSystem.ItemKey] = "bruisekit";
         prefabs[PartizanItemSystem.ItemKey] = "bruisekit";
         prefabs[DayPackItemSystem.ItemKey] = "bruisekit";
@@ -177,6 +189,7 @@ public static class WeaponItemRegistration
         prefabs[UMP45MagItemSystem.ItemKey] = "riflemagazine";
         prefabs[RPDMagItemSystem.ItemKey] = "riflemagazine";
         prefabs[USPMagItemSystem.ItemKey] = "riflemagazine";
+        prefabs[VSSMagItemSystem.ItemKey] = "riflemagazine";
 
         // 弹药类
         prefabs[Ammo76251BPZItemSystem.ItemKey] = "556round";
@@ -188,6 +201,8 @@ public static class WeaponItemRegistration
         prefabs[Ammo919PSOItemSystem.ItemKey] = "556round";
         prefabs[Ammo55645FMJItemSystem.ItemKey] = "556round";
         prefabs[Ammo5728SB193ItemSystem.ItemKey] = "556round";
+        prefabs[Ammo939SP5ItemSystem.ItemKey] = "556round";
+        prefabs[WeaponRepairKitItemSystem.ItemKey] = "bruisekit";
 
         // 2. 设置外部物品配置器
         ConsoleSpawnPatch.ExternalItemConfigurer = ConfigureWeaponItem;
@@ -232,6 +247,8 @@ public static class WeaponItemRegistration
             M2SwordItemSystem.ConfigureSpawnedItem(item, request);
         else if (USPItemSystem.IsUSPRequest(request))
             USPItemSystem.ConfigureSpawnedItem(item, request);
+        else if (VSSItemSystem.IsVSSRequest(request))
+            VSSItemSystem.ConfigureSpawnedItem(item, request);
         // 护甲/胸挂
         else if (MBSSItemSystem.IsMBSSRequest(request))
             MBSSItemSystem.ConfigureSpawnedItem(item, request);
@@ -313,6 +330,14 @@ public static class WeaponItemRegistration
             CalmanItemSystem.ConfigureSpawnedItem(item, request);
         else if (LK3FItemSystem.IsLK3FRequest(request))
             LK3FItemSystem.ConfigureSpawnedItem(item, request);
+        else if (FastMtItemSystem.IsFastMtRequest(request))
+            FastMtItemSystem.ConfigureSpawnedItem(item, request);
+        else if (Pvs14ItemSystem.IsPvs14Request(request))
+            Pvs14ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (Gpnvg18ItemSystem.IsGpnvg18Request(request))
+            Gpnvg18ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (Pvs31aItemSystem.IsPvs31aRequest(request))
+            Pvs31aItemSystem.ConfigureSpawnedItem(item, request);
         else if (ReadyPackItemSystem.IsReadyPackRequest(request))
             ReadyPackItemSystem.ConfigureSpawnedItem(item, request);
         else if (PartizanItemSystem.IsPartizanRequest(request))
@@ -354,6 +379,8 @@ public static class WeaponItemRegistration
             RPDMagItemSystem.ConfigureSpawnedItem(item, request);
         else if (USPMagItemSystem.IsUSPMagRequest(request))
             USPMagItemSystem.ConfigureSpawnedItem(item, request);
+        else if (VSSMagItemSystem.IsVSSMagRequest(request))
+            VSSMagItemSystem.ConfigureSpawnedItem(item, request);
         // 弹药
         else if (Ammo76251BPZItemSystem.Is76251BPZRequest(request))
             Ammo76251BPZItemSystem.ConfigureSpawnedItem(item, request);
@@ -373,6 +400,10 @@ public static class WeaponItemRegistration
             Ammo55645FMJItemSystem.ConfigureSpawnedItem(item, request);
         else if (Ammo5728SB193ItemSystem.Is5728SB193Request(request))
             Ammo5728SB193ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (Ammo939SP5ItemSystem.Is939SP5Request(request))
+            Ammo939SP5ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (WeaponRepairKitItemSystem.IsRepairKitRequest(request))
+            WeaponRepairKitItemSystem.ConfigureSpawnedItem(item, request);
         else
             return false; // 不是枪械物品
 
@@ -423,6 +454,7 @@ public static class WeaponItemRegistryPatch
         RedRebelItemSystem.EnsureRegisteredInItemTable();
         M2SwordItemSystem.EnsureRegisteredInItemTable();
         USPItemSystem.EnsureRegisteredInItemTable();
+        VSSItemSystem.EnsureRegisteredInItemTable();
         MBSSItemSystem.EnsureRegisteredInItemTable();
         TV115ItemSystem.EnsureRegisteredInItemTable();
         TV110ItemSystem.EnsureRegisteredInItemTable();
@@ -462,6 +494,10 @@ public static class WeaponItemRegistryPatch
         Ssh68ItemSystem.EnsureRegisteredInItemTable();
         CalmanItemSystem.EnsureRegisteredInItemTable();
         LK3FItemSystem.EnsureRegisteredInItemTable();
+        FastMtItemSystem.EnsureRegisteredInItemTable();
+        Pvs14ItemSystem.EnsureRegisteredInItemTable();
+        Gpnvg18ItemSystem.EnsureRegisteredInItemTable();
+        Pvs31aItemSystem.EnsureRegisteredInItemTable();
         ReadyPackItemSystem.EnsureRegisteredInItemTable();
         PartizanItemSystem.EnsureRegisteredInItemTable();
         DayPackItemSystem.EnsureRegisteredInItemTable();
@@ -474,6 +510,9 @@ public static class WeaponItemRegistryPatch
         LBT2670ItemSystem.EnsureRegisteredInItemTable();
         SixB45ItemSystem.EnsureRegisteredInItemTable();
         USPMagItemSystem.EnsureRegisteredInItemTable();
+        VSSMagItemSystem.EnsureRegisteredInItemTable();
+        Ammo939SP5ItemSystem.EnsureRegisteredInItemTable();
+        WeaponRepairKitItemSystem.EnsureRegisteredInItemTable();
 
         // 通知集成模式武器物品已注册到 GlobalItems
         Plugin.IntegrationMode?.OnItemsSetup();

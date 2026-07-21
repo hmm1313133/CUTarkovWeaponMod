@@ -152,6 +152,27 @@ public sealed class Plugin : BaseUnityPlugin
             Log.LogError($"PatchAll() threw: {ex}");
         }
 
+        // 手动注册 WearWearable patch (放在 PatchAll try-catch 之后，确保即使 PatchAll 失败也能执行)
+        try
+        {
+            var wearMethod = AccessTools.Method(typeof(Body), "WearWearable");
+            if (wearMethod != null)
+            {
+                var prefix = new HarmonyMethod(
+                    typeof(CUTarkovWeaponMod.Framework.NightVisionController), "WearWearablePrefix");
+                harmony.Patch(wearMethod, prefix: prefix);
+                Log.LogInfo("[NVG] Manually patched Body.WearWearable for helmet check.");
+            }
+            else
+            {
+                Log.LogWarning("[NVG] WearWearable method not found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"[NVG] WearWearable patch failed: {ex}");
+        }
+
         // Initialize CUCoreLib integration mode.
         // CUCoreLib is a hard dependency, medical mod loads first (also hard dep on CUCoreLib).
         try
@@ -166,12 +187,24 @@ public sealed class Plugin : BaseUnityPlugin
 
         Log.LogInfo($"{ModName} loaded.");
 
+        // Initialize Night Vision Controller (static, driven by Plugin.Update)
+        try
+        {
+            NightVisionController.Init();
+            Log.LogInfo("[NVG] NightVisionController initialized.");
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"[NVG] Controller init failed: {ex}");
+        }
+
         // 创建更新提醒实例（由 Plugin 的 Update/OnGUI 驱动）
         _updateNotifier = new WeaponUpdateNotifier();
     }
 
     private void Update()
     {
+        NightVisionController.Tick();
         _updateNotifier?.Tick();
         IDEAItemSystem.TickDecay();
         BankRobberItemSystem.TickDecay();
@@ -200,5 +233,6 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnGUI()
     {
         _updateNotifier?.OnGUI();
+        NightVisionController.OnGUI();
     }
 }

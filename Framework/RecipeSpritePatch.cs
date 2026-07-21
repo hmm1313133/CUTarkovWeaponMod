@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -35,6 +35,7 @@ public static class RecipeSpritePatch
         Ammo919PSOItemSystem.ItemKey,
         Ammo55645FMJItemSystem.ItemKey,
         Ammo5728SB193ItemSystem.ItemKey,
+        Ammo939SP5ItemSystem.ItemKey,
     };
 
     // 所有自定义弹匣 ItemKey 列表
@@ -50,6 +51,7 @@ public static class RecipeSpritePatch
         UMP45MagItemSystem.ItemKey,
         RPDMagItemSystem.ItemKey,
         USPMagItemSystem.ItemKey,
+        VSSMagItemSystem.ItemKey,
     };
 
     // 所有自定义护甲 ItemKey 列表
@@ -115,6 +117,7 @@ public static class RecipeSpritePatch
         { UMP45MagItemSystem.ItemKey, "ump45_magazine" },
         { RPDMagItemSystem.ItemKey, "rpd_magazine" },
         { USPMagItemSystem.ItemKey, "usp_magazine" },
+        { VSSMagItemSystem.ItemKey, "vss_magazine" },
     };
 
     // 护甲 ItemKey -> 图标文件名的映射（仅 ItemKey 与文件名不一致的条目）
@@ -137,6 +140,7 @@ public static class RecipeSpritePatch
         { "ump45_magazine", "ump45" },
         { "rpd_magazine", "rpd" },
         { "usp_magazine", "usp" },
+        { "vss_magazine", "vss" },
     };
 
     [HarmonyPrefix]
@@ -313,6 +317,7 @@ public static class RecipeSpritePatch
             case Ammo919PSOItemSystem.ItemKey: return "556round";
             case Ammo55645FMJItemSystem.ItemKey: return "556round";
             case Ammo5728SB193ItemSystem.ItemKey: return "556round";
+            case Ammo939SP5ItemSystem.ItemKey: return "556round";
             default: return "riflemagazine"; // 通用 fallback
         }
     }

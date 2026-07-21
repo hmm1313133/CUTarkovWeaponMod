@@ -173,6 +173,14 @@
     "ssh68.desc": "The SSh-68 is the last steel helmet officially adopted by the Soviet Army during the Cold War in the 20th century, replacing the previous generation SSh-60 steel helmet. Compared to its predecessor, the SSh-68 uses newly developed high-hardness No. 15 steel, making it more robust and durable. The front of the shell has a steeper angle, causing enemy bullets to more easily deflect and ricochet; the side ear protection is shortened to avoid snagging on environmental objects.",
     "calman.name": "Galvion Caiman Composite Ballistic Helmet (Alpine Multicam) [Calman]",
     "calman.desc": "The Caiman composite ballistic helmet is a new generation lightweight special forces helmet. It comes with a range of modular accessories for enhancing helmet functionality, providing the wearer with a lightweight and comfortable wearing experience while maximizing protection. Designed and manufactured by Galvion, Alpine Multicam version.",
+    "fastmt.name": "Ops-Core FAST MT Super High Cut Helmet (Black) [Fast MT]",
+    "fastmt.desc": "The Ops-Core FAST (Future Assault Shell Technology) Maritime ballistic helmet was highly sought after by special forces worldwide, and can be modified with various accessories. Black version.",
+    "pvs14.name": "AN/PVS-14 Monocular Night Vision Device [PVS-14]",
+    "pvs14.desc": "AN/PVS-14 monocular night vision device. A portable visual search device used by the Army/Navy, with night vision range up to 350 meters, 40 degree field of view, and brightness adjustment function.\n\n<color=#ffcc00>[Requirements] Must wear a 6B47, Galvion Calman, or FAST MT helmet first. Press N to toggle night vision.</color>",
+    "gpnvg18.name": "GPNVG-18 Ground Panoramic Night Vision Goggle [GPNVG-18]",
+    "gpnvg18.desc": "The Ground Panoramic Night Vision Google (GPNVG-18). The main difference between this night vision device and others is that it has four independent EO tubes, two for each eye. The two central EO tubes face forward, while the other two face outward from the center. This innovative solution allows the field of view to be expanded to 97 degrees.\n\n<color=#ffcc00>[Requirements] Must wear a Galvion Calman or FAST MT helmet (incompatible with 6B47). Press N to toggle night vision.</color>",
+    "pvs31a.name": "L3Harris PVS-31A Night Vision Goggle [PVS-31A]",
+    "pvs31a.desc": "A quite lightweight night vision device, specially optimized for ergonomics, designed and manufactured by L3Harris. The PVS-31A not only provides clear imagery in low-visibility environments, but also delivers clear imaging even with bright light sources in the background. Equipped with Butler Creek objective lens covers. White phosphor image intensifier tube version. Weight 0.24u, value 55. Powered by a medium battery for approximately 16 minutes of use.\n\n<color=#ffcc00>[Requirements] Must wear a Galvion Calman or FAST MT helmet (incompatible with 6B47). Press N to toggle night vision.</color>",
     "lk3f.name": "LolKek 3F Transfer Travel Backpack [LK 3F]",
     "lk3f.desc": "A simple and cheap backpack produced by LolKek. Not particularly comfortable or durable, but it's no problem for carrying loot.",
     "readypack.name": "Vertx Ready Pack Backpack (Red) [ReadyPack]",
@@ -194,5 +202,15 @@
     "6sh118.name": "6SH118 Assault Backpack [6SH118]",
     "6sh118.desc": "The 6Sh118 assault backpack is one of the components of the Russian Army's second-generation Ratnik (Warrior) individual combat system. This tactical military backpack is a modernized improved version of the 6B38 Permyachka assault backpack, designed to carry firepower support equipment, weapons and ammunition, climbing gear, and soldier personal items, suitable for combat operations, long marches, and assault missions.",
     "6lbt2670.name": "6LBT-2670 Small Field Medical Pack [SFMP]",
-    "6lbt2670.desc": "A low-profile medical backpack specifically designed to hold a large amount of specialized medical equipment and pharmaceuticals. Manufactured by London Bridge Trading."
+    "6lbt2670.desc": "A low-profile medical backpack specifically designed to hold a large amount of specialized medical equipment and pharmaceuticals. Manufactured by London Bridge Trading.",
+
+    "vss.name": "VSS \"Vintorez\" 9x39 Special Sniper Rifle [VSS]",
+    "vss.desc": "The VSS (Vintovka Sniperskaya Specialnaya, Special Sniper Rifle) is a suppressed sniper rifle with an integral suppressor, designed in the 1980s by the TSNIITochMash institute specifically to meet the requirements of special task forces and special operations units.\n\n<color=#ffcc00>[Special Effect] This weapon features an integral suppressor, producing extremely low firing noise.</color>\n<color=#4fc3f7>Single-shot damage: Creature 105 / Block 88</color>",
+    "vss_mag.name": "VSS Magazine [30-Round]",
+    "vss_mag.desc": "Dedicated magazine for the VSS special sniper rifle, 30-round capacity, compatible with 9x39 ammunition.",
+    "939sp5.name": "9x39mm SP-5",
+    "939sp5.desc": "9x39mm SP-5 special ammunition (GRAU index: 7N8), equipped with a 16g subsonic bullet featuring a lead base with a pointed steel core, bimetal jacket, and steel case. Developed in the mid-1980s, the bullet was directly derived from the 7.62x39mm US ammunition. It is the dedicated ammunition for the VSS \"Vintorez\" special sniper rifle. SP-5 can effectively penetrate most low-tier armor and poses a threat to some medium protective equipment, while also providing good stopping power. However, the structural characteristics of this ammunition mean it has a certain probability of ricocheting upon impact with various surfaces.",
+
+    "weaponrepairkit.name": "Weapon Repair Kit [Weapon repair Kit]",
+    "weaponrepairkit.desc": "A set of essential tools and equipment to keep firearms combat-ready at all times. Can be used 4 times.\n\n<color=#4fc3f7>Usage: Hold the gun you want to repair, then right-click the repair kit to restore the gun to full condition. Each use consumes 1/4 of the kit's durability.</color>"
 }

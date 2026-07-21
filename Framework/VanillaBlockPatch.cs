@@ -53,8 +53,21 @@ public static class VanillaBlockPatch
         "riothelmet",
     };
 
-    /// <summary>判断物品ID是否被封禁</summary>
+    /// <summary>
+    /// 自定义物品ID集合：从战利池和商人库存中隐藏（不影响 Utils.Create 和 Item.Start）。
+    /// 用于不应在世界生成或商人交易界面出现的自定义物品。
+    /// </summary>
+    internal static readonly HashSet<string> HiddenFromLootPoolIds = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Pvs31aItemSystem.ItemKey,
+    };
+
+    /// <summary>判断物品ID是否被封禁（完全阻止创建）</summary>
     public static bool IsBlocked(string itemId) => BlockedVanillaIds.Contains(itemId);
+
+    /// <summary>判断物品ID是否应从战利池/商人库存中隐藏</summary>
+    public static bool IsHiddenFromLoot(string itemId)
+        => BlockedVanillaIds.Contains(itemId) || HiddenFromLootPoolIds.Contains(itemId);
 
     // === 1. 物品战利池拦截 ===
 
@@ -86,7 +99,7 @@ public static class VanillaBlockPatch
                 int removedTotal = 0;
                 foreach (var categoryList in pool.Values)
                 {
-                    removedTotal += categoryList.RemoveAll(id => IsBlocked(id));
+                    removedTotal += categoryList.RemoveAll(id => IsHiddenFromLoot(id));
                 }
 
                 Plugin.Log.LogInfo($"[VanillaBlock] Removed {removedTotal} blocked vanilla items from ItemLootPool.");
@@ -137,7 +150,7 @@ public static class VanillaBlockPatch
                 {
                     var traderItem = items[i];
                     var itemId = idField.GetValue(traderItem) as string;
-                    if (itemId != null && IsBlocked(itemId))
+                    if (itemId != null && IsHiddenFromLoot(itemId))
                     {
                         items.RemoveAt(i);
                         removed++;

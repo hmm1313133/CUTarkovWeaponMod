@@ -31,7 +31,7 @@ public static class SKSItemSystem
     private const float Loudness = 2.9f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0f;
-    private const float ConditionLossPerShot = 0.4f;
+    private const float ConditionLossPerShot = 0.6f;
     private const float DesiredGasTime = 0.1f;
 
     private static Sprite? _cachedIcon;

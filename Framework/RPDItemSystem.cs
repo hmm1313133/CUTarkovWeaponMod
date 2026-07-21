@@ -31,7 +31,7 @@ public static class RPDItemSystem
     private const float Loudness = 3f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.16f;
-    private const float ConditionLossPerShot = 0.16f;
+    private const float ConditionLossPerShot = 0.36f;
     private const float DesiredGasTime = 0.1f;
     private const int FiringModeOverride = 2; // Auto
 

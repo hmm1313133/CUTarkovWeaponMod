@@ -353,6 +353,26 @@ public sealed class WeaponCUCoreLibMode
                     registerIcon = LK3FItemSystem.TryLoadIconPublic();
                     LK3FItemSystem.RegisterWithCUCoreLib(customInfo);
                 }
+                else if (itemId == FastMtItemSystem.ItemKey)
+                {
+                    registerIcon = FastMtItemSystem.TryLoadIconPublic();
+                    FastMtItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Pvs14ItemSystem.ItemKey)
+                {
+                    registerIcon = Pvs14ItemSystem.TryLoadIconPublic();
+                    Pvs14ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Gpnvg18ItemSystem.ItemKey)
+                {
+                    registerIcon = Gpnvg18ItemSystem.TryLoadIconPublic();
+                    Gpnvg18ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Pvs31aItemSystem.ItemKey)
+                {
+                    registerIcon = Pvs31aItemSystem.TryLoadIconPublic();
+                    Pvs31aItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
                 else if (itemId == ReadyPackItemSystem.ItemKey)
                 {
                     registerIcon = ReadyPackItemSystem.TryLoadIconPublic();

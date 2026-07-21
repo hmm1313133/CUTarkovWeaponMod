@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -31,7 +31,7 @@ public static class AKMItemSystem
     private const float Loudness = 3f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.1f;
-    private const float ConditionLossPerShot = 0.1f;
+    private const float ConditionLossPerShot = 0.3f;
     private const float DesiredGasTime = 0.1f;
     // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
     private const int FiringModeOverride = 2; // Auto (全自动)

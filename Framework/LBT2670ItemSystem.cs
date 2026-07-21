@@ -29,7 +29,7 @@ public static class LBT2670ItemSystem
     public static float WearableIsolation = 0.02f;            // 保温值
     public static int Value = 45;                             // 价值
     public static int RecognitionMin = 3;                    // 识别所需智力
-    public static float ContainerCapacity = 14.0f;            // 容器容量 14u
+    public static float ContainerCapacity = 10.0f;            // 容器容量 10u
     public static float ContainerMaxWeightPerItem = 3.0f;    // 单物品最大重量 3u
     public static float ContainerEncumbranceReduction = 0.60f; // 重量减免 60%
     public static float WearableHitDurabilityLossMultiplier = 6f; // 可撕裂属性 6点
@@ -66,6 +66,15 @@ public static class LBT2670ItemSystem
         Plugin.Log.LogInfo($"[LBT2670] Configured spawned item '{ItemKey}'.");
     }
 
+    public static void ForceApplyIcon(Item item)
+    {
+        if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
+        var icon = TryLoadIcon();
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (icon != null && sr != null)
+            sr.sprite = icon;
+    }
+
     public static bool EnsureRegisteredInItemTable()
     {
         if (Item.GlobalItems.ContainsKey(ItemKey))
@@ -94,8 +103,7 @@ public static class LBT2670ItemSystem
 
             info.wearableIsolation = WearableIsolation;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
-            info.rotSpeed = DecayRatePerSecond * 100f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
             Plugin.Log.LogInfo($"[LBT2670] Registered '{ItemKey}' as wearable backpack (no armor, decays over time, tearable).");
@@ -143,8 +151,6 @@ public static class LBT2670ItemSystem
 
     public static void TickDecay()
     {
-        // 衰减现在由游戏原生 Item.HandleDecay 通过 rotSpeed + decayInfo(NoDecayWhenNotWorn) 处理
-        return;
         var cam = PlayerCamera.main;
         if (cam == null) return;
         var body = cam.body;

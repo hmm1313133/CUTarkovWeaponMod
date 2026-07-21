@@ -24,7 +24,7 @@ public static class PACAItemSystem
     public static bool IsPACARequest(MedicalGrantRequest request)
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
-    public static float WearableArmor = 0.4286f;
+    public static float WearableArmor = 0.3231f;
     public static float Weight = 1.3f;
     public static float WearableHitDurabilityLossMultiplier = 0.3f;
     public static float WearableIsolation = 0.07f;
@@ -46,6 +46,14 @@ public static class PACAItemSystem
         Plugin.Log.LogInfo($"[PACA] Configured spawned item '{ItemKey}'.");
     }
 
+    public static void ForceApplyIcon(Item item)
+    {
+        if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
+        var icon = TryLoadIcon();
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (icon != null && sr != null) sr.sprite = icon;
+    }
+
     public static bool EnsureRegisteredInItemTable()
     {
         if (Item.GlobalItems.ContainsKey(ItemKey)) return false;
@@ -63,9 +71,6 @@ public static class PACAItemSystem
             info.wearableArmor = WearableArmor;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
             info.wearableIsolation = WearableIsolation;
-            info.rotSpeed = DecayRatePerSecond * 100f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
-
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
             Plugin.Log.LogInfo($"[PACA] Registered '{ItemKey}' as wearable armor.");
@@ -85,8 +90,6 @@ public static class PACAItemSystem
 
     public static void TickDecay()
     {
-        // 衰减现在由游戏原生 Item.HandleDecay 通过 rotSpeed + decayInfo(NoDecayWhenNotWorn) 处理
-        return;
         var cam = PlayerCamera.main;
         if (cam == null) return;
         var body = cam.body;

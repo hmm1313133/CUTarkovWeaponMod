@@ -173,6 +173,14 @@
     "ssh68.desc": "SSh-68 是20世纪冷战时期苏军正式装备的最后一款钢盔，取代了上一代的 SSh-60 钢盔。与前代装备相比，SSh-68 采用了全新研制的高硬度 15 号钢材，更加坚固耐用，盔体正面的倾斜角度更大，使得敌方子弹更容易发生偏转与跳弹；侧壁护耳部分缩短，避免与环境物品发生钩挂。",
     "calman.name": "Galvion 凯门鳄 复合防弹头盔（高原复合迷彩）【Calman】",
     "calman.desc": "凯门鳄复合防弹头盔是新一代轻型特种部队头盔。其配有可用于增强头盔功能的一系列模块化配件，在最大限度保证发防护能力的前提下为使用者提供了轻巧、舒适的穿戴体验。由 Galvion 公司设计制造，高原复合迷彩版本。",
+    "fastmt.name": "Ops-Core FAST MT 超级高切头盔（黑色）【Fast MT】",
+    "fastmt.desc": "Ops-Core FAST（未来突击防护技术）水际版防弹头盔曾受全球各地特种部队的热捧，可以加装各种配件进行改装。黑色版本。",
+    "pvs14.name": "AN/PVS-14单筒夜视仪【PVS-14】",
+    "pvs14.desc": "AN/PVS-14单筒夜视仪。陆军/海军所使用的便携式视觉搜索设备，可视夜间视野达350米并有40°的视野宽度以及亮度调节功能。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 6B47、Galvion Calman 或 FAST MT 头盔。按 N 键开关夜视仪。</color>",
+    "gpnvg18.name": "GPNVG-18全景夜视镜【GPNVG-18】",
+    "gpnvg18.desc": "全景夜视镜GPNVG-18（Ground Panoramic Night Vision Google）。该夜视仪与其他夜视仪的主要区别在于它有四个独立的EOP，每只眼睛两个。两个中央EOP朝向前方，另外两个则从中心朝向外。这一创新的解决方案允许将视野范围扩大到97度。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 Galvion Calman 或 FAST MT 头盔（不兼容 6B47）。按 N 键开关夜视仪。</color>",
+    "pvs31a.name": "L3Harris PVS-31A夜视仪【PVS-31A】",
+    "pvs31a.desc": "一款相当轻便的夜视仪，针对人机工学进行了特别优化，由L3Harris公司设计制造。PVS-31A不仅能在低可视度环境下提供清晰的画面，背景存在明亮光源的情况下也能清晰成像。配有Butler Creek物镜保护盖。白磷光成像管版本。重量0.24u，价值55，使用中型电池约能使用16分钟。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 Galvion Calman 或 FAST MT 头盔（不兼容 6B47）。按 N 键开关夜视仪。</color>",
     "lk3f.name": "LolKek 3F Transfer 旅行背包【LK 3F】",
     "lk3f.desc": "LolKek公司生产的一款简单便宜的背包。不是特别舒适耐用，但用它携带战利品是没什么问题的。",
     "readypack.name": "Vertx Ready Pack背包（红色）【ReadyPack】",
@@ -194,5 +202,15 @@
     "6sh118.name": "6SH118突击背包【6SH118】",
     "6sh118.desc": "6Sh118 突击背包是俄军第二代 Ratnik（战士）单兵作战系统的组成部分之一。该款战术军用背包是 6B38 Permyachka 突击背包的现代化改进版本，专为携带火力支援装备、武器弹药、登山器材及士兵个人物品而设计，适用于作战行动、长途行军及突袭任务。",
     "6lbt2670.name": "6LBT-2670 小型野战医物包【SFMP】",
-    "6lbt2670.desc": "低调的医疗背包，专门设计用于容纳大量专业医疗设备与药品。由 London Bridge Trading 制造。"
+    "6lbt2670.desc": "低调的医疗背包，专门设计用于容纳大量专业医疗设备与药品。由 London Bridge Trading 制造。",
+
+    "vss.name": "VSS \u201c绞丝机\u201d 9x39 特种狙击步枪【VSS】",
+    "vss.desc": "VSS（Vintovka Sniperskaya Specialnaya，特种狙击步枪）是带有整体式抑制器的消音狙击步枪，于20世纪80年代由TSNIITochMash研究所专门为满足特殊任务小组和特种部队的要求而设计。\n\n<color=#ffcc00>【特殊效果】该枪支配备了整体式消音器，射击时声音极低。</color>\n<color=#4fc3f7>单发伤害：生物 105 / 方块 88</color>",
+    "vss_mag.name": "VSS弹匣【30发】",
+    "vss_mag.desc": "VSS特种狙击步枪专用弹匣，30发容量，兼容9x39弹药。",
+    "939sp5.name": "9x39毫米 SP-5弹",
+    "939sp5.desc": "9×39mm SP-5 特种弹药（GRAU编号：7N8），其配备的亚音速弹头重 16 克，为铅质基底配合尖头钢质弹芯的结构，外覆双金属弹壳，采用钢制弹壳装填。该款弹药研发于上世纪 80 年代中期，弹头部分直接取自 7.62×39 毫米 US 弹药，是 VSS \u201c绞丝机\u201d 特种狙击步枪的专用弹药。SP-5 可有效击穿大部分低级护甲，对于部分中等防护装备也能造成威胁，同时具备较好的停止作用。然而该款弹药的结构特点决定了其在命中各类表面时有一定概率发生跳弹。",
+
+    "weaponrepairkit.name": "武器维修套件【Weapon repair Kit】",
+    "weaponrepairkit.desc": "一套保证枪械时刻满足战时需要的必备工具和设备。可使用4次。\n\n<color=#4fc3f7>使用方法：手持需要修理的枪械，右键使用维修套件即可将枪械耐久回满。每次消耗1/4套件耐久。</color>"
 }

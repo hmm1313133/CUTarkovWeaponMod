@@ -30,7 +30,7 @@ public static class USPItemSystem
     private const float Loudness = 2.2f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.1f;
-    private const float ConditionLossPerShot = 0.2f;
+    private const float ConditionLossPerShot = 0.4f;
     private const float DesiredGasTime = 0.16f;
 
     private static Sprite? _cachedIcon;

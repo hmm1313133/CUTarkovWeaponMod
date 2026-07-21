@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -31,7 +31,7 @@ public static class Glock17ItemSystem
     private const float Loudness = 2f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.2f;
-    private const float ConditionLossPerShot = 0.5f;
+    private const float ConditionLossPerShot = 0.7f;
     private const float DesiredGasTime = 0.2f;
     // FiringMode: pistol base is already SemiAuto(1), inherit from base
 

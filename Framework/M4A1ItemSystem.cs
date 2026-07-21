@@ -31,7 +31,7 @@ public static class M4A1ItemSystem
     private const float Loudness = 2.7f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.06f;
-    private const float ConditionLossPerShot = 0.12f;
+    private const float ConditionLossPerShot = 0.32f;
     private const float DesiredGasTime = 0.09f;
     // FiringMode: Auto = 2
     private const int FiringModeOverride = 2;

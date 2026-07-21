@@ -1952,6 +1952,8 @@ public static class USPMagItemSystem
                 sr.sprite = icon;
         }
 
+        ResizeColliderToSprite(item);
+
         var marker = item.gameObject.GetComponent<USPMagItemMarker>();
         if (marker == null)
             marker = item.gameObject.AddComponent<USPMagItemMarker>();
@@ -2001,7 +2003,7 @@ public static class USPMagItemSystem
             scaleWeightWithCondition = false,
             combineable = true,
             value = 2,
-            tags = "cangetwet",
+            tags = "belttool",
             rec = new Recognition(7),
         };
         clone.SetTags();
@@ -2027,7 +2029,7 @@ public static class USPMagItemSystem
             scaleWeightWithCondition = false,
             combineable = true,
             value = 2,
-            tags = "cangetwet",
+            tags = "belttool",
             rec = new Recognition(7),
         };
         info.SetTags();
@@ -2074,12 +2076,225 @@ public static class USPMagItemSystem
 
         return _cachedIcon;
     }
+
+    private static void ResizeColliderToSprite(Item item)
+    {
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+        var col = item.GetComponent<BoxCollider2D>();
+        if (col == null) col = item.gameObject.AddComponent<BoxCollider2D>();
+        var bounds = sr.sprite.bounds;
+        col.size = new Vector2(bounds.size.x, bounds.size.y);
+        col.offset = Vector2.zero;
+    }
 }
 
 public sealed class USPMagItemMarker : MonoBehaviour
 {
     public string displayName = USPMagItemSystem.DisplayName;
     public string description = USPMagItemSystem.Description;
+}
+
+// ===== VSS Magazine (9x39, 30 rounds) =====
+
+public static class VSSMagItemSystem
+{
+    public const string ItemKey = "vss_mag";
+    public const string BaseGameItemId = "riflemagazine";
+    public const int MaxRounds = 30;
+
+    public static string DisplayName => I18n.Tr("vss_mag.name");
+    public static string Description => I18n.Tr("vss_mag.desc");
+
+    private static Sprite? _cachedIcon;
+
+    public static bool IsVSSMagRequest(MedicalGrantRequest request)
+        => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
+
+    public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
+    {
+        if (!IsVSSMagRequest(request)) return;
+
+        EnsureRegisteredInItemTable();
+
+        item.id = ItemKey;
+        item.SetCondition(1f);
+
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+        {
+            ammo.itemType = AmmoScript.AmmoItemType.Magazine;
+            ammo.ammoType = GunScript.AmmoType.Rifle;
+            ammo.maxRounds = MaxRounds;
+            ammo.rounds = MaxRounds;
+
+            Plugin.Log.LogInfo($"[VSS_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
+        }
+
+        var icon = TryLoadIcon();
+        if (icon != null)
+        {
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
+        }
+
+        ResizeColliderToSprite(item);
+
+        var marker = item.gameObject.GetComponent<VSSMagItemMarker>();
+        if (marker == null)
+            marker = item.gameObject.AddComponent<VSSMagItemMarker>();
+        marker.displayName = DisplayName;
+        marker.description = Description;
+
+        Plugin.Log.LogInfo($"[VSS_MAG] Configured spawned item '{ItemKey}'.");
+    }
+
+    public static bool EnsureRegisteredInItemTable()
+    {
+        if (Item.GlobalItems.ContainsKey(ItemKey))
+            return false;
+
+        try
+        {
+            if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
+            {
+                Item.GlobalItems[ItemKey] = CloneItemInfo(source);
+                Plugin.Log.LogInfo($"[VSS_MAG] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                return true;
+            }
+
+            Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
+            Plugin.Log.LogInfo($"[VSS_MAG] Registered '{ItemKey}' (fallback).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[VSS_MAG] Failed to register '{ItemKey}': {ex}");
+            return false;
+        }
+    }
+
+    private static ItemInfo CloneItemInfo(ItemInfo source)
+    {
+        var clone = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = source.category,
+            slotRotation = source.slotRotation,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            weight = 0.4f,
+            scaleWeightWithCondition = false,
+            combineable = true,
+            value = 2,
+            tags = "belttool",
+            rec = new Recognition(7),
+        };
+
+        var useMethod = typeof(VSSMagItemSystem).GetMethod(
+            nameof(MagUseAction),
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            clone.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        clone.SetTags();
+        return clone;
+    }
+
+    private static ItemInfo CreateFallbackItemInfo()
+    {
+        var info = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            combineable = true,
+            weight = 0.4f,
+            scaleWeightWithCondition = false,
+            value = 2,
+            tags = "belttool",
+            rec = new Recognition(7),
+        };
+
+        var useMethod = typeof(VSSMagItemSystem).GetMethod(
+            nameof(MagUseAction), BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            info.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        info.SetTags();
+        return info;
+    }
+
+    private static void MagUseAction(Body body, Item item)
+    {
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+            ammo.UnloadRound();
+    }
+
+    private static Sprite? TryLoadIcon()
+    {
+        if (_cachedIcon != null) return _cachedIcon;
+
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "vss", "vss_magazine.png");
+
+            if (!File.Exists(iconPath))
+            {
+                iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "vss", "vss_magazine.webp");
+                if (!File.Exists(iconPath)) return null;
+            }
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            _cachedIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 20f);
+            _cachedIcon.name = "vss-mag-icon";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[VSS_MAG] Failed to load icon: {ex.Message}");
+        }
+
+        return _cachedIcon;
+    }
+
+    private static void ResizeColliderToSprite(Item item)
+    {
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+        var col = item.GetComponent<BoxCollider2D>();
+        if (col == null) col = item.gameObject.AddComponent<BoxCollider2D>();
+        var bounds = sr.sprite.bounds;
+        col.size = new Vector2(bounds.size.x, bounds.size.y);
+        col.offset = Vector2.zero;
+    }
+}
+
+public sealed class VSSMagItemMarker : MonoBehaviour
+{
+    public string displayName = VSSMagItemSystem.DisplayName;
+    public string description = VSSMagItemSystem.Description;
 }
 
 // ===== Harmony Patches =====
@@ -2104,6 +2319,7 @@ public static class GunLoadMagPatch
         { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
         { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
         { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
+        { VSSItemSystem.ItemKey, VSSMagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magin音效文件名的映射</summary>
@@ -2119,6 +2335,7 @@ public static class GunLoadMagPatch
         { UMP45ItemSystem.ItemKey, ("ump_magin", "ump45") },
         { RPDItemSystem.ItemKey, ("rpd_magin", "rpd") },
         { USPItemSystem.ItemKey, ("usp_magin", "usp") },
+        { VSSItemSystem.ItemKey, ("vss_magin", "vss") },
     };
 
     [HarmonyPrefix]
@@ -2213,6 +2430,7 @@ public static class GunUnloadMagPatch
         { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
         { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
         { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
+        { VSSItemSystem.ItemKey, VSSMagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magout音效文件名的映射</summary>
@@ -2228,6 +2446,7 @@ public static class GunUnloadMagPatch
         { UMP45ItemSystem.ItemKey, ("ump_magout", "ump45") },
         { RPDItemSystem.ItemKey, ("rpd_magout", "rpd") },
         { USPItemSystem.ItemKey, ("usp_magout", "usp") },
+        { VSSItemSystem.ItemKey, ("vss_magout", "vss") },
     };
 
     [HarmonyPrefix]
@@ -2263,9 +2482,10 @@ public static class GunUnloadMagPatch
         var expectedMagId = GunToMagMap[item.id];
         SpawnCustomMagazine(__instance, expectedMagId, __instance.roundsInMag);
 
+        var ejectedRounds = __instance.roundsInMag;
         __instance.roundsInMag = 0;
 
-        Plugin.Log.LogInfo($"[GunMagPatch] Unloaded custom magazine '{expectedMagId}' from gun '{item.id}', rounds={__instance.roundsInMag}.");
+        Plugin.Log.LogInfo($"[GunMagPatch] Unloaded custom magazine '{expectedMagId}' from gun '{item.id}', rounds={ejectedRounds}.");
 
         return false; // 跳过原方法
     }
@@ -2322,6 +2542,8 @@ public static class GunUnloadMagPatch
                 RPDMagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == USPMagItemSystem.ItemKey)
                 USPMagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == VSSMagItemSystem.ItemKey)
+                VSSMagItemSystem.ConfigureSpawnedItem(newItem, request);
 
             // 修正弹匣中的子弹数量为退弹时的数量
             var ammo = newItem.GetComponent<AmmoScript>();
@@ -2401,6 +2623,120 @@ public static class AKMMagHoverPatch
 
         if (!item.Stats.rec.recognizable) return;
 
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class VSSMagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<VSSMagItemMarker>();
+        if (marker == null) return;
+
+        if (!item.Stats.rec.recognizable) return;
+
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class DeagleMagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<DeagleMagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class Glock17MagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<Glock17MagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class M4A1MagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<M4A1MagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class P90MagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<P90MagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class UMP45MagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<UMP45MagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class RPDMagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<RPDMagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
+        __result.Item1 = marker.displayName;
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class USPMagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        var marker = item.GetComponent<USPMagItemMarker>();
+        if (marker == null) return;
+        if (!item.Stats.rec.recognizable) return;
         __result.Item1 = marker.displayName;
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }

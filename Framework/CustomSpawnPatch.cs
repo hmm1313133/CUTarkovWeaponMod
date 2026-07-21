@@ -11,9 +11,9 @@ namespace CUTarkovWeaponMod.Framework;
 /// 自定义枪械和弹匣的世界生成补丁。
 ///
 /// 生成规则（触发后从模组列表随机选一个）：
-/// - 物资箱（Container）: 18.6% 枪械 + 22% 弹匣 + 13% 近战 + 17% 护甲/胸挂 + 17% 头盔 + 13% 背包(1~2个)
-/// - 空投舱（LifePod）: 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包（通过 GenerateLifePods 期间的 Container.Awake）
-/// - 空投胶囊（DropCapsule）: 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包（通过 GenerateDropCapsules 期间的 Container.Awake）
+/// - 物资箱（Container）: 18.6% 枪械 + 22% 弹匣 + 13% 近战 + 17% 护甲/胸挂 + 17% 头盔 + 13% 背包(1~2个) + 10% 夜视仪
+/// - 空投舱（LifePod）: 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包 + 8% 夜视仪（通过 GenerateLifePods 期间的 Container.Awake）
+/// - 空投胶囊（DropCapsule）: 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包 + 10% 夜视仪（通过 GenerateDropCapsules 期间的 Container.Awake）
 /// - 医疗箱（medcrate）: 20% 护甲（BuildingEntity 被破坏时触发）
 /// - 尸体（CorpseScript）: 15% 枪械 + 15% 弹匣 + 7% 护甲/弹挂 + 5% 头盔 + 3% 背包
 /// - 崩溃舱（CollapsedPod）: 62% 弹匣（通过 Item.Start 替换被 VanillaBlockPatch 销毁的原版弹匣）
@@ -202,6 +202,7 @@ public static class CustomSpawnPatch
         (ExfilItemSystem.ItemKey,    3), // val=46 sqrt(10)≈3.16→3
         (UlachItemSystem.ItemKey,    3), // val=48 sqrt(8)≈2.83→3
         (RysTItemSystem.ItemKey,     2), // val=55
+        (FastMtItemSystem.ItemKey,   3), // val=44 sqrt(12)≈3.46->3
     };
 
     private static readonly int RigTotalWeight = SumWeights(RigIds);
@@ -321,6 +322,35 @@ public static class CustomSpawnPatch
             var helmetId = GetRandomHelmetId();
             SpawnCustomItemAt(helmetId, pos);
         }
+    }
+
+    // === 夜视仪列表（PVS-14 70%, GPNVG-18 30%） ===
+    private static readonly (string id, int weight)[] NvgIds =
+    {
+        (Gpnvg18ItemSystem.ItemKey, 30),
+        (Pvs14ItemSystem.ItemKey,   70),
+    };
+    private static readonly int NvgTotalWeight = 100;
+
+    /// <summary>从夜视仪列表中按权重随机选一件（GPNVG-18 70%, PVS-14 30%）</summary>
+    private static string GetRandomNvgId()
+    {
+        int w = UnityEngine.Random.Range(1, NvgTotalWeight + 1);
+        int accum = 0;
+        foreach (var (id, weight) in NvgIds)
+        {
+            accum += weight;
+            if (w <= accum) return id;
+        }
+        return NvgIds[0].id;
+    }
+
+    /// <summary>以指定概率在指定位置生成一件加权随机夜视仪</summary>
+    internal static void TrySpawnRandomNvg(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        var nvgId = GetRandomNvgId();
+        SpawnCustomItemAt(nvgId, pos);
     }
 
     // === 生成状态标志 ===
@@ -446,6 +476,13 @@ public static class CustomSpawnPatch
         SpawnCustomItemAt(magId, pos);
     }
 
+    /// <summary>以指定概率在指定位置生成一个武器维修套件</summary>
+    internal static void TrySpawnRepairKit(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(WeaponRepairKitItemSystem.ItemKey, pos);
+    }
+
     // === 补丁 ===
 
     // 1. GenerateLifePods 标志（空投舱期间）
@@ -504,29 +541,34 @@ public static class CustomSpawnPatch
 
                 if (InLifePodGen)
                 {
-                    // 空投舱(LifePod): 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包
+                    // 空投舱(LifePod): 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包 + 8% 夜视仪
                     TrySpawnRandomGun(pos, 0.20f);
                     TrySpawnRandomArmor(pos, 0.25f);
                     TrySpawnRandomHelmet(pos, 0.20f);
                     TrySpawnRandomBackpack(pos, 0.06f);
+                    TrySpawnRandomNvg(pos, 0.08f);
                 }
                 else if (InDropCapsuleGen)
                 {
-                    // 空投胶囊(DropCapsule): 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包
+                    // 空投胶囊(DropCapsule): 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包 + 10% 夜视仪
                     TrySpawnRandomGun(pos, 0.29f);
                     TrySpawnRandomRig(pos, 0.32f);
                     TrySpawnRandomHelmetCount(pos, 0.17f, 1, 2);
                     TrySpawnRandomBackpack(pos, 0.16f);
+                    TrySpawnRandomNvg(pos, 0.10f);
+                    TrySpawnRepairKit(pos, 0.12f);
                 }
                 else
                 {
-                    // 物资箱: 18.6% 枪械 + 22% 弹匣 + 13% 近战武器 + 17% 护甲/胸挂 + 17% 头盔 + 13% 背包(1~2个)
+                    // 物资箱: 18.6% 枪械 + 22% 弹匣 + 13% 近战武器 + 17% 护甲/胸挂 + 17% 头盔 + 13% 背包(1~2个) + 10% 夜视仪
                     TrySpawnRandomGun(pos, 0.186f);
                     TrySpawnRandomMag(pos, 0.22f);
                     TrySpawnRandomMelee(pos, 0.13f);
                     TrySpawnRandomArmor(pos, 0.17f);
                     TrySpawnRandomHelmet(pos, 0.17f);
                     TrySpawnRandomBackpackCount(pos, 0.13f, 1, 2);
+                    TrySpawnRandomNvg(pos, 0.10f);
+                    TrySpawnRepairKit(pos, 0.07f);
                 }
 
                 Plugin.Log.LogInfo($"[CustomSpawn] Stats so far: Container={ContainerCalls}(dup={ContainerSkippedDup}) Gun={GunSpawned}/{GunAttempts} Mag={MagSpawned}/{MagAttempts} Armor={ArmorSpawned}/{ArmorAttempts} Rig={RigSpawned}/{RigAttempts} Helmet={HelmetSpawned}/{HelmetAttempts} Backpack={BackpackSpawned}/{BackpackAttempts} Corpse={CorpseCalls}(animal={CorpseSkippedAnimal}) ItemStart={ItemStartCalls}(mag={ItemStartMagReplaced}) Medcrate={MedcrateCalls}(dup={MedcrateSkippedDup})");
@@ -566,6 +608,7 @@ public static class CustomSpawnPatch
                 TrySpawnRandomArmor(pos, 0.07f);
                 TrySpawnRandomHelmet(pos, 0.05f);
                 TrySpawnRandomBackpack(pos, 0.03f);
+                TrySpawnRepairKit(pos, 0.03f);
             }
             catch (Exception ex)
             {
@@ -618,6 +661,7 @@ public static class CustomSpawnPatch
                 // 62% 生成自定义弹匣替代
                 var pos = (Vector2)__instance.transform.position;
                 TrySpawnRandomMag(pos, 0.62f);
+                TrySpawnRepairKit(pos, 0.01f);
             }
             catch (Exception ex)
             {

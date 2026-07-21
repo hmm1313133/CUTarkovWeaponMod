@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -31,7 +31,7 @@ public static class P90ItemSystem
     private const float Loudness = 1.9f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.12f;
-    private const float ConditionLossPerShot = 0.08f;
+    private const float ConditionLossPerShot = 0.28f;
     private const float DesiredGasTime = 0.08f;
     private const int FiringModeOverride = 2; // Auto
 

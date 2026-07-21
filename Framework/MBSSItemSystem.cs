@@ -39,7 +39,7 @@ public static class MBSSItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // === 数值 ===
-    public static float WearableArmor = 0.6863f;          // 减伤40.7%（按比例缩放）
+    public static float WearableArmor = 1.0f;           // 减伤50%（armorReduction=2.0）
     public static float Weight = 1.5f;                  // 重量 1.5u
     public static float WearableHitDurabilityLossMultiplier = 0.25f; // 被击中耐久损失倍率
     public static float WearableIsolation = 0.1f;       // 保温值
@@ -57,15 +57,11 @@ public static class MBSSItemSystem
         item.SetCondition(1f);
 
         var icon = TryLoadIcon();
-        var sr = item.GetComponent<SpriteRenderer>();
-        if (icon != null && sr != null)
+        if (icon != null)
         {
-            sr.sprite = icon;
-            Plugin.Log.LogInfo($"[MBSS] Set sprite to mbss icon ({icon.texture.width}x{icon.texture.height}).");
-        }
-        else
-        {
-            Plugin.Log.LogWarning($"[MBSS] Icon load failed (icon={icon != null}, sr={sr != null}) - will keep base prefab sprite.");
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
         }
 
         ResizeColliderToSprite(item);
@@ -88,20 +84,23 @@ public static class MBSSItemSystem
                 slotRotation = 0f,
                 usable = false,
                 usableOnLimb = false,
-                destroyAtZeroCondition = false,
+                destroyAtZeroCondition = true,
                 wearable = true,
                 desiredWearLimb = "UpTorso",
                 wearSlotId = "outertorso",
                 wearableVisualOffset = WearableVisualOffset,
-                weight = Weight,
-                value = Value,
+                weight = Weight > 0 ? Weight : 1.0f,
+                value = Value > 0 ? Value : 30,
                 tags = "cangetwet",
-                rec = new Recognition(RecognitionMin),
+                rec = new Recognition(RecognitionMin > 0 ? RecognitionMin : 7),
             };
 
-            info.wearableArmor = WearableArmor;
-            info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
-            info.wearableIsolation = WearableIsolation;
+            if (WearableArmor > 0)
+                info.wearableArmor = WearableArmor;
+            if (WearableHitDurabilityLossMultiplier > 0)
+                info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
+            if (WearableIsolation > 0)
+                info.wearableIsolation = WearableIsolation;
 
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -121,22 +120,12 @@ public static class MBSSItemSystem
     /// </summary>
     public static void RegisterWithCUCoreLib(CustomItemInfo customInfo)
     {
-        var icon = TryLoadIcon();
-        var wornIcon = TryLoadWornIcon();
-
-        Plugin.Log.LogInfo($"[MBSS] RegisterWithCUCoreLib: icon={icon != null}, wornIcon={wornIcon != null}");
-
         // 穿戴贴图
+        var wornIcon = TryLoadWornIcon();
         if (wornIcon != null)
         {
             customInfo.WornSprite = wornIcon;
             customInfo.WornSpriteOffset = new Vector2(0f, 0f);
-        }
-
-        // 也设置 Icon（确保背包缩略图正确）
-        if (icon != null)
-        {
-            customInfo.Icon = icon;
         }
 
         // 容器属性（弹挂功能）
@@ -150,7 +139,7 @@ public static class MBSSItemSystem
             };
         }
 
-        Plugin.Log.LogInfo($"[MBSS] Configured CUCoreLib: WornSprite={customInfo.WornSprite != null}, Icon={customInfo.Icon != null}, Container={customInfo.Container != null}.");
+        Plugin.Log.LogInfo($"[MBSS] Configured CUCoreLib properties (wornSprite={wornIcon != null}, container={ContainerCapacity > 0}).");
     }
 
     // === Icon ===
@@ -174,7 +163,7 @@ public static class MBSSItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.5f, 0.5f), 6f);
+                    new Vector2(0.5f, 0.5f), 22.5f);
                 _cachedIcon.name = "mbss-icon";
             }
         }
@@ -206,7 +195,7 @@ public static class MBSSItemSystem
                 // 穿戴贴图用相同图片但不同 pivot/scale
                 _cachedWornIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.5f, 0.5f), 7f);
+                    new Vector2(0.5f, 0.5f), 15f);
                 _cachedWornIcon.name = "mbss-worn";
             }
         }
@@ -253,12 +242,15 @@ public static class MBSSItemSystem
 
     /// <summary>
     /// 让 MBSS 穿戴后同时锁定 bandolier 槽位，阻止穿戴其他弹挂。
-    /// 通过 Plugin.cs 手动注册（GetWearableBySlotID 可能不是 public）。
+    /// MBSS 的 wearSlotId=outertorso，但通过此 patch 让 GetWearableBySlotID("bandolier")
+    /// 也返回 MBSS，使游戏认为 bandolier 槽位已被占用。
     /// </summary>
+    [HarmonyPatch(typeof(Body), nameof(Body.GetWearableBySlotID))]
     public static class MBSSDualSlotPatch
     {
         private static bool _inPatch;
 
+        [HarmonyPostfix]
         public static void Postfix(Body __instance, string id, ref Item __result)
         {
             if (_inPatch) return;

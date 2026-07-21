@@ -1510,6 +1510,173 @@ public sealed class Ammo5728SB193Marker : MonoBehaviour
     public string description = Ammo5728SB193ItemSystem.Description;
 }
 
+// ===== 9x39mm SP-5 (VSS) =====
+
+/// <summary>
+/// 9x39 毫米 SP-5 特种步枪弹。
+/// 适用于 VSS "绞丝机" 特种狙击步枪。
+/// AmmoScript: itemType=Round, ammoType=Rifle, maxRounds=1, rounds=1
+/// </summary>
+public static class Ammo939SP5ItemSystem
+{
+    public const string ItemKey = "939sp5";
+    public const string BaseGameItemId = "556round";
+    public const GunScript.AmmoType AmmoTypeEnum = GunScript.AmmoType.Rifle;
+
+    public static string DisplayName => I18n.Tr("939sp5.name");
+    public static string Description => I18n.Tr("939sp5.desc");
+
+    private static Sprite? _cachedIcon;
+
+    public static bool Is939SP5Request(MedicalGrantRequest request)
+        => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
+
+    public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
+    {
+        if (!Is939SP5Request(request)) return;
+
+        EnsureRegisteredInItemTable();
+
+        item.id = ItemKey;
+        item.SetCondition(1f);
+
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+        {
+            ammo.itemType = AmmoScript.AmmoItemType.Round;
+            ammo.ammoType = AmmoTypeEnum;
+            ammo.maxRounds = 1;
+            ammo.rounds = 1;
+            Plugin.Log.LogInfo($"[939SP5] Configured AmmoScript: itemType=Round, ammoType=Rifle");
+        }
+
+        var icon = TryLoadIcon();
+        if (icon != null)
+        {
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
+        }
+
+        var marker = item.gameObject.GetComponent<Ammo939SP5Marker>();
+        if (marker == null)
+            marker = item.gameObject.AddComponent<Ammo939SP5Marker>();
+        marker.displayName = DisplayName;
+        marker.description = Description;
+
+        Plugin.Log.LogInfo($"[939SP5] Configured spawned item '{ItemKey}'.");
+    }
+
+    public static bool EnsureRegisteredInItemTable()
+    {
+        if (Item.GlobalItems.ContainsKey(ItemKey))
+            return false;
+
+        try
+        {
+            if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
+            {
+                Item.GlobalItems[ItemKey] = CloneItemInfo(source);
+                Plugin.Log.LogInfo($"[939SP5] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                return true;
+            }
+
+            Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
+            Plugin.Log.LogInfo($"[939SP5] Registered '{ItemKey}' (fallback).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[939SP5] Failed to register '{ItemKey}': {ex}");
+            return false;
+        }
+    }
+
+    private static ItemInfo CloneItemInfo(ItemInfo source)
+    {
+        var clone = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = source.category,
+            slotRotation = source.slotRotation,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            weight = 0.01f,
+            scaleWeightWithCondition = false,
+            combineable = true,
+            value = 1,
+            tags = "bullet",
+            rec = new Recognition(8),
+        };
+        clone.SetTags();
+        return clone;
+    }
+
+    private static ItemInfo CreateFallbackItemInfo()
+    {
+        var info = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            combineable = true,
+            weight = 0.01f,
+            scaleWeightWithCondition = false,
+            value = 1,
+            tags = "bullet",
+            rec = new Recognition(8),
+        };
+        info.SetTags();
+        return info;
+    }
+
+    private static Sprite? TryLoadIcon()
+    {
+        if (_cachedIcon != null) return _cachedIcon;
+
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "ammo", "939sp5.png");
+
+            if (!File.Exists(iconPath))
+            {
+                iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "ammo", "939sp5.webp");
+                if (!File.Exists(iconPath)) return null;
+            }
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            _cachedIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 32f);
+            _cachedIcon.name = "939sp5-icon";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[939SP5] Failed to load icon: {ex.Message}");
+        }
+
+        return _cachedIcon;
+    }
+}
+
+public sealed class Ammo939SP5Marker : MonoBehaviour
+{
+    public string displayName = Ammo939SP5ItemSystem.DisplayName;
+    public string description = Ammo939SP5ItemSystem.Description;
+}
+
 // ===== 弹药悬停描述补丁 =====
 
 /// <summary>
@@ -1599,6 +1766,15 @@ public static class AmmoHoverPatch
         {
             if (!item.Stats.rec.recognizable) return;
             __result.Item1 = marker5728sb193.displayName;
+            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+            return;
+        }
+
+        var marker939sp5 = item.GetComponent<Ammo939SP5Marker>();
+        if (marker939sp5 != null)
+        {
+            if (!item.Stats.rec.recognizable) return;
+            __result.Item1 = marker939sp5.displayName;
             HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
             return;
         }

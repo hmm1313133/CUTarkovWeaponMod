@@ -32,6 +32,7 @@ public static class CaliberRegistry
         { UMP45ItemSystem.ItemKey,    "45acp"   },
         { RPDItemSystem.ItemKey,      "762x39"  },
         { USPItemSystem.ItemKey,      "45acp"   },
+        { VSSItemSystem.ItemKey,      "9x39"    },
     };
 
     // === 弹药 (Round) ItemKey -> 口径 ===
@@ -46,6 +47,7 @@ public static class CaliberRegistry
         { Ammo919PSOItemSystem.ItemKey,    "9x19"    },
         { Ammo55645FMJItemSystem.ItemKey,  "556x45"  },
         { Ammo5728SB193ItemSystem.ItemKey, "5728"    },
+        { Ammo939SP5ItemSystem.ItemKey,    "9x39"    },
     };
 
     // === 自定义弹匣 ItemKey -> 对应弹药 (Round) ItemKey ===
@@ -61,6 +63,7 @@ public static class CaliberRegistry
         { UMP45MagItemSystem.ItemKey,   Ammo45FMJItemSystem.ItemKey },
         { RPDMagItemSystem.ItemKey,     Ammo76239SPItemSystem.ItemKey },
         { USPMagItemSystem.ItemKey,      Ammo45FMJItemSystem.ItemKey },
+        { VSSMagItemSystem.ItemKey,      Ammo939SP5ItemSystem.ItemKey },
     };
 
     /// <summary>
@@ -192,6 +195,7 @@ public static class AmmoUnloadRoundPatch
                 _ when ammoId == Ammo919PSOItemSystem.ItemKey    => Ammo919PSOItemSystem.BaseGameItemId,
                 _ when ammoId == Ammo55645FMJItemSystem.ItemKey  => Ammo55645FMJItemSystem.BaseGameItemId,
                 _ when ammoId == Ammo5728SB193ItemSystem.ItemKey => Ammo5728SB193ItemSystem.BaseGameItemId,
+                _ when ammoId == Ammo939SP5ItemSystem.ItemKey    => Ammo939SP5ItemSystem.BaseGameItemId,
                 _ => "556round",
             };
 
@@ -231,6 +235,8 @@ public static class AmmoUnloadRoundPatch
                 Ammo55645FMJItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (ammoId == Ammo5728SB193ItemSystem.ItemKey)
                 Ammo5728SB193ItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (ammoId == Ammo939SP5ItemSystem.ItemKey)
+                Ammo939SP5ItemSystem.ConfigureSpawnedItem(newItem, request);
 
             // KrokMP 主机权威架构下，卸弹动作在主机执行，
             // AutoPickUpItem 会将子弹送入主机背包。
@@ -308,6 +314,7 @@ public static class GunRackEjectPatch
             _ when customAmmoId == Ammo919PSOItemSystem.ItemKey   => Ammo919PSOItemSystem.BaseGameItemId,
             _ when customAmmoId == Ammo55645FMJItemSystem.ItemKey => Ammo55645FMJItemSystem.BaseGameItemId,
             _ when customAmmoId == Ammo5728SB193ItemSystem.ItemKey => Ammo5728SB193ItemSystem.BaseGameItemId,
+            _ when customAmmoId == Ammo939SP5ItemSystem.ItemKey    => Ammo939SP5ItemSystem.BaseGameItemId,
             _ => "556round",
         };
 
@@ -348,6 +355,8 @@ public static class GunRackEjectPatch
                     Ammo55645FMJItemSystem.ConfigureSpawnedItem(newItem, request);
                 else if (customAmmoId == Ammo5728SB193ItemSystem.ItemKey)
                     Ammo5728SB193ItemSystem.ConfigureSpawnedItem(newItem, request);
+                else if (customAmmoId == Ammo939SP5ItemSystem.ItemKey)
+                    Ammo939SP5ItemSystem.ConfigureSpawnedItem(newItem, request);
             }
 
             // 向上弹出（与原版一致：transform.up * 12）

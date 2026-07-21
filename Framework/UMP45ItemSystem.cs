@@ -31,7 +31,7 @@ public static class UMP45ItemSystem
     private const float Loudness = 0.2f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.1f;
-    private const float ConditionLossPerShot = 0.13f;
+    private const float ConditionLossPerShot = 0.33f;
     private const float DesiredGasTime = 0.1f;
     private const int FiringModeOverride = 2; // Auto
 

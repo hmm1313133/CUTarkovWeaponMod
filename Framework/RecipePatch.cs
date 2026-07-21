@@ -153,6 +153,17 @@ public static class RecipePatch
                 Specific("casing", 5),
                 ByQuality("hammering"));
 
+            // 939sp5: 4废料管+3废料板+2钉子+3易燃粉末+20ml生化流体+2锤打+1切割 -> 6发
+            AddRecipe(recipes, Ammo939SP5ItemSystem.ItemKey, 6,
+                Specific("scraptube", 4),
+                Specific("scrappanel", 3),
+                Specific("nails", 2),
+                Specific("flammablepowder", 3),
+                Liquid("biochem", 20f),
+                ByQuality("hammering"),
+                ByQuality("hammering"),
+                ByQuality("cutting"));
+
             // === 自定义弹匣合成配方 ===
             // 所有弹匣统一配方：3废料板+1弹匣基座+10ml生化流体+切割工具+锤打工具 → 1个
 
@@ -228,6 +239,14 @@ public static class RecipePatch
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
+            // vss_mag: 4废料板+1弹匣基座+15ml生化流体+切割+锤打 -> 1个VSS弹匣（同AKM弹匣配方）
+            AddRecipe(recipes, VSSMagItemSystem.ItemKey, 1,
+                Specific("scrappanel", 4),
+                Specific("magazinebase", 1),
+                Liquid("biochem", 15f),
+                ByQuality("cutting"),
+                ByQuality("hammering"));
+
             // === 自定义插板合成配方 ===
             // category = Utilities(3)
 
@@ -248,7 +267,7 @@ public static class RecipePatch
                 ByQuality("heatsource"),
                 ByQuality("hammering"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 8 custom ammo recipes + 10 magazine recipes + 2 plate recipes.");
+            Plugin.Log.LogInfo("[RecipePatch] Added 10 custom ammo recipes + 11 magazine recipes + 2 plate recipes.");
 
             // === Scav背包合成配方（与原版 bigpack 相同配方）===
             // 2绳+1木板+5帆布+3线+切割工具 → 1个，INT=13，Utilities

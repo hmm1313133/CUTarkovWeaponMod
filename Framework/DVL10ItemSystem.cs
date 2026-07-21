@@ -30,7 +30,7 @@ public static class DVL10ItemSystem
     private const float Loudness = 4.5f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0f;
-    private const float ConditionLossPerShot = 0.4f;
+    private const float ConditionLossPerShot = 0.6f;
     private const float DesiredGasTime = 0.15f;
     // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
     private const int FiringModeOverride = 0; // Pump (栓动)

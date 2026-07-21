@@ -30,7 +30,7 @@ public static class MP153ItemSystem
     private const float Loudness = 4f;
     private const int ShotsPerFire = 8;
     private const float VerticalSpread = 0.2f;
-    private const float ConditionLossPerShot = 0.3f;
+    private const float ConditionLossPerShot = 0.5f;
     private const float DesiredGasTime = 0.09f;
 
     private static Sprite? _cachedIcon;
