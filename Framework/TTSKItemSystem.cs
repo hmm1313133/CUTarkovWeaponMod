@@ -33,7 +33,7 @@ public static class TTSKItemSystem
     // === 数值 ===
     // 减伤65.1%: 1/(1+a) = 0.349, a = 1/0.349 - 1 = 1.8653
     public static float WearableArmor = 1.8653f;
-    public static float Weight = 4.2f;                    // 重量 4.2u
+    public static float Weight = 3.5f;                    // 重量 4.2u
     public static float WearableHitDurabilityLossMultiplier = 0.21f; // 被击中耐久损失倍率
     public static float WearableIsolation = 0.08f;       // 保温值
     public static int Value = 70;                         // 价值
@@ -91,7 +91,7 @@ public static class TTSKItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
+                tags = "",
                 rec = new Recognition(RecognitionMin),
             };
 
@@ -221,12 +221,13 @@ public static class TTSKItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class TTSKHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

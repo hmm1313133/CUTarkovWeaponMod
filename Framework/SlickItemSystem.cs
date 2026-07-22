@@ -26,7 +26,7 @@ public static class SlickItemSystem
 
     // 减伤65.1%: 1/(1+a) = 0.349, a = 1/0.349 - 1 = 1.8653
     public static float WearableArmor = 1.8653f;
-    public static float Weight = 4f;
+    public static float Weight = 4.6f;
     public static float WearableHitDurabilityLossMultiplier = 0.21f;
     public static float WearableIsolation = 0.08f;
     public static int Value = 66;
@@ -58,7 +58,7 @@ public static class SlickItemSystem
                 destroyAtZeroCondition = false, wearable = true,
                 desiredWearLimb = "UpTorso", wearSlotId = WearSlotId,
                 wearableVisualOffset = WearableVisualOffset, weight = Weight, value = Value,
-                tags = "cangetwet", rec = new Recognition(RecognitionMin),
+                tags = "", rec = new Recognition(RecognitionMin),
             };
             info.wearableArmor = WearableArmor;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
@@ -135,12 +135,13 @@ public static class SlickItemSystem
         col.offset = Vector2.zero;
     }
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class SlickHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
             if (!item.Stats.rec.recognizable) return;
             __result.Item1 = DisplayName;

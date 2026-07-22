@@ -158,7 +158,7 @@ public static class AKMItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.5f,
+            weight = 2.1f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 69,
@@ -183,7 +183,7 @@ public static class AKMItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.5f,
+            weight = 2.1f,
             scaleWeightWithCondition = false,
             value = 69,
             tags = "cangetwet,gun",
@@ -328,12 +328,13 @@ public sealed class AKMItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class AKMHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<AKMItemMarker>();
         if (marker == null) return;
 

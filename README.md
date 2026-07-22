@@ -2,13 +2,25 @@
 
 > `未知伤亡（Casualties: Unknown）：塔科夫武器模组`
 >
-> **v1.1.1**
+> **v1.1.2**
 
 一个为 **Casualties: Unknown Demo** 开发的 BepInEx 模组，将《逃离塔科夫》中的自定义枪械、弹药、弹匣、近战武器、护甲装备、头盔、背包及完整武器系统引入游戏。
 
 > **依赖：** 本模组依赖 [CUTarkovMedicalMod](https://github.com/hmm1313133/CUTarkovMedicalMod) 和 [CUCoreLib](https://github.com/hmm1313133/CUCoreLib)，必须同时安装。
 
 ## 更新日志
+
+### v1.1.2
+
+- **帧率优化**：注释 71 个空 Harmony Postfix 补丁（ItemHoverDescription），消除每帧 83 次空调用开销
+- **夜视仪性能优化**：缓存 NVG 引用和耗电率（每 30 帧刷新），预创建 4 张噪声 Sprite 轮换替代每帧 GetPixels/SetPixels/Apply，消除 GC 数组分配
+- **瞄准镜性能优化**：ScopeZoomPatch 先检查手持物品，仅持 AXMC 时才查询穿戴物品
+- **护甲耐久性能优化**：ArmorConditionPatch 添加快速路径，耐久归零时跳过 GetLimbWearables 遍历
+- **移除耐久百分比显示**：删除 ConditionNamePatch.cs，背包/弹挂/护甲/头盔名称不再显示 (XX%) 后缀
+- **MBSS 世界体积修复**：RegisterWithCUCoreLib 缺少 customInfo.Icon 赋值，导致 CUCoreLib 使用默认尺寸，世界精灵过小
+- **VSS 枪口火光禁用**：整体式消音器不应有枪口火光，禁用 muzzleParticle
+- **背包衰减修复**：Pilgrim/SsoAttack2/6SH118 在 EnsureRegisteredInItemTable 中补充 rotSpeed/decayMinutes/decayInfo，修复存档加载后不显示衰减倒计时
+- **cangetwet 标签清理**：移除 23 件防弹衣和 2 件近战武器的 cangetwet tag（护甲/近战不应被浸湿损坏）
 
 ### v1.1.1
 
@@ -415,7 +427,7 @@ CUTarkovWeaponMod/
     ├── ConsoleAutofillPatch.cs            # 控制台命令自动补全注入
     ├── ScopeZoomPatch.cs                  # AXMC 瞄准镜视野扩展
     ├── ArmorConditionPatch.cs             # 护甲耐久归零后不再提供减伤
-    ├── ConditionNamePatch.cs              # 物品状态名称显示（护甲/头盔/背包耐久）
+    ├── UnifiedHoverPatch.cs               # 物品悬停描述合并补丁（替代 83 个独立 Postfix）
     ├── [Key]ItemSystem.cs                 # 枪械/近战/护甲/头盔/背包物品系统（每件一个）
     ├── AmmoItemSystem.cs                  # 所有自定义弹药定义
     ├── GunMagPatch.cs                     # 枪<->弹匣映射 + 弹匣系统

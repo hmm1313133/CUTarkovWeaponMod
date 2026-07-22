@@ -154,7 +154,7 @@ public static class DVL10ItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.7f,
+            weight = 2.22f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 60,
@@ -179,7 +179,7 @@ public static class DVL10ItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.7f,
+            weight = 2.22f,
             scaleWeightWithCondition = false,
             value = 60,
             tags = "cangetwet,gun",
@@ -310,12 +310,13 @@ public sealed class DVL10ItemMarker : MonoBehaviour
     public string description = DVL10ItemSystem.Description;
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class DVL10HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<DVL10ItemMarker>();
         if (marker == null) return;
 

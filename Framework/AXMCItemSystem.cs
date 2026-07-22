@@ -157,7 +157,7 @@ public static class AXMCItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 4.2f,
+            weight = 2.52f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 79,
@@ -182,7 +182,7 @@ public static class AXMCItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 4.2f,
+            weight = 2.52f,
             scaleWeightWithCondition = false,
             value = 79,
             tags = "cangetwet,gun",
@@ -327,12 +327,13 @@ public sealed class AXMCItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class AXMCHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<AXMCItemMarker>();
         if (marker == null) return;
 

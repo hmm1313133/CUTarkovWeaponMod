@@ -145,7 +145,7 @@ public static class Glock17ItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 1.3f,
+            weight = 0.78f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 18,
@@ -170,7 +170,7 @@ public static class Glock17ItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 1.3f,
+            weight = 0.78f,
             scaleWeightWithCondition = false,
             value = 18,
             tags = "cangetwet,gun",
@@ -282,12 +282,13 @@ public sealed class Glock17ItemMarker : MonoBehaviour
     public string description = Glock17ItemSystem.Description;
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class Glock17HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<Glock17ItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

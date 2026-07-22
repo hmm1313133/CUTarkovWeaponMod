@@ -9,25 +9,22 @@ class Program
         var dllPath = @"F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Assembly-CSharp.dll";
         var assembly = AssemblyDefinition.ReadAssembly(dllPath);
 
-        foreach (var type in assembly.MainModule.Types)
+        var soundType = assembly.MainModule.Types.FirstOrDefault(t => t.Name == "Sound");
+        if (soundType == null) { Console.WriteLine("Sound not found"); return; }
+
+        // Dump the Play(AudioClip,...) method
+        var playMethod = soundType.Methods.FirstOrDefault(m =>
+            m.Name == "Play" && m.Parameters.Count > 0 &&
+            m.Parameters[0].ParameterType.Name == "AudioClip");
+
+        if (playMethod != null && playMethod.HasBody)
         {
-            if (type.Name == "Recipe")
+            Console.WriteLine($"=== Sound.Play(AudioClip,...) ({playMethod.Body.Instructions.Count} instrs) ===");
+            Console.WriteLine($"Parameters: {string.Join(", ", playMethod.Parameters.Select(p => p.ParameterType + " " + p.Name + (p.HasDefault ? "="+p.Constant : "")))}");
+            Console.WriteLine();
+            foreach (var instr in playMethod.Body.Instructions)
             {
-                Console.WriteLine($"=== Recipe fields ({type.Fields.Count}) ===");
-                foreach (var f in type.Fields)
-                    Console.WriteLine($"  {f.FieldType} {f.Name}");
-            }
-            if (type.Name == "RecipeItem")
-            {
-                Console.WriteLine($"\n=== RecipeItem fields ({type.Fields.Count}) ===");
-                foreach (var f in type.Fields)
-                    Console.WriteLine($"  {f.FieldType} {f.Name}");
-            }
-            if (type.Name == "RecipeResult")
-            {
-                Console.WriteLine($"\n=== RecipeResult fields ({type.Fields.Count}) ===");
-                foreach (var f in type.Fields)
-                    Console.WriteLine($"  {f.FieldType} {f.Name}");
+                Console.WriteLine($"  IL_{instr.Offset:X4}: {instr.OpCode} {instr.Operand}");
             }
         }
     }

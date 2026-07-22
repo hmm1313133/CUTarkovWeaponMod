@@ -166,7 +166,7 @@ public static class SKSItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.4f,
+            weight = 2.04f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 50,
@@ -191,7 +191,7 @@ public static class SKSItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.4f,
+            weight = 2.04f,
             scaleWeightWithCondition = false,
             value = 50,
             tags = "cangetwet,gun",
@@ -303,12 +303,13 @@ public sealed class SKSItemMarker : MonoBehaviour
 /// <summary>
 /// SKS 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class SKSHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<SKSItemMarker>();
         if (marker == null) return;
 

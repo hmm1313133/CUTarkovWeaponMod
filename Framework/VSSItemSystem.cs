@@ -97,11 +97,17 @@ public static class VSSItemSystem
                     sr.sprite = icon;
             }
 
-            // 调整枪管和火光位置：VSS有整体式消音器，枪管较长
+            // 调整枪管位置：VSS有整体式消音器，枪管较长
             if (gun.barrel != null)
                 gun.barrel.localPosition += new Vector3(3f, 0f, 0f);
+            // 禁用枪口火光：VSS整体式消音器不产生可见火光
             if (gun.muzzleParticle != null)
-                gun.muzzleParticle.transform.localPosition += new Vector3(3f, 0f, 0f);
+            {
+                gun.muzzleParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                var em = gun.muzzleParticle.emission;
+                em.enabled = false;
+                gun.muzzleParticle.gameObject.SetActive(false);
+            }
 
             Plugin.Log.LogInfo($"[VSS] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto, loudness={Loudness}");
         }
@@ -158,7 +164,7 @@ public static class VSSItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3f,
+            weight = 1.8f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 78,
@@ -183,7 +189,7 @@ public static class VSSItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3f,
+            weight = 1.8f,
             scaleWeightWithCondition = false,
             value = 78,
             tags = "cangetwet,gun",
@@ -328,12 +334,13 @@ public sealed class VSSItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class VSSHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<VSSItemMarker>();
         if (marker == null) return;
 

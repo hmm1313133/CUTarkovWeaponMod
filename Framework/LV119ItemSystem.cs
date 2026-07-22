@@ -34,14 +34,14 @@ public static class LV119ItemSystem
     // === 数值 ===
     // 减伤65.1%: 1/(1+a) = 0.349, a = 1/0.349 - 1 = 1.8653
     public static float WearableArmor = 1.8653f;
-    public static float Weight = 5.4f;                    // 重量 5.4u
+    public static float Weight = 4.8f;                    // 重量 5.4u
     public static float WearableHitDurabilityLossMultiplier = 0.2f; // 被击中耐久损失倍率
     public static float WearableIsolation = 0.11f;        // 保温值
     public static int Value = 74;                          // 价值
     public static int RecognitionMin = 5;                  // 识别所需智力
     public static float ContainerCapacity = 4.4f;          // 容器容量 4.4u
     public static float ContainerMaxWeightPerItem = 2f;    // 单物品最大重量 2u
-    public static float ContainerEncumbranceReduction = 0.66f; // 重量减免 66%
+    public static float ContainerEncumbranceReduction = 0.34f; // 重量减免 66%
     public static int WearableVisualOffset = 5;            // 穿戴时 sortingOrder 偏移
 
     public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
@@ -90,7 +90,7 @@ public static class LV119ItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
+                tags = "",
                 rec = new Recognition(RecognitionMin),
             };
 
@@ -220,12 +220,13 @@ public static class LV119ItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class LV119HoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

@@ -29,7 +29,7 @@ public static class RedutT5ItemSystem
 
     // 减伤56.2%: 1/(1+a) = 0.438, a = 1/0.438 - 1 = 1.2831
     public static float WearableArmor = 1.2831f;
-    public static float Weight = 6.9f;
+    public static float Weight = 5f;
     public static float WearableHitDurabilityLossMultiplier = 0.15f;
     public static float WearableIsolation = 0.17f;
     public static int Value = 67;
@@ -61,7 +61,7 @@ public static class RedutT5ItemSystem
                 destroyAtZeroCondition = false, wearable = true,
                 desiredWearLimb = "UpTorso", wearSlotId = WearSlotId,
                 wearableVisualOffset = WearableVisualOffset, weight = Weight, value = Value,
-                tags = "cangetwet", rec = new Recognition(RecognitionMin),
+                tags = "", rec = new Recognition(RecognitionMin),
             };
             info.wearableArmor = WearableArmor;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
@@ -222,12 +222,13 @@ public static class RedutT5ItemSystem
         col.offset = Vector2.zero;
     }
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class RedutT5HoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
             if (!item.Stats.rec.recognizable) return;
             __result.Item1 = DisplayName;

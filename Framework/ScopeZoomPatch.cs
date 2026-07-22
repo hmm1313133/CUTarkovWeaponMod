@@ -40,7 +40,22 @@ public static class ScopeZoomPatch
 
         try
         {
-            // 已装备自动变焦护目镜时不叠加
+            // Check hand item FIRST (common case: not AXMC → immediate exit)
+            var handItem = body.GetItem(body.handSlot);
+            bool shouldZoom = handItem != null && handItem.id == AXMCItemSystem.ItemKey;
+
+            // Fast path: not holding AXMC and zoom not active → no work
+            if (!shouldZoom)
+            {
+                if (_scopeZoomActive)
+                {
+                    _scopeZoomActive = false;
+                    Plugin.Log.LogInfo("[ScopeZoom] Scope zoom deactivated (AXMC unequipped).");
+                }
+                return;
+            }
+
+            // Holding AXMC: check autozoomgoggles (only when actually needed)
             if (body.HasWearable("autozoomgoggles"))
             {
                 if (_scopeZoomActive)
@@ -51,22 +66,11 @@ public static class ScopeZoomPatch
                 return;
             }
 
-            var handItem = body.GetItem(body.handSlot);
-            bool shouldZoom = handItem != null && handItem.id == AXMCItemSystem.ItemKey;
-
-            if (shouldZoom)
+            cam.zoomTime = ScopeZoomTimeValue;
+            if (!_scopeZoomActive)
             {
-                cam.zoomTime = ScopeZoomTimeValue;
-                if (!_scopeZoomActive)
-                {
-                    _scopeZoomActive = true;
-                    Plugin.Log.LogInfo("[ScopeZoom] Scope zoom activated (AXMC).");
-                }
-            }
-            else if (_scopeZoomActive)
-            {
-                _scopeZoomActive = false;
-                Plugin.Log.LogInfo("[ScopeZoom] Scope zoom deactivated (AXMC unequipped).");
+                _scopeZoomActive = true;
+                Plugin.Log.LogInfo("[ScopeZoom] Scope zoom activated (AXMC).");
             }
         }
         catch (Exception ex)

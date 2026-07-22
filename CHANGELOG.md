@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2026-07-23
+
+### 优化
+
+- **帧率优化 - 空 Harmony 补丁移除**：注释 71 个空 `[HarmonyPatch(typeof(PlayerCamera)...ItemHoverDescription)]` Postfix 补丁，消除每帧 83 次空调用开销（即使方法体只有 `return;`，注册的补丁仍每帧执行）
+- **帧率优化 - 夜视仪系统**：
+  - 缓存 NVG 引用和耗电率，每 30 帧刷新一次（替代每帧 3 次 GetComponent/查找）
+  - 预创建 4 张噪声 Sprite 轮换替代每帧 `Texture2D.GetPixels()`/`SetPixels()`/`Apply()`，消除每帧 GC 数组分配
+  - 移除 `_noiseWorkTex` 工作纹理字段
+- **帧率优化 - 瞄准镜**：ScopeZoomPatch 先检查 `body.GetItem(body.handSlot)`，仅持 AXMC 时才调用 `HasWearable("autozoomgoggles")`
+- **帧率优化 - 护甲耐久**：ArmorConditionPatch 添加快速路径 `if (__result <= 0f) return;`，耐久归零时跳过 `GetLimbWearables()` 遍历
+
+### 变更
+
+- **移除耐久百分比显示**：删除 `ConditionNamePatch.cs`，移除 `UnifiedHoverPatch` 中的耐久显示逻辑，所有物品名称不再显示 `(XX%)` 后缀
+- **VSS 枪口火光禁用**：整体式消音器不应有枪口火光，`muzzleParticle.Stop()` + `emission.enabled=false` + `SetActive(false)`
+- **cangetwet 标签清理**：移除 23 件防弹衣和 2 件近战武器（Red Rebel / M-2 战术剑）的 `cangetwet` tag
+
+### 修复
+
+- **MBSS 世界体积过小**：`RegisterWithCUCoreLib` 缺少 `customInfo.Icon = icon` 赋值，CUCoreLib 使用默认尺寸导致世界精灵过小
+- **Pilgrim/SsoAttack2/6SH118 背包不显示衰减倒计时**：`EnsureRegisteredInItemTable` 中缺少 `rotSpeed`/`decayMinutes`/`decayInfo` 字段，游戏从模板读取而非实例，存档加载后不显示衰减倒计时
+
 ## [1.1.1] - 2026-07-22
 
 ### 修复

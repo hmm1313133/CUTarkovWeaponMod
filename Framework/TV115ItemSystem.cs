@@ -95,7 +95,7 @@ public static class TV115ItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
+                tags = "",
                 rec = new Recognition(RecognitionMin),
             };
 
@@ -232,12 +232,13 @@ public static class TV115ItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class TV115HoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

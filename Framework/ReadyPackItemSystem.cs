@@ -41,7 +41,8 @@ public static class ReadyPackItemSystem
     public static float ContainerCapacity = 4.8f;              // 容器容量 4.8u
     public static float ContainerMaxWeightPerItem = 2.2f;      // 单物品最大重量 2.2u
     public static float ContainerEncumbranceReduction = 0.50f; // 重量减免 50%
-    public static float WearableHitDurabilityLossMultiplier = 5f; // 可撕裂属性 5点
+    public static float WearableHitDurabilityLossMultiplier = 0f; // 背包不受击减耐久
+    public static float RippableAmount = 5f; // 可撕裂属性 5点
     public static int WearableVisualOffset = 4;               // 穿戴时 sortingOrder 偏移（背包装在背后，低于防弹衣5和弹挂6）
 
     // === 时间衰减 ===
@@ -59,7 +60,7 @@ public static class ReadyPackItemSystem
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
-        item.Stats.qualities.Add(new CraftingQuality("rippable", WearableHitDurabilityLossMultiplier));
+        item.Stats.qualities.Add(new CraftingQuality("rippable", RippableAmount));
 
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
@@ -117,6 +118,7 @@ public static class ReadyPackItemSystem
             info.wearableIsolation = WearableIsolation;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -269,12 +271,13 @@ public static class ReadyPackItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class ReadyPackHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

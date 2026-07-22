@@ -58,7 +58,7 @@ public static class GzhelKItemSystem
                 destroyAtZeroCondition = false, wearable = true,
                 desiredWearLimb = "UpTorso", wearSlotId = WearSlotId,
                 wearableVisualOffset = WearableVisualOffset, weight = Weight, value = Value,
-                tags = "cangetwet", rec = new Recognition(RecognitionMin),
+                tags = "", rec = new Recognition(RecognitionMin),
             };
             info.wearableArmor = WearableArmor;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
@@ -145,12 +145,13 @@ public static class GzhelKItemSystem
         col.offset = Vector2.zero;
     }
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class GzhelKHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
             if (!item.Stats.rec.recognizable) return;
             __result.Item1 = DisplayName;

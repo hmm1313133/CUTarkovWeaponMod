@@ -161,12 +161,13 @@ public static class ArmorPlateItemSystem
         col.offset = Vector2.zero;
     }
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class ArmorPlateHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null) return;
             if (item.id.Equals(CheapPlateKey, StringComparison.OrdinalIgnoreCase) && item.Stats.rec.recognizable)
                 __result.Item1 = CheapPlateName;

@@ -95,7 +95,7 @@ public static class MBSSItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight > 0 ? Weight : 1.0f,
                 value = Value > 0 ? Value : 30,
-                tags = "cangetwet",
+                tags = "",
                 rec = new Recognition(RecognitionMin > 0 ? RecognitionMin : 7),
             };
 
@@ -124,7 +124,11 @@ public static class MBSSItemSystem
     /// </summary>
     public static void RegisterWithCUCoreLib(CustomItemInfo customInfo)
     {
-        // 穿戴贴图
+        // 世界图标 + 穿戴贴图
+        var icon = TryLoadIcon();
+        if (icon != null)
+            customInfo.Icon = icon;
+
         var wornIcon = TryLoadWornIcon();
         if (wornIcon != null)
         {
@@ -229,12 +233,13 @@ public static class MBSSItemSystem
     /// <summary>
     /// MBSS 悬停描述补丁。仅覆盖名称，保留游戏原生详细页面。
     /// </summary>
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class MBSSHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

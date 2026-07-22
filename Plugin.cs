@@ -18,7 +18,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string ModGuid = "com.yourname.cu.tarkovweaponmod";
     public const string ModName = "Casualties: Unknown - Tarkov-Style Weapon Mod";
-    public const string ModVersion = "1.1.1.0";
+    public const string ModVersion = "1.1.2.0";
 
     internal static ManualLogSource Log = null!;
     internal static WeaponCUCoreLibMode IntegrationMode = null!;
@@ -206,28 +206,6 @@ public sealed class Plugin : BaseUnityPlugin
     {
         NightVisionController.Tick();
         _updateNotifier?.Tick();
-        IDEAItemSystem.TickDecay();
-        BankRobberItemSystem.TickDecay();
-        Type56ItemSystem.TickDecay();
-        WTChestRigItemSystem.TickDecay();
-        LBCRItemSystem.TickDecay();
-        CommandoItemSystem.TickDecay();
-        UmkaItemSystem.TickDecay();
-        BlackRockItemSystem.TickDecay();
-        PACAItemSystem.TickDecay();
-        MFUNItemSystem.TickDecay();
-        DRDItemSystem.TickDecay();
-        LK3FItemSystem.TickDecay();
-        ReadyPackItemSystem.TickDecay();
-        PartizanItemSystem.TickDecay();
-        DayPackItemSystem.TickDecay();
-        BerkutItemSystem.TickDecay();
-        ScavPackItemSystem.TickDecay();
-        MysteryRanch2DayItemSystem.TickDecay();
-        PilgrimItemSystem.TickDecay();
-        SsoAttack2ItemSystem.TickDecay();
-        SH118ItemSystem.TickDecay();
-        LBT2670ItemSystem.TickDecay();
     }
 
     private void OnGUI()

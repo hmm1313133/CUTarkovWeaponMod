@@ -38,7 +38,7 @@ public static class LBCRItemSystem
     public static int RecognitionMin = 5;                  // 识别所需智力
     public static float ContainerCapacity = 4.2f;          // 容器容量 4.2u
     public static float ContainerMaxWeightPerItem = 2f;    // 单物品最大重量 2u
-    public static float ContainerEncumbranceReduction = 0.60f; // 重量减免 60%
+    public static float ContainerEncumbranceReduction = 0.40f; // 重量减免 60%
     public static int WearableVisualOffset = 6;            // 穿戴时 sortingOrder 偏移（高于防弹衣的5，弹挂显示在外层）
 
     // === 时间衰减 ===
@@ -97,6 +97,7 @@ public static class LBCRItemSystem
 
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -249,12 +250,13 @@ public static class LBCRItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class LBCRHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

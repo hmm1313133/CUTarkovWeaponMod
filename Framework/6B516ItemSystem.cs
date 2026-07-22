@@ -43,7 +43,7 @@ public static class SixB516ItemSystem
     public static int RecognitionMin = 5;               // 识别所需智力
     public static float ContainerCapacity = 1.3f;       // 容器容量 1.3u
     public static float ContainerMaxWeightPerItem = 1f; // 单物品最大重量 1u
-    public static float ContainerEncumbranceReduction = 0.4f; // 重量减免 40%
+    public static float ContainerEncumbranceReduction = 0.60f; // 重量减免 40%
     public static int WearableVisualOffset = 5;         // 穿戴时 sortingOrder 偏移
 
     public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
@@ -94,7 +94,7 @@ public static class SixB516ItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
+                tags = "",
                 rec = new Recognition(RecognitionMin),
             };
 
@@ -265,12 +265,13 @@ public static class SixB516ItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class SixB516HoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

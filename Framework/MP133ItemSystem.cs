@@ -161,7 +161,7 @@ public static class MP133ItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.8f,
+            weight = 2.28f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 45,
@@ -186,7 +186,7 @@ public static class MP133ItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.8f,
+            weight = 2.28f,
             scaleWeightWithCondition = false,
             value = 45,
             tags = "cangetwet,gun",
@@ -298,12 +298,13 @@ public sealed class MP133ItemMarker : MonoBehaviour
 /// <summary>
 /// MP-133 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class MP133HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<MP133ItemMarker>();
         if (marker == null) return;
 

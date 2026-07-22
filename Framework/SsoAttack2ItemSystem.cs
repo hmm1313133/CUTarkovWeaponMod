@@ -40,8 +40,9 @@ public static class SsoAttack2ItemSystem
     public static int RecognitionMin = 3;                      // 识别所需智力
     public static float ContainerCapacity = 7.2f;              // 容器容量 7.2u
     public static float ContainerMaxWeightPerItem = 5.5f;      // 单物品最大重量 5.5u
-    public static float ContainerEncumbranceReduction = 0.66f; // 重量减免 66%
-    public static float WearableHitDurabilityLossMultiplier = 8f; // 可撕裂属性 8点
+    public static float ContainerEncumbranceReduction = 0.34f; // 重量减免 66%
+    public static float WearableHitDurabilityLossMultiplier = 0f; // 背包不受击减耐久
+    public static float RippableAmount = 8f; // 可撕裂属性 8点
     public static int WearableVisualOffset = 4;               // 穿戴时 sortingOrder 偏移
 
     // === 时间衰减 ===
@@ -61,7 +62,7 @@ public static class SsoAttack2ItemSystem
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
-        item.Stats.qualities.Add(new CraftingQuality("rippable", WearableHitDurabilityLossMultiplier));
+        item.Stats.qualities.Add(new CraftingQuality("rippable", RippableAmount));
 
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
@@ -128,6 +129,10 @@ public static class SsoAttack2ItemSystem
             info.wearableIsolation = WearableIsolation;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
 
+            info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
+            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
             Plugin.Log.LogInfo($"[SsoAttack2] Registered '{ItemKey}' as wearable backpack (no armor, decays over time, tearable).");
@@ -175,6 +180,8 @@ public static class SsoAttack2ItemSystem
 
     public static void TickDecay()
     {
+        // 衰减现在由游戏原生 Item.HandleDecay 通过 rotSpeed + decayInfo(NoDecayWhenNotWorn) 处理
+        return;
         var cam = PlayerCamera.main;
         if (cam == null) return;
         var body = cam.body;
@@ -277,12 +284,13 @@ public static class SsoAttack2ItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class SsoAttack2HoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

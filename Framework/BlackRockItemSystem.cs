@@ -38,7 +38,7 @@ public static class BlackRockItemSystem
     public static int RecognitionMin = 4;                  // 识别所需智力
     public static float ContainerCapacity = 4.7f;          // 容器容量 4.7u
     public static float ContainerMaxWeightPerItem = 1.8f;  // 单物品最大重量 1.8u
-    public static float ContainerEncumbranceReduction = 0.65f; // 重量减免 65%
+    public static float ContainerEncumbranceReduction = 0.35f; // 重量减免 65%
     public static int WearableVisualOffset = 6;            // 穿戴时 sortingOrder 偏移（高于防弹衣的5，弹挂显示在外层）
 
     // === 时间衰减 ===
@@ -97,6 +97,7 @@ public static class BlackRockItemSystem
 
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -249,12 +250,13 @@ public static class BlackRockItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class BlackRockHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

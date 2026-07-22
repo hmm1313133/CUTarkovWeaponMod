@@ -32,8 +32,9 @@ public static class LBT2670ItemSystem
     public static int RecognitionMin = 3;                    // 识别所需智力
     public static float ContainerCapacity = 10.0f;            // 容器容量 10u
     public static float ContainerMaxWeightPerItem = 3.0f;    // 单物品最大重量 3u
-    public static float ContainerEncumbranceReduction = 0.60f; // 重量减免 60%
-    public static float WearableHitDurabilityLossMultiplier = 6f; // 可撕裂属性 6点
+    public static float ContainerEncumbranceReduction = 0.40f; // 重量减免 60%
+    public static float WearableHitDurabilityLossMultiplier = 0f; // 背包不受击减耐久
+    public static float RippableAmount = 6f; // 可撕裂属性 6点
     public static int WearableVisualOffset = 4;               // 穿戴时 sortingOrder 偏移
 
     // === 时间衰减 ===
@@ -56,7 +57,7 @@ public static class LBT2670ItemSystem
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
-        item.Stats.qualities.Add(new CraftingQuality("rippable", WearableHitDurabilityLossMultiplier));
+        item.Stats.qualities.Add(new CraftingQuality("rippable", RippableAmount));
 
         var container = item.GetComponent<Container>();
         if (container == null) container = item.gameObject.AddComponent<Container>();
@@ -303,12 +304,13 @@ public static class LBT2670ItemSystem
         }
     }
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class LBT2670HoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

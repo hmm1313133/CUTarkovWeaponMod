@@ -146,7 +146,7 @@ public static class P90ItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.0f,
+            weight = 1.8f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 57,
@@ -171,7 +171,7 @@ public static class P90ItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.0f,
+            weight = 1.8f,
             scaleWeightWithCondition = false,
             value = 57,
             tags = "cangetwet,gun",
@@ -283,12 +283,13 @@ public sealed class P90ItemMarker : MonoBehaviour
     public string description = P90ItemSystem.Description;
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class P90HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<P90ItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

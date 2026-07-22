@@ -21,6 +21,9 @@ public static class ArmorConditionPatch
         [HarmonyPostfix]
         public static void Postfix(Limb __instance, ref float __result)
         {
+            // Fast path: no armor reduction to correct
+            if (__result <= 0f) return;
+
             var wearables = __instance.GetLimbWearables();
             foreach (var item in wearables)
             {

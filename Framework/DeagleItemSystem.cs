@@ -151,7 +151,7 @@ public static class DeagleItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 1.7f,
+            weight = 1.02f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 39,
@@ -176,7 +176,7 @@ public static class DeagleItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 1.7f,
+            weight = 1.02f,
             scaleWeightWithCondition = false,
             value = 39,
             tags = "cangetwet,gun",
@@ -321,12 +321,13 @@ public sealed class DeagleItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class DeagleHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<DeagleItemMarker>();
         if (marker == null) return;
 

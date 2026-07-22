@@ -26,7 +26,7 @@ public static class HPCItemSystem
 
     // 减伤62.7%: 1/(1+a) = 0.373, a = 1/0.373 - 1 = 1.6808
     public static float WearableArmor = 1.6808f;
-    public static float Weight = 2.8f;
+    public static float Weight = 2.1f;
     public static float WearableHitDurabilityLossMultiplier = 0.23f;
     public static float WearableIsolation = 0.04f;
     public static int Value = 50;
@@ -58,7 +58,7 @@ public static class HPCItemSystem
                 destroyAtZeroCondition = false, wearable = true,
                 desiredWearLimb = "UpTorso", wearSlotId = WearSlotId,
                 wearableVisualOffset = WearableVisualOffset, weight = Weight, value = Value,
-                tags = "cangetwet", rec = new Recognition(RecognitionMin),
+                tags = "", rec = new Recognition(RecognitionMin),
             };
             info.wearableArmor = WearableArmor;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
@@ -135,12 +135,13 @@ public static class HPCItemSystem
         col.offset = Vector2.zero;
     }
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class HPCHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase)) return;
             if (!item.Stats.rec.recognizable) return;
             __result.Item1 = DisplayName;

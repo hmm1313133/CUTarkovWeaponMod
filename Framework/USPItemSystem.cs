@@ -143,7 +143,7 @@ public static class USPItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 1.2f,
+            weight = 0.72f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 18,
@@ -168,7 +168,7 @@ public static class USPItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 1.2f,
+            weight = 0.72f,
             scaleWeightWithCondition = false,
             value = 18,
             tags = "cangetwet,gun",
@@ -301,12 +301,13 @@ public sealed class USPItemMarker : MonoBehaviour
     public string description = USPItemSystem.Description;
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class USPHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<USPItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

@@ -2388,7 +2388,7 @@ public static class GunLoadMagPatch
                 {
                     var clip = GunMagSoundHelper.TryLoadSound(soundInfo.fileName, soundInfo.gunDir);
                     if (clip != null)
-                        Sound.Play(clip, __instance.transform.position, true);
+                        Sound.Play(clip, __instance.transform.position, false);
                     else
                         Sound.Play("gunloadmag", __instance.transform.position);
                 }
@@ -2580,12 +2580,13 @@ public static class GunUnloadMagPatch
 /// <summary>
 /// 弹匣悬停描述补丁。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class AXMCMagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<AXMCMagItemMarker>();
         if (marker == null) return;
 
@@ -2596,12 +2597,13 @@ public static class AXMCMagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class DVL10MagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<DVL10MagItemMarker>();
         if (marker == null) return;
 
@@ -2612,12 +2614,13 @@ public static class DVL10MagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class AKMMagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<AKMMagItemMarker>();
         if (marker == null) return;
 
@@ -2628,12 +2631,13 @@ public static class AKMMagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class VSSMagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<VSSMagItemMarker>();
         if (marker == null) return;
 
@@ -2644,12 +2648,13 @@ public static class VSSMagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class DeagleMagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<DeagleMagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
@@ -2658,12 +2663,13 @@ public static class DeagleMagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class Glock17MagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<Glock17MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
@@ -2672,12 +2678,13 @@ public static class Glock17MagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class M4A1MagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<M4A1MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
@@ -2686,12 +2693,13 @@ public static class M4A1MagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class P90MagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<P90MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
@@ -2700,12 +2708,13 @@ public static class P90MagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class UMP45MagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<UMP45MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
@@ -2714,12 +2723,13 @@ public static class UMP45MagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class RPDMagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<RPDMagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
@@ -2728,12 +2738,13 @@ public static class RPDMagHoverPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class USPMagHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<USPMagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

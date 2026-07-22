@@ -42,6 +42,15 @@ public static class CustomSpawnPatch
     private static readonly string[] SniperIds  = { AXMCItemSystem.ItemKey, DVL10ItemSystem.ItemKey };
     private static readonly string[] LmgIds     = { RPDItemSystem.ItemKey };
 
+    // === 使用可拆卸弹匣的枪械（世界生成时自动插入弹匣） ===
+    private static readonly HashSet<string> MagazineFedGuns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        AXMCItemSystem.ItemKey, DVL10ItemSystem.ItemKey, AKMItemSystem.ItemKey,
+        DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, M4A1ItemSystem.ItemKey,
+        P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey, RPDItemSystem.ItemKey,
+        USPItemSystem.ItemKey, VSSItemSystem.ItemKey,
+    };
+
     // === 近战武器列表（物资箱专属） ===
     private static readonly string[] MeleeIds = { RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey };
 
@@ -435,6 +444,15 @@ public static class CustomSpawnPatch
             {
                 ammo.rounds = UnityEngine.Random.Range(0, ammo.maxRounds + 1);
                 Plugin.Log.LogInfo($"[CustomSpawn] Magazine '{itemKey}' ammo randomized to {ammo.rounds}/{ammo.maxRounds}.");
+            }
+
+            // 世界生成的弹匣供弹枪械：插入弹匣，弹匣内随机弹药
+            var gun = item.GetComponent<GunScript>();
+            if (gun != null && MagazineFedGuns.Contains(item.id))
+            {
+                gun.hasMag = true;
+                gun.roundsInMag = UnityEngine.Random.Range(0, gun.magCapacity + 1);
+                Plugin.Log.LogInfo($"[CustomSpawn] Gun '{itemKey}' spawned with magazine, rounds={gun.roundsInMag}/{gun.magCapacity}.");
             }
 
             // FreshItemDrop：让物品正确落入世界（物理、可见性、拾取注册）

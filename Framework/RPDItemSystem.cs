@@ -152,7 +152,7 @@ public static class RPDItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 6.0f,
+            weight = 3.6f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 64,
@@ -177,7 +177,7 @@ public static class RPDItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 6.0f,
+            weight = 3.6f,
             scaleWeightWithCondition = false,
             value = 64,
             tags = "cangetwet,gun",
@@ -316,12 +316,13 @@ public sealed class RPDItemMarker : MonoBehaviour
 /// <summary>
 /// RPD 悬停描述补丁。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class RPDHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<RPDItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

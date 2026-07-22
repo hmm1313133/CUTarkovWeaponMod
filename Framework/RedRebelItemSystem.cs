@@ -82,7 +82,7 @@ public static class RedRebelItemSystem
                 scaleWeightWithCondition = false,
                 combineable = true,
                 value = 30,
-                tags = "cangetwet,tool,cutting,hammering,backflip",
+                tags = "tool,cutting,hammering,backflip",
                 qualities = new List<CraftingQuality>
                 {
                     new CraftingQuality("cutting", 12f),
@@ -244,12 +244,13 @@ public sealed class RedRebelItemMarker : MonoBehaviour
 /// 构建完整详细页面。攀爬功能由 RedRebelJumpPatch 提供，描述文本中已包含说明。
 /// 功能性 tags（cangetwet, tool, cutting, hammering）在 ItemInfo.tags 中声明。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class RedRebelHoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<RedRebelItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

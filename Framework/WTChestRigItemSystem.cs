@@ -38,7 +38,7 @@ public static class WTChestRigItemSystem
     public static int RecognitionMin = 4;                  // 识别所需智力
     public static float ContainerCapacity = 3.5f;          // 容器容量 3.5u
     public static float ContainerMaxWeightPerItem = 1.5f;  // 单物品最大重量 1.5u
-    public static float ContainerEncumbranceReduction = 0.45f; // 重量减免 45%
+    public static float ContainerEncumbranceReduction = 0.55f; // 重量减免 45%
     public static int WearableVisualOffset = 6;            // 穿戴时 sortingOrder 偏移（高于防弹衣的5，弹挂显示在外层）
 
     // === 时间衰减 ===
@@ -54,6 +54,7 @@ public static class WTChestRigItemSystem
 
         // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
+        item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
         item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
 
         var icon = TryLoadIcon();
@@ -101,6 +102,7 @@ public static class WTChestRigItemSystem
 
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -253,12 +255,13 @@ public static class WTChestRigItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class WTChestRigHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

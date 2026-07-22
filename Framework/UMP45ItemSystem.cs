@@ -157,7 +157,7 @@ public static class UMP45ItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 2.1f,
+            weight = 1.26f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 44,
@@ -182,7 +182,7 @@ public static class UMP45ItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 2.1f,
+            weight = 1.26f,
             scaleWeightWithCondition = false,
             value = 44,
             tags = "cangetwet,gun",
@@ -321,12 +321,13 @@ public sealed class UMP45ItemMarker : MonoBehaviour
 /// <summary>
 /// UMP 45 悬停描述补丁。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class UMP45HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<UMP45ItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
@@ -41,14 +42,19 @@ public static class NightVisionController
 
     // Pre-generated noise textures (cycled, no per-frame generation)
     private static readonly Texture2D[] _noiseTextures = new Texture2D[4];
+    private static readonly Sprite[] _noiseSprites = new Sprite[4];
     private static int _noiseIndex;
     private static int _noiseFrameCounter;
+
+    // Cached NVG item + drain rate (refreshed periodically, not every frame)
+    private static Item? _cachedNvg;
+    private static float _cachedDrainRate = StandardDrainRate;
+    private static int _nvgCacheFrameCounter;
 
     // Canvas + overlay elements
     private static GameObject? _canvasObj;
     private static Image? _greenImg;
     private static Image? _noiseImg;
-    private static Texture2D? _noiseWorkTex;
     private static Image? _vignetteImg;
     private static Texture2D? _vignetteTex;
 
@@ -57,6 +63,17 @@ public static class NightVisionController
     private static int _debugFrameCounter;
 
     public static bool IsNvgActive => _nvgActive;
+
+    /// <summary>
+    /// 重新应用夜视仪环境光设置（由 Harmony Postfix 在 UpdateAmbientLight 之后调用）。
+    /// 游戏每帧将 ambientLight.intensity 覆盖回 0.12/0.4，需要在此重新设置。
+    /// </summary>
+    public static void ApplyAmbientBoost()
+    {
+        if (!_nvgActive || _ambientLight == null) return;
+        _ambientLight.intensity = _curAmbientIntensity;
+        _ambientLight.color = _curAmbientColor;
+    }
 
     public static void Init()
     {
@@ -89,102 +106,82 @@ public static class NightVisionController
             }
             _noiseTextures[i].SetPixels(pixels);
             _noiseTextures[i].Apply();
+            _noiseSprites[i] = Sprite.Create(_noiseTextures[i],
+                new Rect(0, 0, 128, 128), Vector2.one * 0.5f, 100f);
         }
     }
+
+    private static int _helmetCheckCounter = 0;
 
     public static void Tick()
     {
         if (!_initialized) return;
 
-        _debugFrameCounter++;
-        if (_debugFrameCounter % 300 == 0)
-        {
-            var nvg = GetEquippedNVG();
-            Plugin.Log.LogInfo(
-                $"[NVG] Tick #{_debugFrameCounter}, active={_nvgActive}, " +
-                $"nvg={(nvg != null ? nvg.id : "null")}, " +
-                $"battery={nvg?.battery?.hasCharge}");
-        }
-
+        // Input check - must run every frame to not miss key press
         if (Input.GetKeyDown(ToggleKey))
         {
-            Plugin.Log.LogInfo("[NVG] N key detected, toggling.");
             ToggleNVG();
         }
 
-        // Check: if NVG is equipped but helmet removed, drop NVG
-        var equippedNvg = GetEquippedNVG();
-        if (equippedNvg != null)
-        {
-            var body = PlayerCamera.main?.body;
-            if (body != null)
-            {
-                var helmet = body.GetWearableBySlotID("hat");
-                if (helmet == null || !IsCompatibleHelmetId(helmet.id, equippedNvg.id))
-                {
-                    if (_nvgActive) TurnOff();
-                    body.DropWearable(equippedNvg);
-                    Plugin.Log.LogInfo("[NVG] Helmet removed, NVG dropped to ground.");
-                }
-            }
-        }
-
+        // NVG active state - battery drain + visual effects (every frame)
         if (_nvgActive)
         {
-            var nvg = GetEquippedNVG();
-            if (nvg == null)
+            // Refresh cached NVG item + drain rate every 30 frames (not every frame)
+            _nvgCacheFrameCounter++;
+            if (_cachedNvg == null || _nvgCacheFrameCounter % 30 == 0)
+            {
+                _cachedNvg = GetEquippedNVG();
+                _cachedDrainRate = GetDrainRateForItem(_cachedNvg);
+            }
+
+            if (_cachedNvg == null)
             {
                 TurnOff();
                 Plugin.Log.LogInfo("[NVG] NVG unequipped, turning off.");
             }
-            else if (nvg.condition <= 0f)
+            else if (_cachedNvg.condition <= 0f)
             {
                 TurnOff();
                 Plugin.Log.LogInfo("[NVG] Battery depleted, turning off.");
             }
             else
             {
-                // Check helmet still equipped
-                var body = PlayerCamera.main?.body;
-                if (body != null)
+                _cachedNvg.condition -= _cachedDrainRate * Time.deltaTime;
+                if (_cachedNvg.condition <= 0f)
                 {
-                    var helmet = body.GetWearableBySlotID("hat");
-                    if (helmet == null || !IsCompatibleHelmetId(helmet.id, nvg.id))
-                    {
-                        TurnOff();
-                        Plugin.Log.LogInfo("[NVG] Helmet removed, turning off NVG.");
-                    }
-                    else
-                    {
-                        nvg.condition -= GetDrainRate() * Time.deltaTime;
-                        if (nvg.condition <= 0f)
-                        {
-                            nvg.condition = 0f;
-                            TurnOff();
-                            Plugin.Log.LogInfo("[NVG] Battery depleted, turning off.");
-                        }
-                    }
+                    _cachedNvg.condition = 0f;
+                    TurnOff();
+                    Plugin.Log.LogInfo("[NVG] Battery depleted, turning off.");
                 }
             }
 
-            // Re-apply AmbientLight using cached reference (no GameObject.Find)
-            if (_ambientLight != null)
-            {
-                _ambientLight.intensity = _curAmbientIntensity;
-                _ambientLight.color = _curAmbientColor;
-            }
-
-            // Cycle noise texture every 8 frames (just swap sprite, no generation)
+            // Noise texture cycling (every 8 frames) - swap sprite directly, no GetPixels
             _noiseFrameCounter++;
-            if (_noiseFrameCounter % 8 == 0)
+            if (_noiseFrameCounter % 8 == 0 && _noiseImg != null)
             {
-                _noiseIndex = (_noiseIndex + 1) % _noiseTextures.Length;
-                if (_noiseImg != null && _noiseWorkTex != null)
-                {
-                    _noiseWorkTex.SetPixels(_noiseTextures[_noiseIndex].GetPixels());
-                    _noiseWorkTex.Apply();
-                }
+                _noiseIndex = (_noiseIndex + 1) % _noiseSprites.Length;
+                _noiseImg.sprite = _noiseSprites[_noiseIndex];
             }
+
+            // Ambient light re-application handled by NVGAmbientLightPatch.Postfix
+        }
+
+        // Helmet compatibility check - only every 15 frames (4x/sec, not every frame)
+        _helmetCheckCounter++;
+        if (_helmetCheckCounter % 15 != 0) return;
+
+        var equippedNvg = GetEquippedNVG();
+        if (equippedNvg == null) return;
+
+        var body = PlayerCamera.main?.body;
+        if (body == null) return;
+
+        var helmet = body.GetWearableBySlotID("hat");
+        if (helmet == null || !IsCompatibleHelmetId(helmet.id, equippedNvg.id))
+        {
+            if (_nvgActive) TurnOff();
+            body.DropWearable(equippedNvg);
+            Plugin.Log.LogInfo("[NVG] Helmet removed, NVG dropped to ground.");
         }
     }
 
@@ -308,20 +305,14 @@ public static class NightVisionController
         _greenImg.raycastTarget = false;
         SetFullStretch(_greenImg.rectTransform);
 
-        // Noise (using pre-generated texture)
+        // Noise (using pre-generated sprite, no per-frame GetPixels)
         EnsureVignetteTexture(_curVignetteClearRadius);
         var noiseObj = new GameObject("Noise");
         noiseObj.transform.SetParent(_canvasObj.transform, false);
         _noiseImg = noiseObj.AddComponent<Image>();
         _noiseImg.color = new Color(1f, 1f, 1f, _curNoiseAlpha);
         _noiseImg.raycastTarget = false;
-        _noiseWorkTex = new Texture2D(128, 128, TextureFormat.RGBA32, false);
-        _noiseWorkTex.filterMode = FilterMode.Bilinear;
-        _noiseWorkTex.wrapMode = TextureWrapMode.Repeat;
-        _noiseWorkTex.SetPixels(_noiseTextures[0].GetPixels());
-        _noiseWorkTex.Apply();
-        _noiseImg.sprite = Sprite.Create(_noiseWorkTex,
-            new Rect(0, 0, 128, 128), Vector2.one * 0.5f, 100f);
+        _noiseImg.sprite = _noiseSprites[0];
         SetFullStretch(_noiseImg.rectTransform);
 
         // Vignette: 4 solid black gradient Images (top/bottom/left/right)
@@ -398,6 +389,7 @@ public static class NightVisionController
     {
         if (!_nvgActive) return;
         _nvgActive = false;
+        _cachedNvg = null;
         PlayToggleSound();
 
         if (_canvasObj != null)
@@ -437,7 +429,14 @@ public static class NightVisionController
     /// </summary>
     private static float GetDrainRate()
     {
-        var nvg = GetEquippedNVG();
+        return GetDrainRateForItem(GetEquippedNVG());
+    }
+
+    /// <summary>
+    /// Returns the drain rate for a specific NVG item (no extra lookup).
+    /// </summary>
+    private static float GetDrainRateForItem(Item? nvg)
+    {
         if (nvg != null)
         {
             if (nvg.id.Equals(Gpnvg18ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
@@ -534,5 +533,19 @@ public static class NightVisionController
         }
         Plugin.Log.LogInfo($"[NVG] {id} equipped with helmet '{helmet.id}'.");
         return true;
+    }
+}
+
+/// <summary>
+/// 游戏每帧调用 UpdateAmbientLight 将 ambientLight.intensity 设为 0.12/0.4，
+/// 覆盖夜视仪的亮度设置。此 Postfix 在游戏设置之后重新应用夜视仪亮度。
+/// </summary>
+[HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.UpdateAmbientLight))]
+public static class NVGAmbientLightPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix()
+    {
+        NightVisionController.ApplyAmbientBoost();
     }
 }

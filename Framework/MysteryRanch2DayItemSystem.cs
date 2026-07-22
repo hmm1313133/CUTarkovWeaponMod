@@ -40,8 +40,9 @@ public static class MysteryRanch2DayItemSystem
     public static int RecognitionMin = 3;                      // 识别所需智力
     public static float ContainerCapacity = 5f;                // 容器容量 5u
     public static float ContainerMaxWeightPerItem = 4.2f;      // 单物品最大重量 4.2u
-    public static float ContainerEncumbranceReduction = 0.65f; // 重量减免 65%
-    public static float WearableHitDurabilityLossMultiplier = 7f; // 可撕裂属性 7点
+    public static float ContainerEncumbranceReduction = 0.35f; // 重量减免 65%
+    public static float WearableHitDurabilityLossMultiplier = 0f; // 背包不受击减耐久
+    public static float RippableAmount = 7f; // 可撕裂属性 7点
     public static int WearableVisualOffset = 4;               // 穿戴时 sortingOrder 偏移
 
     // === 时间衰减 ===
@@ -64,7 +65,7 @@ public static class MysteryRanch2DayItemSystem
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
-        item.Stats.qualities.Add(new CraftingQuality("rippable", WearableHitDurabilityLossMultiplier));
+        item.Stats.qualities.Add(new CraftingQuality("rippable", RippableAmount));
 
         var container = item.GetComponent<Container>();
         if (container == null) container = item.gameObject.AddComponent<Container>();
@@ -118,6 +119,7 @@ public static class MysteryRanch2DayItemSystem
             info.wearableIsolation = WearableIsolation;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -270,12 +272,13 @@ public static class MysteryRanch2DayItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class MysteryRanch2DayHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

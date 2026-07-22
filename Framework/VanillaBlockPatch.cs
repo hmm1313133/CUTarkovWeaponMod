@@ -60,6 +60,9 @@ public static class VanillaBlockPatch
     internal static readonly HashSet<string> HiddenFromLootPoolIds = new(StringComparer.OrdinalIgnoreCase)
     {
         Pvs31aItemSystem.ItemKey,
+        "duffelbag",
+        "smallpack",
+        "bigpack",
     };
 
     /// <summary>判断物品ID是否被封禁（完全阻止创建）</summary>

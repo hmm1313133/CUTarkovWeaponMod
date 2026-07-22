@@ -40,8 +40,9 @@ public static class DayPackItemSystem
     public static int RecognitionMin = 3;                      // 识别所需智力
     public static float ContainerCapacity = 5.5f;              // 容器容量 5.5u
     public static float ContainerMaxWeightPerItem = 3f;        // 单物品最大重量 3u
-    public static float ContainerEncumbranceReduction = 0.56f; // 重量减免 56%
-    public static float WearableHitDurabilityLossMultiplier = 7f; // 可撕裂属性 7点
+    public static float ContainerEncumbranceReduction = 0.44f; // 重量减免 56%
+    public static float WearableHitDurabilityLossMultiplier = 0f; // 背包不受击减耐久
+    public static float RippableAmount = 7f; // 可撕裂属性 7点
     public static int WearableVisualOffset = 4;               // 穿戴时 sortingOrder 偏移
 
     // === 时间衰减 ===
@@ -59,7 +60,7 @@ public static class DayPackItemSystem
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
-        item.Stats.qualities.Add(new CraftingQuality("rippable", WearableHitDurabilityLossMultiplier));
+        item.Stats.qualities.Add(new CraftingQuality("rippable", RippableAmount));
 
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
@@ -117,6 +118,7 @@ public static class DayPackItemSystem
             info.wearableIsolation = WearableIsolation;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -269,12 +271,13 @@ public static class DayPackItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class DayPackHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

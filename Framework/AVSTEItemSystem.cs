@@ -33,14 +33,14 @@ public static class AVSTEItemSystem
     // === 数值 ===
     // 减伤65.1%: 1/(1+a) = 0.349, a = 1/0.349 - 1 = 1.8653
     public static float WearableArmor = 1.8653f;
-    public static float Weight = 5.2f;                    // 重量 5.2u
+    public static float Weight = 4.8f;                    // 重量 5.2u
     public static float WearableHitDurabilityLossMultiplier = 0.24f; // 被击中耐久损失倍率
     public static float WearableIsolation = 0.08f;       // 保温值
     public static int Value = 69;                         // 价值
     public static int RecognitionMin = 5;                 // 识别所需智力
     public static float ContainerCapacity = 2f;           // 容器容量 2u
     public static float ContainerMaxWeightPerItem = 0.75f; // 单物品最大重量 0.75u
-    public static float ContainerEncumbranceReduction = 0.3f; // 重量减免 30%
+    public static float ContainerEncumbranceReduction = 0.70f; // 重量减免 30%
     public static int WearableVisualOffset = 5;           // 穿戴时 sortingOrder 偏移
 
     public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
@@ -91,7 +91,7 @@ public static class AVSTEItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
+                tags = "",
                 rec = new Recognition(RecognitionMin),
             };
 
@@ -221,12 +221,13 @@ public static class AVSTEItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class AVSTEHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

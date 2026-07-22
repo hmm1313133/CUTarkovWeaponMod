@@ -38,7 +38,7 @@ public static class CommandoItemSystem
     public static int RecognitionMin = 5;                  // 识别所需智力
     public static float ContainerCapacity = 4f;            // 容器容量 4u
     public static float ContainerMaxWeightPerItem = 1.2f;  // 单物品最大重量 1.2u
-    public static float ContainerEncumbranceReduction = 0.55f; // 重量减免 55%
+    public static float ContainerEncumbranceReduction = 0.45f; // 重量减免 55%
     public static int WearableVisualOffset = 6;            // 穿戴时 sortingOrder 偏移（高于防弹衣的5，弹挂显示在外层）
 
     // === 时间衰减 ===
@@ -97,6 +97,7 @@ public static class CommandoItemSystem
 
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
+            info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
             info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
@@ -249,12 +250,13 @@ public static class CommandoItemSystem
 
     // === 悬停描述 ===
 
-    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class CommandoHoverPatch
     {
         [HarmonyPostfix]
         public static void Postfix(Item item, ref (string, string) __result)
         {
+        return; // Disabled: replaced by UnifiedHoverPatch
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return;
             if (!item.Stats.rec.recognizable) return;

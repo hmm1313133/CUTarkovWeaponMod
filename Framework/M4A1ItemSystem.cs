@@ -153,7 +153,7 @@ public static class M4A1ItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.4f,
+            weight = 2.04f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 66,
@@ -178,7 +178,7 @@ public static class M4A1ItemSystem
             autoAttack = true,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.4f,
+            weight = 2.04f,
             scaleWeightWithCondition = false,
             value = 66,
             tags = "cangetwet,gun",
@@ -290,12 +290,13 @@ public sealed class M4A1ItemMarker : MonoBehaviour
     public string description = M4A1ItemSystem.Description;
 }
 
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class M4A1HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
+        return; // Disabled: replaced by UnifiedHoverPatch
         var marker = item.GetComponent<M4A1ItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;

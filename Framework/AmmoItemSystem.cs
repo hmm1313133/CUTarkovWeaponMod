@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -1682,101 +1683,25 @@ public sealed class Ammo939SP5Marker : MonoBehaviour
 /// <summary>
 /// 弹药悬停描述统一补丁 — 所有自定义弹药物品共享此 HarmonyPatch。
 /// </summary>
-[HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
 public static class AmmoHoverPatch
 {
+    private static readonly HashSet<string> AmmoIds = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Ammo338UCWItemSystem.ItemKey, Ammo76251BPZItemSystem.ItemKey,
+        Ammo76239SPItemSystem.ItemKey, Ammo12g85ItemSystem.ItemKey,
+        Ammo50CopperItemSystem.ItemKey, Ammo45FMJItemSystem.ItemKey,
+        Ammo919PSOItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey,
+        Ammo5728SB193ItemSystem.ItemKey, Ammo939SP5ItemSystem.ItemKey,
+    };
+
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
-        // 检查所有弹药标记
-        var marker76251bpz = item.GetComponent<Ammo76251BPZMarker>();
-        if (marker76251bpz != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker76251bpz.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker76239sp = item.GetComponent<Ammo76239SPMarker>();
-        if (marker76239sp != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker76239sp.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker12g85 = item.GetComponent<Ammo12g85Marker>();
-        if (marker12g85 != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker12g85.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker338ucw = item.GetComponent<Ammo338UCWMarker>();
-        if (marker338ucw != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker338ucw.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker50copper = item.GetComponent<Ammo50CopperMarker>();
-        if (marker50copper != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker50copper.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker45fmj = item.GetComponent<Ammo45FMJMarker>();
-        if (marker45fmj != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker45fmj.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker919pso = item.GetComponent<Ammo919PSOMarker>();
-        if (marker919pso != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker919pso.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker55645fmj = item.GetComponent<Ammo55645FMJMarker>();
-        if (marker55645fmj != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker55645fmj.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker5728sb193 = item.GetComponent<Ammo5728SB193Marker>();
-        if (marker5728sb193 != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker5728sb193.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
-
-        var marker939sp5 = item.GetComponent<Ammo939SP5Marker>();
-        if (marker939sp5 != null)
-        {
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = marker939sp5.displayName;
-            HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-            return;
-        }
+        return; // Disabled: replaced by UnifiedHoverPatch
+        if (item == null || !AmmoIds.Contains(item.id)) return;
+        if (!item.Stats.rec.recognizable) return;
+        // 名称已由 I18nRefreshPatch.Prefix 设置，只需 StripEffects
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
