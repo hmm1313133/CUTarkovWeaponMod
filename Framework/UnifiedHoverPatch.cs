@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 
 using CUTarkovMedicalMod.Framework;
@@ -22,5 +23,23 @@ public static class UnifiedHoverPatch
         // 名称已由 I18nRefreshPatch.Prefix 通过 I18n.Tr() 设置
         // 只需处理特效裁剪
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
+/// <summary>
+/// 移除 Item.fullName 原生的耐久百分比后缀 " (XX%)"。
+/// 游戏在 get_fullName 中始终追加 condition 百分比，此补丁将其剥离。
+/// </summary>
+[HarmonyPatch(typeof(Item), nameof(Item.fullName), MethodType.Getter)]
+public static class FullNameConditionPatch
+{
+    public static void Postfix(ref string __result)
+    {
+        if (string.IsNullOrEmpty(__result)) return;
+        int idx = __result.LastIndexOf(" (", StringComparison.Ordinal);
+        if (idx < 0) return;
+        var suffix = __result.Substring(idx);
+        if (suffix.Contains("%") && suffix.Contains("</color>") && suffix.EndsWith(")"))
+            __result = __result.Substring(0, idx);
     }
 }

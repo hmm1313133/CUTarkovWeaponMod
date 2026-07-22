@@ -16,13 +16,13 @@ All notable changes to this project will be documented in this file.
 
 ### 变更
 
-- **移除耐久百分比显示**：删除 `ConditionNamePatch.cs`，移除 `UnifiedHoverPatch` 中的耐久显示逻辑，所有物品名称不再显示 `(XX%)` 后缀
+- **移除耐久百分比显示**：删除 `ConditionNamePatch.cs`，新增 `FullNameConditionPatch` 拦截 `Item.get_fullName` 移除游戏原生的 `(XX%)` 耐久后缀（游戏在 `fullName` 属性中始终追加 condition 百分比，非模组添加）
 - **VSS 枪口火光禁用**：整体式消音器不应有枪口火光，`muzzleParticle.Stop()` + `emission.enabled=false` + `SetActive(false)`
 - **cangetwet 标签清理**：移除 23 件防弹衣和 2 件近战武器（Red Rebel / M-2 战术剑）的 `cangetwet` tag
 
 ### 修复
 
-- **MBSS 世界体积过小**：`RegisterWithCUCoreLib` 缺少 `customInfo.Icon = icon` 赋值，CUCoreLib 使用默认尺寸导致世界精灵过小
+- **MBSS 世界体积过小**：`RegisterWithCUCoreLib` 缺少 `customInfo.Icon` 赋值且未设置 `SpriteScale`。MBSS 图标 PPU=22.5（其他装备为6），需设置 `SpriteScale=3.75f` 补偿 3.75 倍尺寸差异
 - **Pilgrim/SsoAttack2/6SH118 背包不显示衰减倒计时**：`EnsureRegisteredInItemTable` 中缺少 `rotSpeed`/`decayMinutes`/`decayInfo` 字段，游戏从模板读取而非实例，存档加载后不显示衰减倒计时
 
 ## [1.1.1] - 2026-07-22

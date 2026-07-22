@@ -16,8 +16,8 @@
 - **夜视仪性能优化**：缓存 NVG 引用和耗电率（每 30 帧刷新），预创建 4 张噪声 Sprite 轮换替代每帧 GetPixels/SetPixels/Apply，消除 GC 数组分配
 - **瞄准镜性能优化**：ScopeZoomPatch 先检查手持物品，仅持 AXMC 时才查询穿戴物品
 - **护甲耐久性能优化**：ArmorConditionPatch 添加快速路径，耐久归零时跳过 GetLimbWearables 遍历
-- **移除耐久百分比显示**：删除 ConditionNamePatch.cs，背包/弹挂/护甲/头盔名称不再显示 (XX%) 后缀
-- **MBSS 世界体积修复**：RegisterWithCUCoreLib 缺少 customInfo.Icon 赋值，导致 CUCoreLib 使用默认尺寸，世界精灵过小
+- **移除耐久百分比显示**：新增 FullNameConditionPatch 拦截 Item.get_fullName，移除游戏原生的 (XX%) 耐久后缀（游戏原生行为，非模组添加）
+- **MBSS 世界体积修复**：RegisterWithCUCoreLib 补充 customInfo.Icon 赋值，并设置 SpriteScale=3.75f 补偿 PPU 差异（MBSS PPU=22.5 vs 其他装备 PPU=6）
 - **VSS 枪口火光禁用**：整体式消音器不应有枪口火光，禁用 muzzleParticle
 - **背包衰减修复**：Pilgrim/SsoAttack2/6SH118 在 EnsureRegisteredInItemTable 中补充 rotSpeed/decayMinutes/decayInfo，修复存档加载后不显示衰减倒计时
 - **cangetwet 标签清理**：移除 23 件防弹衣和 2 件近战武器的 cangetwet tag（护甲/近战不应被浸湿损坏）

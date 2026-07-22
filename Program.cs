@@ -6,25 +6,40 @@ class Program
 {
     static void Main()
     {
-        var dllPath = @"F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Assembly-CSharp.dll";
+        var dllPath = @"F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\CUCoreLib.dll";
         var assembly = AssemblyDefinition.ReadAssembly(dllPath);
 
-        var soundType = assembly.MainModule.Types.FirstOrDefault(t => t.Name == "Sound");
-        if (soundType == null) { Console.WriteLine("Sound not found"); return; }
-
-        // Dump the Play(AudioClip,...) method
-        var playMethod = soundType.Methods.FirstOrDefault(m =>
-            m.Name == "Play" && m.Parameters.Count > 0 &&
-            m.Parameters[0].ParameterType.Name == "AudioClip");
-
-        if (playMethod != null && playMethod.HasBody)
+        // Check CustomItemInfo constructor for SpriteScale default
+        var ciType = assembly.MainModule.Types.FirstOrDefault(t => t.Name == "CustomItemInfo");
+        if (ciType != null)
         {
-            Console.WriteLine($"=== Sound.Play(AudioClip,...) ({playMethod.Body.Instructions.Count} instrs) ===");
-            Console.WriteLine($"Parameters: {string.Join(", ", playMethod.Parameters.Select(p => p.ParameterType + " " + p.Name + (p.HasDefault ? "="+p.Constant : "")))}");
-            Console.WriteLine();
-            foreach (var instr in playMethod.Body.Instructions)
+            var ctor = ciType.Methods.FirstOrDefault(m => m.IsConstructor && !m.HasParameters);
+            if (ctor != null && ctor.HasBody)
             {
-                Console.WriteLine($"  IL_{instr.Offset:X4}: {instr.OpCode} {instr.Operand}");
+                Console.WriteLine("=== CustomItemInfo.ctor() ===");
+                foreach (var instr in ctor.Body.Instructions)
+                    Console.WriteLine($"  IL_{instr.Offset:X4}: {instr.OpCode} {instr.Operand}");
+            }
+        }
+
+        // Check ResolveSpriteScale method
+        var patchType = assembly.MainModule.Types.FirstOrDefault(t => t.Name == "ItemRegistryPatches");
+        if (patchType != null)
+        {
+            var resolveMethod = patchType.Methods.FirstOrDefault(m => m.Name == "ResolveSpriteScale");
+            if (resolveMethod != null && resolveMethod.HasBody)
+            {
+                Console.WriteLine($"\n=== ResolveSpriteScale ({resolveMethod.Body.Instructions.Count} instrs) ===");
+                foreach (var instr in resolveMethod.Body.Instructions)
+                    Console.WriteLine($"  IL_{instr.Offset:X4}: {instr.OpCode} {instr.Operand}");
+            }
+
+            var applyMethod = patchType.Methods.FirstOrDefault(m => m.Name == "ApplyCustomScale");
+            if (applyMethod != null && applyMethod.HasBody)
+            {
+                Console.WriteLine($"\n=== ApplyCustomScale ({applyMethod.Body.Instructions.Count} instrs) ===");
+                foreach (var instr in applyMethod.Body.Instructions)
+                    Console.WriteLine($"  IL_{instr.Offset:X4}: {instr.OpCode} {instr.Operand}");
             }
         }
     }

@@ -127,7 +127,11 @@ public static class MBSSItemSystem
         // 世界图标 + 穿戴贴图
         var icon = TryLoadIcon();
         if (icon != null)
+        {
             customInfo.Icon = icon;
+            // MBSS 图标 PPU=22.5（其他装备为6），需用 SpriteScale 补偿 3.75x
+            customInfo.SpriteScale = 3.75f;
+        }
 
         var wornIcon = TryLoadWornIcon();
         if (wornIcon != null)
