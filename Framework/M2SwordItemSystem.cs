@@ -75,7 +75,7 @@ public static class M2SwordItemSystem
                 autoAttack = true,
                 destroyAtZeroCondition = true,
                 wearable = false,
-                weight = 1.3f,
+                weight = 0.8f,
                 scaleWeightWithCondition = false,
                 combineable = true,
                 value = 30,
@@ -237,7 +237,7 @@ public static class M2SwordHoverPatch
         var marker = item.GetComponent<M2SwordItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         // 不覆盖 Item2：保留游戏构建的完整描述页（含重量/价值/tags/描述等）
     }
 }

@@ -2,7 +2,7 @@
 
 > `未知伤亡（Casualties: Unknown）：塔科夫武器模组`
 >
-> **v1.1.0**
+> **v1.1.1**
 
 一个为 **Casualties: Unknown Demo** 开发的 BepInEx 模组，将《逃离塔科夫》中的自定义枪械、弹药、弹匣、近战武器、护甲装备、头盔、背包及完整武器系统引入游戏。
 
@@ -10,7 +10,20 @@
 
 ## 更新日志
 
-### v1.1.0（当前）
+### v1.1.1
+
+- **夜视仪电池修复**：存档加载后 BatteryItem 组件丢失导致无法开启，现动态补上并用 condition 直接判断电量
+- **语言切换修复**：新增 I18nRefreshPatch，悬停时刷新 ItemInfo 本地化文本；移除 18 个文件中缓存的 marker.displayName
+- **背包可撕裂属性**：为 11 个背包添加 rippable tag，CraftingQuality amount 匹配各背包的 WearableHitDurabilityLossMultiplier（5~10）
+- **背包衰减修复**：设置 decayMinutes 修复 UI 剩余时间显示错误；在 ConfigureSpawnedItem 中重新设置 rotSpeed/decayInfo/decayMinutes
+- **背包 Container 修复**：在 ConfigureSpawnedItem 中确保 Container 组件正确配置，耐久条长度显示容量、颜色显示耐久
+- **贴图修复**：12 项文件名不匹配/缺失（mysteryranch2day、daypack、ssoattack2、6b47、lk3f、partizan、pilgrim、readypack、trigger.wav 等）
+- **重量调整**：M-2 战术剑 1.3u->0.8u，Red Rebel 冰镐 1.1u->1.0u
+- **SFMP 背包容量**：14u->10u
+- **6B516 down 贴图**：改为透明占位（6B516 非头盔）
+- **Bug 修复**：夜视仪噪声纹理损坏、USP 弹匣 tags、7 个弹匣悬停补丁、维修套件耐久归零销毁、退弹日志、路径回退、RecipePatch 日志
+
+### v1.1.0
 
 - **夜视仪系统**：新增 3 件塔科夫风格夜视仪
   - GPNVG-18 四目全景夜视仪、PVS-14 单目夜视仪、PVS-31A 双目夜视仪

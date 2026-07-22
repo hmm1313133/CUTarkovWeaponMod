@@ -53,6 +53,8 @@ public static class SixB516ItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
+
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null)

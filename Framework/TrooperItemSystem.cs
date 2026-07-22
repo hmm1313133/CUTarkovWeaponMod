@@ -38,6 +38,8 @@ public static class TrooperItemSystem
         if (!IsTrooperRequest(request)) return;
         item.id = ItemKey;
         item.SetCondition(1f);
+
+        item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null) { sr.sprite = icon; Plugin.Log.LogInfo($"[Trooper] Set sprite ({icon.texture.width}x{icon.texture.height})."); }

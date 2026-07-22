@@ -1,0 +1,26 @@
+  正在确定要还原的项目…
+  已还原 g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj (用时 1.43 秒)。
+  2 个项目(共 3 个)是最新的，无法还原。
+  CUCoreLibRef -> g:\modmake\TKF_medical\CUCoreLibRef\bin\Release\net48\CUCoreLibRef.dll
+g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\EffectBackup.cs(481,25): warning CS8604: “void Eff.Res(string json, Body? body = null)”中的形参“json”可能传入 null 引用实参。 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
+g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\KrokMpStateBridge.cs(424,61): warning CS8604: “void EffectSyncNetwork.BroadcastEffects(string pid, string effectsJson)”中的形参“effectsJson”可能传入 null 引用实参。 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
+g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\KrokMpStateBridge.cs(433,29): warning CS8604: “void Eff.Res(string json, Body? body = null)”中的形参“json”可能传入 null 引用实参。 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
+  CUTarkovMedicalMod -> g:\modmake\TKF_medical\CUTarkovMedicalMod\bin\Release\net48\CUTarkovMedicalMod.dll
+g:\modmake\TKF_weapon\Plugin.cs(203,5): error CS1524: 应输入 catch 或 finally [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(205,5): error CS0106: 修饰符“private”对该项无效 [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(233,5): error CS0106: 修饰符“private”对该项无效 [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(238,2): error CS1513: 应输入 } [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+
+生成失败。
+
+g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\EffectBackup.cs(481,25): warning CS8604: “void Eff.Res(string json, Body? body = null)”中的形参“json”可能传入 null 引用实参。 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
+g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\KrokMpStateBridge.cs(424,61): warning CS8604: “void EffectSyncNetwork.BroadcastEffects(string pid, string effectsJson)”中的形参“effectsJson”可能传入 null 引用实参。 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
+g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\KrokMpStateBridge.cs(433,29): warning CS8604: “void Eff.Res(string json, Body? body = null)”中的形参“json”可能传入 null 引用实参。 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(203,5): error CS1524: 应输入 catch 或 finally [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(205,5): error CS0106: 修饰符“private”对该项无效 [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(233,5): error CS0106: 修饰符“private”对该项无效 [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+g:\modmake\TKF_weapon\Plugin.cs(238,2): error CS1513: 应输入 } [g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj]
+    3 个警告
+    4 个错误
+
+已用时间 00:00:04.37

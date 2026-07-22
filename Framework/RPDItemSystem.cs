@@ -325,7 +325,7 @@ public static class RPDHoverPatch
         var marker = item.GetComponent<RPDItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }

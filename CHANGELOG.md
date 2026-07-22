@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-07-22
+
+### 修复
+
+- **夜视仪电池丢失**：存档加载后 BatteryItem 组件丢失导致按 N 无反应，新增 `EnsureNVGBattery` 动态补上组件，电量判断改为 `condition <= 0f`
+- **语言切换不生效**：刀、护甲、背包切换英文后仍显示中文，新增 `I18nRefreshPatch` Prefix 在悬停时刷新 `ItemInfo.fullName/description`；移除 18 个文件中缓存的 `marker.displayName`
+- **背包缺少可撕裂属性**：11 个背包添加 `rippable` tag 和 `CraftingQuality`，amount 匹配各背包 `WearableHitDurabilityLossMultiplier`（LK3F=5, SH118=10 等）
+- **背包衰减速度异常**：`decayMinutes` 未设置导致 UI 显示"30多分钟损坏"，现设置 `decayMinutes = (1/DecayRatePerSecond)/60`
+- **背包 Container 组件丢失**：CUCoreLib 覆盖 ItemInfo 后 Container 配置丢失，在 `ConfigureSpawnedItem` 中重新确保 `maxWeight/maxWeightPerItem/encumberanceMult`
+- **夜视仪噪声纹理损坏**：`_noiseImg.sprite.texture.SetPixels` 原地修改原始纹理数组，改用独立 `_noiseWorkTex` 工作副本
+- **维修套件耐久归零不销毁**：添加手动 `Destroy(item.gameObject)`
+- **USP 弹匣 tags 错误**：`cangetwet` -> `belttool`
+- **7 种弹匣缺少悬停描述补丁**：Deagle/Glock17/M4A1/P90/UMP45/RPD/USP
+- **退弹日志显示 0 发**：先保存 `roundsInMag` 再清零
+- **夜视仪路径回退值为空字符串**：改为 `BepInEx.Paths.PluginPath`
+- **RecipePatch 日志配方数量错误**：8->10 弹药，10->11 弹匣
+
+### 变更
+
+- **M-2 战术剑重量**：1.3u -> 0.8u
+- **Red Rebel 冰镐重量**：1.1u -> 1.0u
+- **SFMP 背包容量**：14u -> 10u
+- **6B516 down 贴图**：从复制 6b516.png 改为 1x1 透明占位（6B516 非头盔）
+- **武器维修套件分类**：从医疗分类改为 custom（不再显示为瘀伤治疗包）
+- **VSS 无弹匣贴图**：153x41 修正为 100x30（与有弹匣一致）
+- **VSS 弹匣贴图**：去除多余旋转
+- **csproj**：添加 `equipment/*.wav` 包含规则
+
+### 新增
+
+- **武器维修套件世界生成**：物资箱 7%、空投胶囊 12%、尸体 3%、崩溃舱 1%
+- **I18nRefreshPatch.cs**：语言切换后刷新自定义物品本地化文本
+
+### 贴图文件修复（12项）
+
+| 原文件名 | 新文件名 | 说明 |
+|---------|---------|------|
+| `2DayAssault.png` | `mysteryranch2day.png` | 两日突击背包显示为瘀伤治疗包 |
+| `Day Pack.png` | `daypack.png` | 文件名空格 |
+| `Attack 2.png` | `ssoattack2.png` | 文件名空格 |
+| `6B47.png` | `6b47.png` | 大小写 |
+| `LK3F.png` | `lk3f.png` | 大小写 |
+| `Partizan.png` | `partizan.png` | 大小写 |
+| `Pilgrim.png` | `pilgrim.png` | 大小写 |
+| `ReadyPack.png` | `readypack.png` | 大小写 |
+| `trigge.wav` | `trigger.wav` | 夜视仪开关音效不触发 |
+| 新建 | `6b516_down.png` | 透明占位 |
+| 新建 | `6lbt2670.png` | 从 SFMP.png 复制 |
+| 新建 | `deagle/glock/usp_magout.png` | 无弹匣图标 |
+
 ## [1.1.0] - 2026-07-22
 
 ### 新增

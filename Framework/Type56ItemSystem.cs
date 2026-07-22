@@ -52,6 +52,10 @@ public static class Type56ItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
+        item.Stats.rotSpeed = DecayRatePerSecond * 100f;
+        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null)

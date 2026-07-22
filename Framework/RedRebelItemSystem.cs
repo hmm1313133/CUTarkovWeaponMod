@@ -78,7 +78,7 @@ public static class RedRebelItemSystem
                 autoAttack = true,
                 destroyAtZeroCondition = true,
                 wearable = false,        // 不是可穿戴物品，是手持工具
-                weight = 1.1f,
+                weight = 1f,
                 scaleWeightWithCondition = false,
                 combineable = true,
                 value = 30,
@@ -253,7 +253,7 @@ public static class RedRebelHoverPatch
         var marker = item.GetComponent<RedRebelItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         // 不覆盖 Item2：保留游戏构建的完整描述页（含重量/价值/tags/描述等）
     }
 }

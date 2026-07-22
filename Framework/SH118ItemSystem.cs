@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using BepInEx;
@@ -45,6 +46,23 @@ public static class SH118ItemSystem
 
         item.id = ItemKey;
         item.SetCondition(1f);
+
+        // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
+        item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
+        item.Stats.rotSpeed = DecayRatePerSecond * 100f;
+        item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
+        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+        item.Stats.tags = "cangetwet,rippable";
+        item.Stats.SetTags();
+        if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
+        item.Stats.qualities.RemoveAll(q => q.id == "rippable");
+        item.Stats.qualities.Add(new CraftingQuality("rippable", WearableHitDurabilityLossMultiplier));
+
+        var container = item.GetComponent<Container>();
+        if (container == null) container = item.gameObject.AddComponent<Container>();
+        container.maxWeight = ContainerCapacity;
+        container.maxWeightPerItem = ContainerMaxWeightPerItem > 0 ? ContainerMaxWeightPerItem : 3f;
+        container.encumberanceMult = ContainerEncumbranceReduction;
 
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
@@ -94,7 +112,7 @@ public static class SH118ItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
+                tags = "cangetwet,rippable",
                 rec = new Recognition(RecognitionMin),
             };
 
@@ -148,6 +166,8 @@ public static class SH118ItemSystem
 
     public static void TickDecay()
     {
+        // 衰减现在由游戏原生 Item.HandleDecay 通过 rotSpeed + decayInfo(NoDecayWhenNotWorn) 处理
+        return;
         var cam = PlayerCamera.main;
         if (cam == null) return;
         var body = cam.body;

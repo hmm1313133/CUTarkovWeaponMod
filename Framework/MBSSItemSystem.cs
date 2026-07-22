@@ -56,6 +56,10 @@ public static class MBSSItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
+        if (WearableHitDurabilityLossMultiplier > 0)
+            item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
+
         var icon = TryLoadIcon();
         if (icon != null)
         {

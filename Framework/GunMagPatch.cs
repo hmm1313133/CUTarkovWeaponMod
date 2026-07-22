@@ -2591,7 +2591,7 @@ public static class AXMCMagHoverPatch
 
         if (!item.Stats.rec.recognizable) return;
 
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2607,7 +2607,7 @@ public static class DVL10MagHoverPatch
 
         if (!item.Stats.rec.recognizable) return;
 
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2623,7 +2623,7 @@ public static class AKMMagHoverPatch
 
         if (!item.Stats.rec.recognizable) return;
 
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2639,7 +2639,7 @@ public static class VSSMagHoverPatch
 
         if (!item.Stats.rec.recognizable) return;
 
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2653,7 +2653,7 @@ public static class DeagleMagHoverPatch
         var marker = item.GetComponent<DeagleMagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2667,7 +2667,7 @@ public static class Glock17MagHoverPatch
         var marker = item.GetComponent<Glock17MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2681,7 +2681,7 @@ public static class M4A1MagHoverPatch
         var marker = item.GetComponent<M4A1MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2695,7 +2695,7 @@ public static class P90MagHoverPatch
         var marker = item.GetComponent<P90MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2709,7 +2709,7 @@ public static class UMP45MagHoverPatch
         var marker = item.GetComponent<UMP45MagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2723,7 +2723,7 @@ public static class RPDMagHoverPatch
         var marker = item.GetComponent<RPDMagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
@@ -2737,7 +2737,7 @@ public static class USPMagHoverPatch
         var marker = item.GetComponent<USPMagItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }

@@ -39,6 +39,11 @@ public static class MFUNItemSystem
         if (!IsMFUNRequest(request)) return;
         item.id = ItemKey;
         item.SetCondition(1f);
+
+        // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
+        item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
+        item.Stats.rotSpeed = DecayRatePerSecond * 100f;
+        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null) { sr.sprite = icon; Plugin.Log.LogInfo($"[MF-UN] Set sprite ({icon.texture.width}x{icon.texture.height})."); }

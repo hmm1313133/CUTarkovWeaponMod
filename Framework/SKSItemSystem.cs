@@ -314,7 +314,7 @@ public static class SKSHoverPatch
 
         if (!item.Stats.rec.recognizable) return;
 
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }

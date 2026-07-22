@@ -299,7 +299,7 @@ public static class M4A1HoverPatch
         var marker = item.GetComponent<M4A1ItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }

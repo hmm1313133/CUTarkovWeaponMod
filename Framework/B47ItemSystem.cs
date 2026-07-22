@@ -38,6 +38,8 @@ public static class B47ItemSystem
         if (!IsB47Request(request)) return;
         item.id = ItemKey;
         item.SetCondition(1f);
+
+        item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null) { sr.sprite = icon; Plugin.Log.LogInfo($"[6B47] Set sprite ({icon.texture.width}x{icon.texture.height})."); }

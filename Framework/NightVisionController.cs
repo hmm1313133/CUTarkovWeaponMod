@@ -137,7 +137,7 @@ public static class NightVisionController
                 TurnOff();
                 Plugin.Log.LogInfo("[NVG] NVG unequipped, turning off.");
             }
-            else if (nvg.battery != null && !nvg.battery.hasCharge)
+            else if (nvg.condition <= 0f)
             {
                 TurnOff();
                 Plugin.Log.LogInfo("[NVG] Battery depleted, turning off.");
@@ -203,13 +203,36 @@ public static class NightVisionController
             Plugin.Log.LogInfo("[NVG] No NVG equipped.");
             return;
         }
-        if (nvg.battery == null || !nvg.battery.hasCharge)
+
+        // Ensure BatteryItem component exists (may be lost during save/load)
+        EnsureNVGBattery(nvg);
+
+        if (nvg.condition <= 0f)
         {
-            Plugin.Log.LogInfo("[NVG] Battery dead or missing, cannot activate.");
+            Plugin.Log.LogInfo($"[NVG] Battery dead (condition={nvg.condition}), cannot activate.");
             return;
         }
 
         TurnOn();
+    }
+
+    /// <summary>
+    /// 确保 NVG 物品上有 BatteryItem 组件（存档加载后可能丢失）。
+    /// </summary>
+    private static void EnsureNVGBattery(Item nvg)
+    {
+        var bat = nvg.GetComponent<BatteryItem>();
+        if (bat == null)
+        {
+            bat = nvg.gameObject.AddComponent<BatteryItem>();
+            bat.preset = BatteryItem.BatteryPreset.Medium;
+            bat.maxAllowedCharge = 100f;
+            bat.batteryType = "mediumbattery";
+            bat.maxCharge = 100f;
+            if (nvg.condition <= 0f)
+                nvg.SetCondition(1f);
+            Plugin.Log.LogInfo($"[NVG] BatteryItem was missing on '{nvg.id}', added dynamically (condition={nvg.condition}).");
+        }
     }
 
     private static void PlayToggleSound()

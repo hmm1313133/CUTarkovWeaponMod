@@ -330,7 +330,7 @@ public static class UMP45HoverPatch
         var marker = item.GetComponent<UMP45ItemMarker>();
         if (marker == null) return;
         if (!item.Stats.rec.recognizable) return;
-        __result.Item1 = marker.displayName;
+        // Name updated by I18nRefreshPatch Prefix
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }
