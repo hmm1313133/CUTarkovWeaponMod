@@ -132,6 +132,19 @@ public sealed class WeaponCUCoreLibMode
                         {
                             var request = new MedicalGrantRequest(itemId, itemId, 1, "TemplateSetup", basePrefabId);
                             ConsoleSpawnPatch.ConfigureCustomItem(itemComp, request);
+
+                            // 在模板上设置翻译后的名称和描述
+                            // CUCoreLib ApplyCustomItemRuntime 不复制 fullName/description，
+                            // 物品名称完全依赖模板 Stats.fullName（基础预制体原名如 "Rifle"）
+                            if (itemComp.Stats != null)
+                            {
+                                var trName = I18n.Tr(itemId + ".name");
+                                var trDesc = I18n.Tr(itemId + ".desc");
+                                if (trName != itemId + ".name")
+                                    itemComp.Stats.fullName = trName;
+                                if (trDesc != itemId + ".desc")
+                                    itemComp.Stats.description = trDesc;
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -424,6 +437,26 @@ public sealed class WeaponCUCoreLibMode
                     LBT2670ItemSystem.RegisterWithCUCoreLib(customInfo);
                 }
                 ItemRegistry.Register(itemId, customInfo, registerIcon);
+
+                // 注册到 ItemI18nRegistry，使语言切换时 RefreshAll() 更新 GlobalItems/RegisteredItems 的名称
+                ItemI18nRegistry.Register(itemId);
+
+                // 直接设置翻译名称：RefreshAll() 只在语言变化时运行，
+                // 武器模组在医疗模组之后加载，RefreshAll() 已跑过不会重跑。
+                // 需要同时更新 GlobalItems（plainInfo）和 RegisteredItems（customInfo）。
+                var regName = I18n.Tr(itemId + ".name");
+                var regDesc = I18n.Tr(itemId + ".desc");
+                if (regName != itemId + ".name")
+                {
+                    plainInfo.fullName = regName;
+                    customInfo.fullName = regName;
+                }
+                if (regDesc != itemId + ".desc")
+                {
+                    plainInfo.description = regDesc;
+                    customInfo.description = regDesc;
+                }
+
                 registered++;
             }
             catch (Exception ex)

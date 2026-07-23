@@ -129,8 +129,7 @@ public static class MBSSItemSystem
         if (icon != null)
         {
             customInfo.Icon = icon;
-            // MBSS 图标 PPU=22.5（其他装备为6），需用 SpriteScale 补偿 3.75x
-            customInfo.SpriteScale = 3.75f;
+            // SpriteScale 默认 1.0，不额外放大
         }
 
         var wornIcon = TryLoadWornIcon();
@@ -175,7 +174,7 @@ public static class MBSSItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.5f, 0.5f), 22.5f);
+                    new Vector2(0.5f, 0.5f), 6f);
                 _cachedIcon.name = "mbss-icon";
             }
         }
@@ -207,7 +206,7 @@ public static class MBSSItemSystem
                 // 穿戴贴图用相同图片但不同 pivot/scale
                 _cachedWornIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.5f, 0.5f), 15f);
+                    new Vector2(0.5f, 0.5f), 7f);
                 _cachedWornIcon.name = "mbss-worn";
             }
         }
