@@ -51,6 +51,9 @@ public static class SixB45ItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        var container = item.GetComponent<Container>();
+        if (container != null) item.cont = container;
+
         item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
 
         var icon = TryLoadIcon();

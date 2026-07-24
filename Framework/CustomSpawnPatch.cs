@@ -205,13 +205,13 @@ public static class CustomSpawnPatch
     // 权重 = sqrt(max+1-value) 取整，max=55(Rys-T)，低价值略多但不极端
     private static readonly (string id, int weight)[] HelmetIds =
     {
-        (Ssh68ItemSystem.ItemKey,    4), // val=36 sqrt(20)≈4.47→4
-        (B47ItemSystem.ItemKey,      4), // val=38 sqrt(18)≈4.24→4
-        (CalmanItemSystem.ItemKey,   4), // val=40 sqrt(16)=4→4
-        (ExfilItemSystem.ItemKey,    3), // val=46 sqrt(10)≈3.16→3
-        (UlachItemSystem.ItemKey,    3), // val=48 sqrt(8)≈2.83→3
+        (Ssh68ItemSystem.ItemKey,    8), // val=36 sqrt(20)≈4.47→4
+        (B47ItemSystem.ItemKey,      6), // val=38 sqrt(18)≈4.24→4
+        (CalmanItemSystem.ItemKey,   5), // val=40 sqrt(16)=4→4
+        (ExfilItemSystem.ItemKey,    4), // val=46 sqrt(10)≈3.16→3
+        (UlachItemSystem.ItemKey,    4), // val=48 sqrt(8)≈2.83→3
         (RysTItemSystem.ItemKey,     2), // val=55
-        (FastMtItemSystem.ItemKey,   3), // val=44 sqrt(12)≈3.46->3
+        (FastMtItemSystem.ItemKey,   4), // val=44 sqrt(12)≈3.46->3
     };
 
     private static readonly int RigTotalWeight = SumWeights(RigIds);
@@ -397,6 +397,9 @@ public static class CustomSpawnPatch
     internal static int MedcrateSkippedDup = 0;
     internal static int HelmetAttempts = 0;
     internal static int HelmetSpawned = 0;
+
+    /// <summary>生成锁：防止自定义物品的 Container.Awake 触发链式生成</summary>
+    internal static bool IsSpawning = false;
     internal static int BackpackAttempts = 0;
     internal static int BackpackSpawned = 0;
 
@@ -407,6 +410,19 @@ public static class CustomSpawnPatch
     /// 流程：Resources.Load(基础预制体) -> Instantiate -> ConfigureCustomItem
     /// </summary>
     internal static void SpawnCustomItemAt(string itemKey, Vector2 pos)
+    {
+        IsSpawning = true;
+        try
+        {
+            SpawnCustomItemAtInternal(itemKey, pos);
+        }
+        finally
+        {
+            IsSpawning = false;
+        }
+    }
+
+    private static void SpawnCustomItemAtInternal(string itemKey, Vector2 pos)
     {
         try
         {
@@ -501,6 +517,30 @@ public static class CustomSpawnPatch
         SpawnCustomItemAt(WeaponRepairKitItemSystem.ItemKey, pos);
     }
 
+    /// <summary>以指定概率在指定位置生成一个 TEP-300 战术耳塞</summary>
+    internal static void TrySpawnTep300(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(Tep300ItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成一个 ProFlex DX5 战术耳塞</summary>
+    internal static void TrySpawnProFlex(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(ProFlexItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成一个防弹插板（70%普通/30%高级）</summary>
+    internal static void TrySpawnArmorPlate(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        string key = UnityEngine.Random.Range(0f, 1f) < 0.7f
+            ? ArmorPlateItemSystem.CheapPlateKey
+            : ArmorPlateItemSystem.AdvancedPlateKey;
+        SpawnCustomItemAt(key, pos);
+    }
+
     // === 补丁 ===
 
     // 1. GenerateLifePods 标志（空投舱期间）
@@ -538,10 +578,31 @@ public static class CustomSpawnPatch
         [HarmonyPostfix]
         public static void Postfix(Container __instance)
         {
+            // 生成锁：跳过我们正在生成的物品的 Container.Awake（防止链式生成）
+            if (IsSpawning) return;
+
+            // 跳过物品容器（背包、注射器包、医疗包等有 Item 组件的容器）
+            // 仅对世界容器（物资箱、空投舱等无 Item 组件的静态容器）生成物品
+            if (__instance.GetComponent<Item>() != null) return;
+
+            // 诊断：确认 patch 是否被调用
+            if (ContainerCalls == 0 && ContainerSkippedDup == 0)
+                Plugin.Log.LogInfo($"[CustomSpawn] Container.Awake FIRST CALL: name={__instance.gameObject.name} generatingWorld={WorldGeneration.world?.generatingWorld} inTemplate={InTemplateSetup} lifePod={InLifePodGen} dropCapsule={InDropCapsuleGen}");
+
             if (InTemplateSetup) return; // 模板预创建期间跳过
             if (!KrokMpHelper.ShouldSpawnLoot) return; // 多人模式仅主机生成
-            // 仅在世界生成期间触发，游戏过程中（修理/控制台生成）创建的 Container 不触发
-            if (WorldGeneration.world == null || !WorldGeneration.world.generatingWorld) return;
+
+            // 跳过玩家身上的容器（背包等），仅对世界容器生成物品
+            var playerBody = PlayerCamera.main?.body;
+            if (playerBody != null)
+            {
+                var t = __instance.transform.parent;
+                while (t != null)
+                {
+                    if (t == playerBody.transform) return;
+                    t = t.parent;
+                }
+            }
             try
             {
                 int instanceId = __instance.GetInstanceID();
@@ -553,9 +614,8 @@ public static class CustomSpawnPatch
                 _processedContainers.Add(instanceId);
                 ContainerCalls++;
 
-                Plugin.Log.LogInfo($"[CustomSpawn] Container.Awake #{ContainerCalls} id={instanceId} pos={__instance.transform.position} lifePod={InLifePodGen} dropCapsule={InDropCapsuleGen}");
-
                 var pos = (Vector2)__instance.transform.position;
+                Plugin.Log.LogInfo($"[CustomSpawn] Container.Awake #{ContainerCalls} pos={pos} lifePod={InLifePodGen} dropCapsule={InDropCapsuleGen} name={__instance.gameObject.name}");
 
                 if (InLifePodGen)
                 {
@@ -565,6 +625,8 @@ public static class CustomSpawnPatch
                     TrySpawnRandomHelmet(pos, 0.20f);
                     TrySpawnRandomBackpack(pos, 0.06f);
                     TrySpawnRandomNvg(pos, 0.08f);
+                    TrySpawnTep300(pos, 0.05f);
+                    TrySpawnProFlex(pos, 0.03f);
                 }
                 else if (InDropCapsuleGen)
                 {
@@ -575,6 +637,8 @@ public static class CustomSpawnPatch
                     TrySpawnRandomBackpack(pos, 0.16f);
                     TrySpawnRandomNvg(pos, 0.10f);
                     TrySpawnRepairKit(pos, 0.12f);
+                    TrySpawnTep300(pos, 0.08f);
+                    TrySpawnProFlex(pos, 0.05f);
                 }
                 else
                 {
@@ -587,6 +651,9 @@ public static class CustomSpawnPatch
                     TrySpawnRandomBackpackCount(pos, 0.13f, 1, 2);
                     TrySpawnRandomNvg(pos, 0.10f);
                     TrySpawnRepairKit(pos, 0.07f);
+                    TrySpawnTep300(pos, 0.05f);
+                    TrySpawnProFlex(pos, 0.03f);
+                    TrySpawnArmorPlate(pos, 0.10f);
                 }
 
                 Plugin.Log.LogInfo($"[CustomSpawn] Stats so far: Container={ContainerCalls}(dup={ContainerSkippedDup}) Gun={GunSpawned}/{GunAttempts} Mag={MagSpawned}/{MagAttempts} Armor={ArmorSpawned}/{ArmorAttempts} Rig={RigSpawned}/{RigAttempts} Helmet={HelmetSpawned}/{HelmetAttempts} Backpack={BackpackSpawned}/{BackpackAttempts} Corpse={CorpseCalls}(animal={CorpseSkippedAnimal}) ItemStart={ItemStartCalls}(mag={ItemStartMagReplaced}) Medcrate={MedcrateCalls}(dup={MedcrateSkippedDup})");
@@ -620,13 +687,38 @@ public static class CustomSpawnPatch
                 Plugin.Log.LogInfo($"[CustomSpawn] CorpseScript.Start #{CorpseCalls} pos={__instance.transform.position} animal={__instance.animalCorpse}");
 
                 var pos = (Vector2)__instance.transform.position;
-                // 尸体旁: 15% 枪械 + 15% 弹匣 + 7% 护甲/弹挂 + 5% 头盔 + 3% 背包
-                TrySpawnRandomGun(pos, 0.15f);
-                TrySpawnRandomMag(pos, 0.15f);
-                TrySpawnRandomArmor(pos, 0.07f);
-                TrySpawnRandomHelmet(pos, 0.05f);
-                TrySpawnRandomBackpack(pos, 0.03f);
-                TrySpawnRepairKit(pos, 0.03f);
+                // 尸体旁：最多刷 2 种物品，两次独立roll，第二次排除已刷类型
+                var spawnedTypes = new System.Collections.Generic.HashSet<string>();
+                for (int attempt = 0; attempt < 2; attempt++)
+                {
+                    float roll = UnityEngine.Random.Range(0f, 1f);
+                    string type = null;
+                    if (roll < 0.15f) type = "gun";
+                    else if (roll < 0.28f) type = "mag";
+                    else if (roll < 0.35f) type = "armor";
+                    else if (roll < 0.40f) type = "helmet";
+                    else if (roll < 0.44f) type = "nvg";
+                    else if (roll < 0.47f) type = "backpack";
+                    else if (roll < 0.50f) type = "repairkit";
+                    else if (roll < 0.52f) type = "tep300";
+                    else if (roll < 0.53f) type = "proflextac";
+
+                    if (type == null || !spawnedTypes.Add(type)) continue;
+
+                    switch (type)
+                    {
+                        case "gun": TrySpawnRandomGun(pos, 1f); break;
+                        case "mag": TrySpawnRandomMag(pos, 1f); break;
+                        case "armor": TrySpawnRandomArmor(pos, 1f); break;
+                        case "helmet": TrySpawnRandomHelmet(pos, 1f); break;
+                        case "nvg": TrySpawnRandomNvg(pos, 1f); break;
+                        case "backpack": TrySpawnRandomBackpack(pos, 1f); break;
+                        case "repairkit": TrySpawnRepairKit(pos, 1f); break;
+                        case "tep300": TrySpawnTep300(pos, 1f); break;
+                        case "proflextac": TrySpawnProFlex(pos, 1f); break;
+                    }
+                }
+                // 53% 无物品, 37% 1件, 10% 2件
             }
             catch (Exception ex)
             {
@@ -674,12 +766,22 @@ public static class CustomSpawnPatch
                     parent = parent.parent;
                 }
 
+                // 跳过离玩家过近的弹匣（防止物品生成在玩家脚边）
+                var playerBody = PlayerCamera.main?.body;
+                if (playerBody != null)
+                {
+                    float dist = Vector2.Distance(__instance.transform.position, playerBody.transform.position);
+                    if (dist < 5f) return;
+                }
+
                 ItemStartMagReplaced++;
                 // 世界中的弹匣（通常是崩溃舱 LifepodCollapsed 的子物体）
                 // 62% 生成自定义弹匣替代
                 var pos = (Vector2)__instance.transform.position;
                 TrySpawnRandomMag(pos, 0.62f);
                 TrySpawnRepairKit(pos, 0.01f);
+                TrySpawnTep300(pos, 0.01f);
+                TrySpawnProFlex(pos, 0.005f);
             }
             catch (Exception ex)
             {

@@ -176,11 +176,11 @@
     "fastmt.name": "Ops-Core FAST MT 超级高切头盔（黑色）【Fast MT】",
     "fastmt.desc": "Ops-Core FAST（未来突击防护技术）水际版防弹头盔曾受全球各地特种部队的热捧，可以加装各种配件进行改装。黑色版本。",
     "pvs14.name": "AN/PVS-14单筒夜视仪【PVS-14】",
-    "pvs14.desc": "AN/PVS-14单筒夜视仪。陆军/海军所使用的便携式视觉搜索设备，可视夜间视野达350米并有40°的视野宽度以及亮度调节功能。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 6B47、Galvion Calman 或 FAST MT 头盔。按 N 键开关夜视仪。</color>",
+    "pvs14.desc": "AN/PVS-14单筒夜视仪。陆军/海军所使用的便携式视觉搜索设备，可视夜间视野达350米并有40°的视野宽度以及亮度调节功能。使用中型电池约能使用6分钟。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 6B47、Galvion Calman 或 FAST MT 头盔。按 N 键开关夜视仪。</color>",
     "gpnvg18.name": "GPNVG-18全景夜视镜【GPNVG-18】",
     "gpnvg18.desc": "全景夜视镜GPNVG-18（Ground Panoramic Night Vision Google）。该夜视仪与其他夜视仪的主要区别在于它有四个独立的EOP，每只眼睛两个。两个中央EOP朝向前方，另外两个则从中心朝向外。这一创新的解决方案允许将视野范围扩大到97度。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 Galvion Calman 或 FAST MT 头盔（不兼容 6B47）。按 N 键开关夜视仪。</color>",
     "pvs31a.name": "L3Harris PVS-31A夜视仪【PVS-31A】",
-    "pvs31a.desc": "一款相当轻便的夜视仪，针对人机工学进行了特别优化，由L3Harris公司设计制造。PVS-31A不仅能在低可视度环境下提供清晰的画面，背景存在明亮光源的情况下也能清晰成像。配有Butler Creek物镜保护盖。白磷光成像管版本。重量0.24u，价值55，使用中型电池约能使用16分钟。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 Galvion Calman 或 FAST MT 头盔（不兼容 6B47）。按 N 键开关夜视仪。</color>",
+    "pvs31a.desc": "一款相当轻便的夜视仪，针对人机工学进行了特别优化，由L3Harris公司设计制造。PVS-31A不仅能在低可视度环境下提供清晰的画面，背景存在明亮光源的情况下也能清晰成像。配有Butler Creek物镜保护盖。白磷光成像管版本。使用中型电池约能使用16分钟。\n\n<color=#ffcc00>【佩戴要求】需先佩戴 Galvion Calman 或 FAST MT 头盔（不兼容 6B47）。按 N 键开关夜视仪。</color>",
     "lk3f.name": "LolKek 3F Transfer 旅行背包【LK 3F】",
     "lk3f.desc": "LolKek公司生产的一款简单便宜的背包。不是特别舒适耐用，但用它携带战利品是没什么问题的。",
     "readypack.name": "Vertx Ready Pack背包（红色）【ReadyPack】",
@@ -212,5 +212,9 @@
     "939sp5.desc": "9×39mm SP-5 特种弹药（GRAU编号：7N8），其配备的亚音速弹头重 16 克，为铅质基底配合尖头钢质弹芯的结构，外覆双金属弹壳，采用钢制弹壳装填。该款弹药研发于上世纪 80 年代中期，弹头部分直接取自 7.62×39 毫米 US 弹药，是 VSS \u201c绞丝机\u201d 特种狙击步枪的专用弹药。SP-5 可有效击穿大部分低级护甲，对于部分中等防护装备也能造成威胁，同时具备较好的停止作用。然而该款弹药的结构特点决定了其在命中各类表面时有一定概率发生跳弹。",
 
     "weaponrepairkit.name": "武器维修套件【Weapon repair Kit】",
-    "weaponrepairkit.desc": "一套保证枪械时刻满足战时需要的必备工具和设备。可使用4次。\n\n<color=#4fc3f7>使用方法：手持需要修理的枪械，右键使用维修套件即可将枪械耐久回满。每次消耗1/4套件耐久。</color>"
+    "weaponrepairkit.desc": "一套保证枪械时刻满足战时需要的必备工具和设备。可使用4次。\n\n<color=#4fc3f7>使用方法：手持需要修理的枪械，右键使用维修套件即可将枪械耐久回满。每次消耗1/4套件耐久。</color>",
+    "tep300.name": "Peltor TEP-300 战术耳塞",
+    "tep300.desc": "为保护听力与通讯而特别设计的入耳式耳机，由 3M Peltor 公司设计制造。狼棕色版本。也只有这种耳机刚刚好能塞到你的耳洞了。使用小型电池进行供电。\n\n<color=#4fc3f7>【有电量时】\n· 听力损伤降低 60%\n· 可听范围扩大 20%\n· 环境音量增强 +5dB\n· 主动降噪（过滤高频噪音）</color>\n\n<color=#4fc3f7>【无电量时】\n· 听力损伤降低 50%\n· 可听范围缩小 60%\n· 环境音量降低 -10dB</color>\n\n<color=#4fc3f7>【通用效果】\n· 减轻声波炮的视觉、听觉影响</color>\n\n耳机满电可使用 15 分钟。",
+    "proflextac.name": "CENS ProFlex DX5 战术耳塞",
+    "proflextac.desc": "高端战术行动听力保护设备，每款均为量身定制打造，能找到尺寸这么合适的款式实在是撞大运了。使用小型电池进行供电。\n\n<color=#4fc3f7>【有电量时】\n· 听力损伤降低 70%\n· 可听范围扩大 40%\n· 环境音量增强 +5.5dB\n· 强主动降噪 </color>\n\n<color=#4fc3f7>【无电量时】\n· 听力损伤降低 60%\n· 可听范围缩小 75%\n· 环境音量降低 -11dB</color>\n\n<color=#4fc3f7>【通用效果】\n· 减轻声波炮的视觉、听觉影响</color>\n\n耳机满电可使用 15 分钟。"
 }

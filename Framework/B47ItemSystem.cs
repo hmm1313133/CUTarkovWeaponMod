@@ -60,7 +60,7 @@ public static class B47ItemSystem
                 destroyAtZeroCondition = true, wearable = true,
                 desiredWearLimb = "Head", wearSlotId = WearSlotId,
                 wearableVisualOffset = WearableVisualOffset, weight = Weight, value = Value,
-                tags = "cangetwet", rec = new Recognition(RecognitionMin),
+                tags = "", rec = new Recognition(RecognitionMin),
             };
             info.wearableArmor = WearableArmor;
             info.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;

@@ -196,7 +196,7 @@ public static class Glock17ItemSystem
                 texture.wrapMode = TextureWrapMode.Clamp;
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 22f);
+                    new Vector2(0.30f, 0.5f), 27f);
                 _cachedIcon.name = "glock17-icon";
             }
         }
@@ -220,7 +220,7 @@ public static class Glock17ItemSystem
                 texture.wrapMode = TextureWrapMode.Clamp;
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 22f);
+                    new Vector2(0.30f, 0.5f), 27f);
                 _cachedNoMagIcon.name = "glock17-nomag-icon";
             }
         }

@@ -157,7 +157,7 @@ public static class PACAItemSystem
         col.offset = Vector2.zero;
     }
 
-    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+    [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
     public static class PACAHoverPatch
     {
         [HarmonyPostfix]

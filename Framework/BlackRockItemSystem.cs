@@ -52,6 +52,10 @@ public static class BlackRockItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        // 绑定 Container
+        var container = item.GetComponent<Container>();
+        if (container != null) item.cont = container;
+
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null)
@@ -91,7 +95,6 @@ public static class BlackRockItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
                 rec = new Recognition(RecognitionMin),
             };
 

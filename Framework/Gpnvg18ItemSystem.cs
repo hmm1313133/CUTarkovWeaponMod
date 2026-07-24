@@ -76,6 +76,7 @@ public static class Gpnvg18ItemSystem
     {
         var bat = item.GetComponent<BatteryItem>();
         if (bat == null) bat = item.gameObject.AddComponent<BatteryItem>();
+        item.battery = bat;
         bat.preset = BatteryItem.BatteryPreset.Medium;
         bat.maxAllowedCharge = 100f;
         bat.batteryType = "mediumbattery";
@@ -105,7 +106,6 @@ public static class Gpnvg18ItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
                 rec = new Recognition(RecognitionMin),
             };
             info.wearableArmor = 0f;

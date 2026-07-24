@@ -57,6 +57,10 @@ public static class BankRobberItemSystem
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
         item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
 
+        // 绑定 Container（Item.Awake 在 CUCoreLib 创建 Container 前运行）
+        var container = item.GetComponent<Container>();
+        if (container != null) item.cont = container;
+
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null)
@@ -96,7 +100,6 @@ public static class BankRobberItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet",
                 rec = new Recognition(RecognitionMin),
             };
 

@@ -60,6 +60,7 @@ public static class VanillaBlockPatch
     internal static readonly HashSet<string> HiddenFromLootPoolIds = new(StringComparer.OrdinalIgnoreCase)
     {
         Pvs31aItemSystem.ItemKey,
+        VSSItemSystem.ItemKey,
         "duffelbag",
         "smallpack",
         "bigpack",
@@ -70,7 +71,9 @@ public static class VanillaBlockPatch
 
     /// <summary>判断物品ID是否应从战利池/商人库存中隐藏</summary>
     public static bool IsHiddenFromLoot(string itemId)
-        => BlockedVanillaIds.Contains(itemId) || HiddenFromLootPoolIds.Contains(itemId);
+        => BlockedVanillaIds.Contains(itemId)
+           || HiddenFromLootPoolIds.Contains(itemId)
+           || WeaponItemRegistration.WeaponItemIds.Contains(itemId);
 
     // === 1. 物品战利池拦截 ===
 
@@ -116,6 +119,31 @@ public static class VanillaBlockPatch
 
     // === 2. 商人库存拦截 ===
 
+    /// <summary>根据物品 ItemInfo 返回细粒度类型（用于商人每类限量）</summary>
+    private static string GetLootType(string itemId)
+    {
+        if (!Item.GlobalItems.TryGetValue(itemId, out var info)) return "unknown";
+        if (!string.IsNullOrEmpty(info.wearSlotId))
+        {
+            switch (info.wearSlotId)
+            {
+                case "hat": return "helmet";
+                case "eyes": return "nvg";
+                case "ear": return "headset";
+                case "back": return "backpack";
+                case "outertorso": return "armor";
+                case "bandolier": return "rig";
+            }
+        }
+        if (!string.IsNullOrEmpty(info.tags))
+        {
+            if (info.tags.Contains("gun")) return "gun";
+            if (info.tags.Contains("cutting") || info.tags.Contains("hammering") || info.tags.Contains("tool")) return "melee";
+            if (info.tags.Contains("combine")) return "repairkit";
+        }
+        return "other";
+    }
+
     [HarmonyPatch(typeof(TraderScript), nameof(TraderScript.GenerateInventory))]
     public static class TraderInventoryPatch
     {
@@ -125,43 +153,55 @@ public static class VanillaBlockPatch
             if (!BlockEnabled) return;
             try
             {
-                // TraderScript.items 是 List<TraderItem>
                 var itemsField = AccessTools.Field(typeof(TraderScript), "items");
-                if (itemsField == null)
-                {
-                    Plugin.Log.LogWarning("[VanillaBlock] Could not find TraderScript.items field.");
-                    return;
-                }
+                if (itemsField == null) return;
 
                 var items = itemsField.GetValue(__instance) as List<TraderItem>;
-                if (items == null)
-                {
-                    Plugin.Log.LogWarning("[VanillaBlock] TraderScript.items is null.");
-                    return;
-                }
+                if (items == null) return;
 
-                // TraderItem.id 是物品ID字段
                 var idField = AccessTools.Field(typeof(TraderItem), "id");
-                if (idField == null)
-                {
-                    Plugin.Log.LogWarning("[VanillaBlock] Could not find TraderItem.id field.");
-                    return;
-                }
+                if (idField == null) return;
 
+                var seenTypes = new HashSet<string>();
+                var toRemove = new List<int>();
                 int removed = 0;
-                for (int i = items.Count - 1; i >= 0; i--)
+
+                for (int i = 0; i < items.Count; i++)
                 {
                     var traderItem = items[i];
                     var itemId = idField.GetValue(traderItem) as string;
-                    if (itemId != null && IsHiddenFromLoot(itemId))
+                    if (itemId == null) continue;
+
+                    // 封禁的原版物品：移除
+                    if (BlockedVanillaIds.Contains(itemId) || HiddenFromLootPoolIds.Contains(itemId))
                     {
-                        items.RemoveAt(i);
+                        toRemove.Add(i);
                         removed++;
+                        continue;
+                    }
+
+                    // 自定义物品：每类最多 1 个
+                    if (WeaponItemRegistration.WeaponItemIds.Contains(itemId))
+                    {
+                        var lootType = GetLootType(itemId);
+                        if (seenTypes.Contains(lootType))
+                        {
+                            toRemove.Add(i);
+                            removed++;
+                        }
+                        else
+                        {
+                            seenTypes.Add(lootType);
+                        }
                     }
                 }
 
+                // 从后往前删除以保持索引正确
+                for (int j = toRemove.Count - 1; j >= 0; j--)
+                    items.RemoveAt(toRemove[j]);
+
                 if (removed > 0)
-                    Plugin.Log.LogInfo($"[VanillaBlock] Removed {removed} blocked vanilla items from trader (character={__instance.character}).");
+                    Plugin.Log.LogInfo($"[VanillaBlock] Trader {__instance.character}: removed {removed} items (blocked + duplicate types). Kept types: {string.Join(", ", seenTypes)}.");
             }
             catch (Exception ex)
             {

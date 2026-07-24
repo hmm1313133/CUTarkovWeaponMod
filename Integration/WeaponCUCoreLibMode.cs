@@ -386,6 +386,16 @@ public sealed class WeaponCUCoreLibMode
                     registerIcon = Pvs31aItemSystem.TryLoadIconPublic();
                     Pvs31aItemSystem.RegisterWithCUCoreLib(customInfo);
                 }
+                else if (itemId == Tep300ItemSystem.ItemKey)
+                {
+                    registerIcon = Tep300ItemSystem.TryLoadIconPublic();
+                    Tep300ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == ProFlexItemSystem.ItemKey)
+                {
+                    registerIcon = ProFlexItemSystem.TryLoadIconPublic();
+                    ProFlexItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
                 else if (itemId == ReadyPackItemSystem.ItemKey)
                 {
                     registerIcon = ReadyPackItemSystem.TryLoadIconPublic();

@@ -53,6 +53,9 @@ public static class MK4AItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        var container = item.GetComponent<Container>();
+        if (container != null) item.cont = container;
+
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null)

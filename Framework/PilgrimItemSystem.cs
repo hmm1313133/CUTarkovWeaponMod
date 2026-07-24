@@ -56,7 +56,7 @@ public static class PilgrimItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
-        item.Stats.tags = "cangetwet,rippable";
+        item.Stats.tags = "rippable";
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
@@ -68,6 +68,7 @@ public static class PilgrimItemSystem
 
         var container = item.GetComponent<Container>();
         if (container == null) container = item.gameObject.AddComponent<Container>();
+        item.cont = container;
         container.maxWeight = ContainerCapacity;
         container.maxWeightPerItem = ContainerMaxWeightPerItem > 0 ? ContainerMaxWeightPerItem : 3f;
         container.encumberanceMult = ContainerEncumbranceReduction;
@@ -109,7 +110,7 @@ public static class PilgrimItemSystem
             {
                 fullName = DisplayName,
                 description = Description,
-                category = "container",
+                category = "custom",
                 slotRotation = 0f,
                 usable = false,
                 usableOnLimb = false,
@@ -120,7 +121,7 @@ public static class PilgrimItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet,rippable",
+                tags = "rippable",
                 rec = new Recognition(RecognitionMin),
             };
 

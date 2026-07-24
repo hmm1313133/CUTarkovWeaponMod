@@ -92,6 +92,8 @@ public static class WeaponItemRegistration
         Ammo919PSOItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey, Ammo5728SB193ItemSystem.ItemKey,
         Ammo939SP5ItemSystem.ItemKey,
         WeaponRepairKitItemSystem.ItemKey,
+        Tep300ItemSystem.ItemKey,
+        ProFlexItemSystem.ItemKey,
     };
 
     /// <summary>判断是否为武器模组自定义物品 ID</summary>
@@ -204,6 +206,8 @@ public static class WeaponItemRegistration
         prefabs[Ammo5728SB193ItemSystem.ItemKey] = "556round";
         prefabs[Ammo939SP5ItemSystem.ItemKey] = "556round";
         prefabs[WeaponRepairKitItemSystem.ItemKey] = "bruisekit";
+        prefabs[Tep300ItemSystem.ItemKey] = "bruisekit";
+        prefabs[ProFlexItemSystem.ItemKey] = "bruisekit";
 
         // 2. 设置外部物品配置器
         ConsoleSpawnPatch.ExternalItemConfigurer = ConfigureWeaponItem;
@@ -405,6 +409,10 @@ public static class WeaponItemRegistration
             Ammo939SP5ItemSystem.ConfigureSpawnedItem(item, request);
         else if (WeaponRepairKitItemSystem.IsRepairKitRequest(request))
             WeaponRepairKitItemSystem.ConfigureSpawnedItem(item, request);
+        else if (Tep300ItemSystem.IsTep300Request(request))
+            Tep300ItemSystem.ConfigureSpawnedItem(item, request);
+        else if (ProFlexItemSystem.IsProFlexRequest(request))
+            ProFlexItemSystem.ConfigureSpawnedItem(item, request);
         else
             return false; // 不是枪械物品
 
@@ -514,6 +522,8 @@ public static class WeaponItemRegistryPatch
         VSSMagItemSystem.EnsureRegisteredInItemTable();
         Ammo939SP5ItemSystem.EnsureRegisteredInItemTable();
         WeaponRepairKitItemSystem.EnsureRegisteredInItemTable();
+        Tep300ItemSystem.EnsureRegisteredInItemTable();
+        ProFlexItemSystem.EnsureRegisteredInItemTable();
 
         // 通知集成模式武器物品已注册到 GlobalItems
         Plugin.IntegrationMode?.OnItemsSetup();

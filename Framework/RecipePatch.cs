@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 
@@ -51,7 +51,9 @@ public static class RecipePatch
                 for (int i = recipes.Count - 1; i >= 0; i--)
                 {
                     var recipe = recipes[i];
-                    if (recipe.result != null && VanillaBlockPatch.IsBlocked(recipe.result.id))
+                    if (recipe.result != null &&
+                        (VanillaBlockPatch.IsBlocked(recipe.result.id) ||
+                         VanillaBlockPatch.HiddenFromLootPoolIds.Contains(recipe.result.id)))
                     {
                         recipes.RemoveAt(i);
                         blockedRecipes++;
@@ -73,6 +75,7 @@ public static class RecipePatch
 
             // 338ucw: 2废料管+3易燃粉末+30ml生化流体+4弹壳+锤打工具 → 4发
             AddRecipe(recipes, Ammo338UCWItemSystem.ItemKey, 4,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 2),
                 Specific("flammablepowder", 3),
                 Liquid("biochem", 30f),
@@ -81,6 +84,7 @@ public static class RecipePatch
 
             // 76239sp: 2废料管+2易燃粉末+10ml生化流体+4弹壳+锤打工具 → 4发
             AddRecipe(recipes, Ammo76239SPItemSystem.ItemKey, 4,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 2),
                 Specific("flammablepowder", 2),
                 Liquid("biochem", 10f),
@@ -89,6 +93,7 @@ public static class RecipePatch
 
             // 76251bpz: 2废料管+1废料板+3易燃粉末+10ml生化流体+4弹壳+锤打工具 → 4发
             AddRecipe(recipes, Ammo76251BPZItemSystem.ItemKey, 4,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 2),
                 Specific("scrappanel", 1),
                 Specific("flammablepowder", 3),
@@ -98,6 +103,7 @@ public static class RecipePatch
 
             // 12g85 鹿弹: 1废料管+2废料板+1塑料块+2易燃粉末+5ml生化流体+4弹壳+锤打工具 → 4发
             AddRecipe(recipes, Ammo12g85ItemSystem.ItemKey, 4,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 1),
                 Specific("scrappanel", 2),
                 Specific("plasticchunk", 1),
@@ -108,6 +114,7 @@ public static class RecipePatch
 
             // 5728sb193: 1加工铜+2废料管+2易燃粉末+5ml生化流体+5弹壳+锤打工具 → 5发
             AddRecipe(recipes, Ammo5728SB193ItemSystem.ItemKey, 5,
+                Recipes.RecipeCategory.Materials,
                 Specific("processedcopper", 1),
                 Specific("scraptube", 2),
                 Specific("flammablepowder", 2),
@@ -117,6 +124,7 @@ public static class RecipePatch
 
             // 50copper: 1加工铜+1废料管+1废料板+2易燃粉末+5ml生化流体+5弹壳+锤打工具 → 5发
             AddRecipe(recipes, Ammo50CopperItemSystem.ItemKey, 5,
+                Recipes.RecipeCategory.Materials,
                 Specific("processedcopper", 1),
                 Specific("scraptube", 1),
                 Specific("scrappanel", 1),
@@ -127,6 +135,7 @@ public static class RecipePatch
 
             // 919pso: 1废料管+1废料板+2易燃粉末+15ml生化流体+7弹壳+锤打工具 → 7发
             AddRecipe(recipes, Ammo919PSOItemSystem.ItemKey, 7,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 1),
                 Specific("scrappanel", 1),
                 Specific("flammablepowder", 2),
@@ -136,6 +145,7 @@ public static class RecipePatch
 
             // 45fmj: 与919pso相同配方 → 7发
             AddRecipe(recipes, Ammo45FMJItemSystem.ItemKey, 7,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 1),
                 Specific("scrappanel", 1),
                 Specific("flammablepowder", 2),
@@ -145,6 +155,7 @@ public static class RecipePatch
 
             // 55645fmj: 2废料管+1废料板+1塑料块+2易燃粉末+20ml生化流体+5弹壳+锤打工具 → 5发
             AddRecipe(recipes, Ammo55645FMJItemSystem.ItemKey, 5,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 2),
                 Specific("scrappanel", 1),
                 Specific("plasticchunk", 1),
@@ -155,6 +166,7 @@ public static class RecipePatch
 
             // 939sp5: 4废料管+3废料板+2钉子+3易燃粉末+20ml生化流体+2锤打+1切割 -> 6发
             AddRecipe(recipes, Ammo939SP5ItemSystem.ItemKey, 6,
+                Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 4),
                 Specific("scrappanel", 3),
                 Specific("nails", 2),
@@ -168,6 +180,7 @@ public static class RecipePatch
             // 所有弹匣统一配方：3废料板+1弹匣基座+10ml生化流体+切割工具+锤打工具 → 1个
 
             AddRecipe(recipes, AXMCMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 4),
                 Specific("magazinebase", 2),
                 Liquid("biochem", 15f),
@@ -175,6 +188,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, DVL10MagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 15f),
@@ -182,6 +196,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, AKMMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 15f),
@@ -189,6 +204,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, DeagleMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 10f),
@@ -196,6 +212,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, Glock17MagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 10f),
@@ -203,6 +220,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, M4A1MagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 15f),
@@ -210,6 +228,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, P90MagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 5),
                 Specific("magazinebase", 3),
                 Specific("wood", 1),
@@ -218,6 +237,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, UMP45MagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 10f),
@@ -225,6 +245,7 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, RPDMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 10f),
@@ -233,6 +254,7 @@ public static class RecipePatch
 
             // usp_mag: 3废料板+1弹匣基座+10ml生化流体+切割+锤打 → 1个USP弹匣
             AddRecipe(recipes, USPMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 3),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 10f),
@@ -241,6 +263,7 @@ public static class RecipePatch
 
             // vss_mag: 4废料板+1弹匣基座+15ml生化流体+切割+锤打 -> 1个VSS弹匣（同AKM弹匣配方）
             AddRecipe(recipes, VSSMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 15f),
@@ -416,7 +439,8 @@ public static class RecipePatch
     /// 添加弹药合成配方。
     /// materials 参数是 RecipeItem[] 数组（每个数组可含多个条目），会被展平为一个 List。
     /// </summary>
-    private static void AddRecipe(List<Recipe> recipes, string ammoId, int resultAmount, params RecipeItem[][] materials)
+    private static void AddRecipe(List<Recipe> recipes, string ammoId, int resultAmount,
+        Recipes.RecipeCategory category, params RecipeItem[][] materials)
     {
         var allItems = new List<RecipeItem>();
         foreach (var group in materials)
@@ -434,7 +458,7 @@ public static class RecipePatch
                 resultCondition = 1f,
             },
             items = allItems,
-            category = (Recipes.RecipeCategory)0, // Materials
+            category = category,
         };
 
         // SetUpRecipes 后处理循环会为每个 Recipe 设置 index = 列表位置，
@@ -466,7 +490,7 @@ public static class RecipePatch
                 resultCondition = 1f,
             },
             items = allItems,
-            category = (Recipes.RecipeCategory)3, // Utilities
+            category = Recipes.RecipeCategory.Materials,
         };
 
         recipe.index = recipes.Count;
@@ -507,7 +531,7 @@ public static class RecipePatch
                 resultCondition = 1f,
             },
             items = allItems,
-            category = (Recipes.RecipeCategory)3, // Utilities
+            category = Recipes.RecipeCategory.Materials,
             isRepair = true,
         };
 

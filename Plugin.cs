@@ -18,7 +18,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string ModGuid = "com.yourname.cu.tarkovweaponmod";
     public const string ModName = "Casualties: Unknown - Tarkov-Style Weapon Mod";
-    public const string ModVersion = "1.1.2.0";
+    public const string ModVersion = "1.1.5.0";
 
     internal static ManualLogSource Log = null!;
     internal static WeaponCUCoreLibMode IntegrationMode = null!;
@@ -158,10 +158,16 @@ public sealed class Plugin : BaseUnityPlugin
             var wearMethod = AccessTools.Method(typeof(Body), "WearWearable");
             if (wearMethod != null)
             {
-                var prefix = new HarmonyMethod(
+                var nvgPrefix = new HarmonyMethod(
                     typeof(CUTarkovWeaponMod.Framework.NightVisionController), "WearWearablePrefix");
-                harmony.Patch(wearMethod, prefix: prefix);
+                harmony.Patch(wearMethod, prefix: nvgPrefix);
                 Log.LogInfo("[NVG] Manually patched Body.WearWearable for helmet check.");
+
+                // 反向双槽位锁定：穿弹挂后阻止穿弹挂甲
+                var rigPrefix = new HarmonyMethod(
+                    typeof(CUTarkovWeaponMod.Framework.ArmoredRigWearPatch), "Prefix");
+                harmony.Patch(wearMethod, prefix: rigPrefix);
+                Log.LogInfo("[ArmoredRig] Manually patched Body.WearWearable for reverse dual-slot lock.");
             }
             else
             {
@@ -205,6 +211,7 @@ public sealed class Plugin : BaseUnityPlugin
     private void Update()
     {
         NightVisionController.Tick();
+        Tep300Controller.Tick();
         _updateNotifier?.Tick();
     }
 

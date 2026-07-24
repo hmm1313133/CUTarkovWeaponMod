@@ -54,6 +54,9 @@ public static class TV115ItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        var container = item.GetComponent<Container>();
+        if (container != null) item.cont = container;
+
         item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
 
         var icon = TryLoadIcon();

@@ -104,7 +104,7 @@ public static class WeaponRepairKitItemSystem
             scaleWeightWithCondition = true,
             combineable = true,
             value = Value,
-            tags = "cangetwet,combine",
+            tags = "combine",
             rec = new Recognition(8),
         };
 
@@ -138,7 +138,7 @@ public static class WeaponRepairKitItemSystem
             weight = Weight,
             scaleWeightWithCondition = true,
             value = Value,
-            tags = "cangetwet,combine",
+            tags = "combine",
             rec = new Recognition(8),
         };
 

@@ -56,6 +56,9 @@ public static class MBSSItemSystem
         item.id = ItemKey;
         item.SetCondition(1f);
 
+        var container = item.GetComponent<Container>();
+        if (container != null) item.cont = container;
+
         // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
         if (WearableHitDurabilityLossMultiplier > 0)
             item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;

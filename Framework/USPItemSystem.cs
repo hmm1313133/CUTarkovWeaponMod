@@ -199,7 +199,7 @@ public static class USPItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.35f, 0.5f), 24f);
+                    new Vector2(0.30f, 0.5f), 27f);
                 _cachedIcon.name = "usp-icon";
             }
         }
@@ -230,7 +230,7 @@ public static class USPItemSystem
 
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.35f, 0.5f), 24f);
+                    new Vector2(0.30f, 0.5f), 27f);
                 _cachedNoMagIcon.name = "usp-nomag-icon";
             }
         }

@@ -58,7 +58,7 @@ public static class SsoAttack2ItemSystem
 
         // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
         item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
-        item.Stats.tags = "cangetwet,rippable";
+        item.Stats.tags = "rippable";
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
         item.Stats.qualities.RemoveAll(q => q.id == "rippable");
@@ -70,6 +70,7 @@ public static class SsoAttack2ItemSystem
 
         var container = item.GetComponent<Container>();
         if (container == null) container = item.gameObject.AddComponent<Container>();
+        item.cont = container;
         container.maxWeight = ContainerCapacity;
         container.maxWeightPerItem = ContainerMaxWeightPerItem > 0 ? ContainerMaxWeightPerItem : 3f;
         container.encumberanceMult = ContainerEncumbranceReduction;
@@ -111,7 +112,7 @@ public static class SsoAttack2ItemSystem
             {
                 fullName = DisplayName,
                 description = Description,
-                category = "container",
+                category = "custom",
                 slotRotation = 0f,
                 usable = false,
                 usableOnLimb = false,
@@ -122,7 +123,7 @@ public static class SsoAttack2ItemSystem
                 wearableVisualOffset = WearableVisualOffset,
                 weight = Weight,
                 value = Value,
-                tags = "cangetwet,rippable",
+                tags = "rippable",
                 rec = new Recognition(RecognitionMin),
             };
 

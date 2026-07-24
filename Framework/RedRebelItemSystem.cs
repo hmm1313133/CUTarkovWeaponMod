@@ -268,7 +268,7 @@ public static class RedRebelHoverPatch
 public static class RedRebelJumpPatch
 {
     private const float ConditionLossPerJump = 0.001f;
-    private const float StaminaPerJump = 1.0f;
+    private const float StaminaPerJump = 2.0f;
 
     [HarmonyPostfix]
     public static void Postfix(Body __instance)
