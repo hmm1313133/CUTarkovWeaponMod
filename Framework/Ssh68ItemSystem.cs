@@ -25,7 +25,7 @@ public static class Ssh68ItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // 减伤33%: 1-1/(1+a)=0.33, a=0.493
-    public static float WearableArmor = 0.493f;
+    public static float WearableArmor = 1.247f;
     public static float Weight = 0.6f;
     public static float WearableHitDurabilityLossMultiplier = 0.45f;
     public static float WearableIsolation = 0.11f;

@@ -181,7 +181,7 @@ public static class VSSItemSystem
         {
             fullName = DisplayName,
             description = Description,
-            category = "utility",
+            category = "custom",
             slotRotation = -90f,
             usable = true,
             usableOnLimb = false,

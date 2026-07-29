@@ -396,6 +396,66 @@ public sealed class WeaponCUCoreLibMode
                     registerIcon = ProFlexItemSystem.TryLoadIconPublic();
                     ProFlexItemSystem.RegisterWithCUCoreLib(customInfo);
                 }
+                else if (itemId == CrackersItemSystem.ItemKey)
+                {
+                    registerIcon = CrackersItemSystem.TryLoadIconPublic();
+                    CrackersItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == CroutonsItemSystem.ItemKey)
+                {
+                    registerIcon = CroutonsItemSystem.TryLoadIconPublic();
+                    CroutonsItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == SlickersItemSystem.ItemKey)
+                {
+                    registerIcon = SlickersItemSystem.TryLoadIconPublic();
+                    SlickersItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == TarkerItemSystem.ItemKey)
+                {
+                    registerIcon = TarkerItemSystem.TryLoadIconPublic();
+                    TarkerItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == AlyonkaItemSystem.ItemKey)
+                {
+                    registerIcon = AlyonkaItemSystem.TryLoadIconPublic();
+                    AlyonkaItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == SugarItemSystem.ItemKey)
+                {
+                    registerIcon = SugarItemSystem.TryLoadIconPublic();
+                    SugarItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == IskraItemSystem.ItemKey)
+                {
+                    registerIcon = IskraItemSystem.TryLoadIconPublic();
+                    IskraItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MreItemSystem.ItemKey)
+                {
+                    registerIcon = MreItemSystem.TryLoadIconPublic();
+                    MreItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == PeasItemSystem.ItemKey)
+                {
+                    registerIcon = PeasItemSystem.TryLoadIconPublic();
+                    PeasItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == NoodlesItemSystem.ItemKey)
+                {
+                    registerIcon = NoodlesItemSystem.TryLoadIconPublic();
+                    NoodlesItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == CookedNoodlesItemSystem.ItemKey)
+                {
+                    registerIcon = CookedNoodlesItemSystem.TryLoadIconPublic();
+                    CookedNoodlesItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == TkFastMtItemSystem.ItemKey)
+                {
+                    registerIcon = TkFastMtItemSystem.TryLoadIconPublic();
+                    TkFastMtItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
                 else if (itemId == ReadyPackItemSystem.ItemKey)
                 {
                     registerIcon = ReadyPackItemSystem.TryLoadIconPublic();

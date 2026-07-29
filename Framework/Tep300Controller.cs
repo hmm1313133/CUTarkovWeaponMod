@@ -13,7 +13,7 @@ namespace CUTarkovWeaponMod.Framework;
 /// </summary>
 public static class Tep300Controller
 {
-    private const float DrainRate = 1f / 900f; // 15 minutes
+    private const float DrainRate = 1f / 1200f; // 20 minutes
 
     private static Item? _cached;
     private static int _cacheFrame = -1;
@@ -64,7 +64,7 @@ public static class Tep300Controller
     // TEP-300 参数
     private static readonly HeadsetConfig Tep300Config = new(
         dmgP: 0.60f, dmgU: 0.50f,
-        volP: 5f, volU: -10f,
+        volP: 5f, volU: -13f,
         distP: 1.2f, distU: 0.4f,
         cutoffP: 0.4f,
         abberLand: -10f, abberWater: -40f,
@@ -73,7 +73,7 @@ public static class Tep300Controller
     // ProFlex DX5 参数
     private static readonly HeadsetConfig ProFlexConfig = new(
         dmgP: 0.70f, dmgU: 0.60f,
-        volP: 5.5f, volU: -11f,
+        volP: 5.5f, volU: -14f,
         distP: 1.4f, distU: 0.25f,
         cutoffP: 0.3f,
         abberLand: -7f, abberWater: -40f,

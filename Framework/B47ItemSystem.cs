@@ -25,7 +25,7 @@ public static class B47ItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // 减伤35%: 1-1/(1+a)=0.35, a=0.538
-    public static float WearableArmor = 0.538f;
+    public static float WearableArmor = 1.334f;
     public static float Weight = 0.4f;
     public static float WearableHitDurabilityLossMultiplier = 0.4f;
     public static float WearableIsolation = 0.11f;

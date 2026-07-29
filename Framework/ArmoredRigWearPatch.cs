@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CUTarkovMedicalMod.Framework;
 using HarmonyLib;
 
 namespace CUTarkovWeaponMod.Framework;
@@ -26,6 +27,9 @@ public static class ArmoredRigWearPatch
     public static bool Prefix(Body __instance, Item item)
     {
         if (item == null) return true;
+
+        // 多人模式：客户端跳过弹挂锁定检查（KrokMP 同步 WearWearable）
+        if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost) return true;
 
         // 只拦截弹挂甲
         if (!ArmoredRigIds.Contains(item.id))

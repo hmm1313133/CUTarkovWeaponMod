@@ -61,9 +61,25 @@ public static class VanillaBlockPatch
     {
         Pvs31aItemSystem.ItemKey,
         VSSItemSystem.ItemKey,
+        CookedNoodlesItemSystem.ItemKey, // 仅合成获取
         "duffelbag",
         "smallpack",
         "bigpack",
+    };
+
+    /// <summary>食物物品ID集合：使用原版战利池生成，不隐藏</summary>
+    internal static readonly HashSet<string> FoodItemIds = new(StringComparer.OrdinalIgnoreCase)
+    {
+        CrackersItemSystem.ItemKey,
+        CroutonsItemSystem.ItemKey,
+        SlickersItemSystem.ItemKey,
+        TarkerItemSystem.ItemKey,
+        AlyonkaItemSystem.ItemKey,
+        SugarItemSystem.ItemKey,
+        IskraItemSystem.ItemKey,
+        MreItemSystem.ItemKey,
+        PeasItemSystem.ItemKey,
+        NoodlesItemSystem.ItemKey,
     };
 
     /// <summary>判断物品ID是否被封禁（完全阻止创建）</summary>
@@ -71,9 +87,10 @@ public static class VanillaBlockPatch
 
     /// <summary>判断物品ID是否应从战利池/商人库存中隐藏</summary>
     public static bool IsHiddenFromLoot(string itemId)
-        => BlockedVanillaIds.Contains(itemId)
+        => (BlockedVanillaIds.Contains(itemId)
            || HiddenFromLootPoolIds.Contains(itemId)
-           || WeaponItemRegistration.WeaponItemIds.Contains(itemId);
+           || WeaponItemRegistration.WeaponItemIds.Contains(itemId))
+           && !FoodItemIds.Contains(itemId); // 食物使用原版战利池
 
     // === 1. 物品战利池拦截 ===
 
@@ -180,8 +197,8 @@ public static class VanillaBlockPatch
                         continue;
                     }
 
-                    // 自定义物品：每类最多 1 个
-                    if (WeaponItemRegistration.WeaponItemIds.Contains(itemId))
+                    // 自定义物品（非食物）：每类最多 1 个
+                    if (WeaponItemRegistration.WeaponItemIds.Contains(itemId) && !FoodItemIds.Contains(itemId))
                     {
                         var lootType = GetLootType(itemId);
                         if (seenTypes.Contains(lootType))

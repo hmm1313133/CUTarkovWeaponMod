@@ -30,10 +30,10 @@ public static class Tep300ItemSystem
         "<color=#4fc3f7>【无电量时】\n" +
         "· 听力损伤降低 50%\n" +
         "· 可听范围缩小 60%\n" +
-        "· 环境音量降低 -10dB</color>\n\n" +
+        "· 环境音量降低 -13dB</color>\n\n" +
         "<color=#4fc3f7>【通用效果】\n" +
         "· 减轻声波炮的视觉、听觉影响</color>\n\n" +
-        "耳机满电可使用 15 分钟。";
+        "耳机满电可使用 20 分钟。";
 
     private const string WearSlotId = "ear";
     private const string DesiredWearLimb = "Head";
@@ -130,7 +130,12 @@ public static class Tep300ItemSystem
     public static void RegisterWithCUCoreLib(CustomItemInfo customInfo)
     {
         var icon = TryLoadIcon();
-        if (icon != null) customInfo.Icon = icon;
+        if (icon != null)
+        {
+            customInfo.Icon = icon;
+            customInfo.WornSprite = icon;
+            customInfo.WornSpriteOffset = Vector2.zero;
+        }
 
         // Small battery, spawn with full charge
         customInfo.Battery = new BatteryProperties

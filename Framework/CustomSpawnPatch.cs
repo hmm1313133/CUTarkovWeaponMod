@@ -208,10 +208,10 @@ public static class CustomSpawnPatch
         (Ssh68ItemSystem.ItemKey,    8), // val=36 sqrt(20)≈4.47→4
         (B47ItemSystem.ItemKey,      6), // val=38 sqrt(18)≈4.24→4
         (CalmanItemSystem.ItemKey,   5), // val=40 sqrt(16)=4→4
-        (ExfilItemSystem.ItemKey,    4), // val=46 sqrt(10)≈3.16→3
-        (UlachItemSystem.ItemKey,    4), // val=48 sqrt(8)≈2.83→3
+        (ExfilItemSystem.ItemKey,    3), // val=46 sqrt(10)≈3.16→3
+        (UlachItemSystem.ItemKey,    3), // val=48 sqrt(8)≈2.83→3
         (RysTItemSystem.ItemKey,     2), // val=55
-        (FastMtItemSystem.ItemKey,   4), // val=44 sqrt(12)≈3.46->3
+        (FastMtItemSystem.ItemKey,   3), // val=44 sqrt(12)≈3.46->3
     };
 
     private static readonly int RigTotalWeight = SumWeights(RigIds);
@@ -541,6 +541,76 @@ public static class CustomSpawnPatch
         SpawnCustomItemAt(key, pos);
     }
 
+    /// <summary>以指定概率在指定位置生成军用饼干</summary>
+    internal static void TrySpawnCrackers(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(CrackersItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成黑麦面包块</summary>
+    internal static void TrySpawnCroutons(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(CroutonsItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成士力架能量棒</summary>
+    internal static void TrySpawnSlickers(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(SlickersItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成塔克肉干</summary>
+    internal static void TrySpawnTarker(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(TarkerItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成Alyonka巧克力棒</summary>
+    internal static void TrySpawnAlyonka(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(AlyonkaItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成一包糖</summary>
+    internal static void TrySpawnSugar(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(SugarItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成Iskra单兵口粮</summary>
+    internal static void TrySpawnIskra(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(IskraItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成MRE个人即食口粮</summary>
+    internal static void TrySpawnMre(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(MreItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成豌豆罐头</summary>
+    internal static void TrySpawnPeas(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(PeasItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成方便面</summary>
+    internal static void TrySpawnNoodles(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(NoodlesItemSystem.ItemKey, pos);
+    }
+
     // === 补丁 ===
 
     // 1. GenerateLifePods 标志（空投舱期间）
@@ -654,6 +724,7 @@ public static class CustomSpawnPatch
                     TrySpawnTep300(pos, 0.05f);
                     TrySpawnProFlex(pos, 0.03f);
                     TrySpawnArmorPlate(pos, 0.10f);
+                    // 食物使用原版战利池生成，不在此处生成
                 }
 
                 Plugin.Log.LogInfo($"[CustomSpawn] Stats so far: Container={ContainerCalls}(dup={ContainerSkippedDup}) Gun={GunSpawned}/{GunAttempts} Mag={MagSpawned}/{MagAttempts} Armor={ArmorSpawned}/{ArmorAttempts} Rig={RigSpawned}/{RigAttempts} Helmet={HelmetSpawned}/{HelmetAttempts} Backpack={BackpackSpawned}/{BackpackAttempts} Corpse={CorpseCalls}(animal={CorpseSkippedAnimal}) ItemStart={ItemStartCalls}(mag={ItemStartMagReplaced}) Medcrate={MedcrateCalls}(dup={MedcrateSkippedDup})");

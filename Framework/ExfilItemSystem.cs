@@ -25,7 +25,7 @@ public static class ExfilItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // 减伤40%: 1-1/(1+a)=0.4, a=0.667
-    public static float WearableArmor = 0.667f;
+    public static float WearableArmor = 1.59f;
     public static float Weight = 0.65f;
     public static float WearableHitDurabilityLossMultiplier = 0.36f;
     public static float WearableIsolation = 0.1f;

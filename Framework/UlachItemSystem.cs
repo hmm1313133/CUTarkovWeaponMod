@@ -25,7 +25,7 @@ public static class UlachItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // 减伤45%: 1/(1+a) = 0.55, a = 0.82
-    public static float WearableArmor = 0.82f;
+    public static float WearableArmor = 1.898f;
     public static float Weight = 0.55f;
     public static float WearableHitDurabilityLossMultiplier = 0.35f;
     public static float WearableIsolation = 0.1f;

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using CUTarkovMedicalMod.Framework;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
@@ -70,7 +71,23 @@ public static class NightVisionController
     /// </summary>
     public static void ApplyAmbientBoost()
     {
-        if (!_nvgActive || _ambientLight == null) return;
+        if (!_nvgActive) return;
+
+        // 检查缓存的 AmbientLight 是否被销毁（换层时游戏会重建）
+        if (_ambientLight == null) // Unity null 检查（包括被销毁的对象）
+        {
+            var ambientObj = GameObject.Find("AmbientLight");
+            if (ambientObj != null)
+            {
+                _ambientLight = ambientObj.GetComponent<Light2D>();
+                Plugin.Log.LogInfo("[NVG] AmbientLight re-cached after scene change.");
+            }
+            else
+            {
+                return; // 找不到，跳过
+            }
+        }
+
         _ambientLight.intensity = _curAmbientIntensity;
         _ambientLight.color = _curAmbientColor;
     }
@@ -156,6 +173,13 @@ public static class NightVisionController
             }
 
             // Noise texture cycling (every 8 frames) - swap sprite directly, no GetPixels
+            // 检查 overlay canvas 是否被换层销毁，如果是则重建
+            if (_canvasObj == null && _nvgActive)
+            {
+                Plugin.Log.LogInfo("[NVG] Overlay canvas lost (scene change?), rebuilding.");
+                CreateOverlayCanvas();
+            }
+
             _noiseFrameCounter++;
             if (_noiseFrameCounter % 8 == 0 && _noiseImg != null)
             {
@@ -518,6 +542,10 @@ public static class NightVisionController
     public static bool WearWearablePrefix(Body __instance, Item item)
     {
         if (item == null) return true;
+
+        // 多人模式：客户端跳过头盔兼容检查（KrokMP 同步 WearWearable，客户端可能头盔尚未同步）
+        if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost) return true;
+
         var id = item.id;
         if (!id.Equals("pvs14", StringComparison.OrdinalIgnoreCase) &&
             !id.Equals(Gpnvg18ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) &&

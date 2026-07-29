@@ -94,6 +94,18 @@ public static class WeaponItemRegistration
         WeaponRepairKitItemSystem.ItemKey,
         Tep300ItemSystem.ItemKey,
         ProFlexItemSystem.ItemKey,
+        CrackersItemSystem.ItemKey,
+        CroutonsItemSystem.ItemKey,
+        SlickersItemSystem.ItemKey,
+        TarkerItemSystem.ItemKey,
+        AlyonkaItemSystem.ItemKey,
+        SugarItemSystem.ItemKey,
+        IskraItemSystem.ItemKey,
+        MreItemSystem.ItemKey,
+        PeasItemSystem.ItemKey,
+        NoodlesItemSystem.ItemKey,
+        CookedNoodlesItemSystem.ItemKey,
+        TkFastMtItemSystem.ItemKey,
     };
 
     /// <summary>判断是否为武器模组自定义物品 ID</summary>
@@ -208,6 +220,18 @@ public static class WeaponItemRegistration
         prefabs[WeaponRepairKitItemSystem.ItemKey] = "bruisekit";
         prefabs[Tep300ItemSystem.ItemKey] = "bruisekit";
         prefabs[ProFlexItemSystem.ItemKey] = "bruisekit";
+        prefabs[CrackersItemSystem.ItemKey] = "bread";
+        prefabs[CroutonsItemSystem.ItemKey] = "bread";
+        prefabs[SlickersItemSystem.ItemKey] = "chocolatebar";
+        prefabs[TarkerItemSystem.ItemKey] = "burger";
+        prefabs[AlyonkaItemSystem.ItemKey] = "chocolatebar";
+        prefabs[SugarItemSystem.ItemKey] = "bread";
+        prefabs[IskraItemSystem.ItemKey] = "burger";
+        prefabs[MreItemSystem.ItemKey] = "burger";
+        prefabs[PeasItemSystem.ItemKey] = "bread";
+        prefabs[NoodlesItemSystem.ItemKey] = "bread";
+        prefabs[CookedNoodlesItemSystem.ItemKey] = "bread";
+        prefabs[TkFastMtItemSystem.ItemKey] = "bruisekit";
 
         // 2. 设置外部物品配置器
         ConsoleSpawnPatch.ExternalItemConfigurer = ConfigureWeaponItem;
@@ -413,6 +437,30 @@ public static class WeaponItemRegistration
             Tep300ItemSystem.ConfigureSpawnedItem(item, request);
         else if (ProFlexItemSystem.IsProFlexRequest(request))
             ProFlexItemSystem.ConfigureSpawnedItem(item, request);
+        else if (CrackersItemSystem.IsCrackersRequest(request))
+            CrackersItemSystem.ConfigureSpawnedItem(item, request);
+        else if (CroutonsItemSystem.IsCroutonsRequest(request))
+            CroutonsItemSystem.ConfigureSpawnedItem(item, request);
+        else if (SlickersItemSystem.IsSlickersRequest(request))
+            SlickersItemSystem.ConfigureSpawnedItem(item, request);
+        else if (TarkerItemSystem.IsTarkerRequest(request))
+            TarkerItemSystem.ConfigureSpawnedItem(item, request);
+        else if (AlyonkaItemSystem.IsAlyonkaRequest(request))
+            AlyonkaItemSystem.ConfigureSpawnedItem(item, request);
+        else if (SugarItemSystem.IsSugarRequest(request))
+            SugarItemSystem.ConfigureSpawnedItem(item, request);
+        else if (IskraItemSystem.IsIskraRequest(request))
+            IskraItemSystem.ConfigureSpawnedItem(item, request);
+        else if (MreItemSystem.IsMreRequest(request))
+            MreItemSystem.ConfigureSpawnedItem(item, request);
+        else if (PeasItemSystem.IsPeasRequest(request))
+            PeasItemSystem.ConfigureSpawnedItem(item, request);
+        else if (NoodlesItemSystem.IsNoodlesRequest(request))
+            NoodlesItemSystem.ConfigureSpawnedItem(item, request);
+        else if (CookedNoodlesItemSystem.IsCookedNoodlesRequest(request))
+            CookedNoodlesItemSystem.ConfigureSpawnedItem(item, request);
+        else if (TkFastMtItemSystem.IsTkFastMtRequest(request))
+            TkFastMtItemSystem.ConfigureSpawnedItem(item, request);
         else
             return false; // 不是枪械物品
 
@@ -524,6 +572,18 @@ public static class WeaponItemRegistryPatch
         WeaponRepairKitItemSystem.EnsureRegisteredInItemTable();
         Tep300ItemSystem.EnsureRegisteredInItemTable();
         ProFlexItemSystem.EnsureRegisteredInItemTable();
+        CrackersItemSystem.EnsureRegisteredInItemTable();
+        CroutonsItemSystem.EnsureRegisteredInItemTable();
+        SlickersItemSystem.EnsureRegisteredInItemTable();
+        TarkerItemSystem.EnsureRegisteredInItemTable();
+        AlyonkaItemSystem.EnsureRegisteredInItemTable();
+        SugarItemSystem.EnsureRegisteredInItemTable();
+        IskraItemSystem.EnsureRegisteredInItemTable();
+        MreItemSystem.EnsureRegisteredInItemTable();
+        PeasItemSystem.EnsureRegisteredInItemTable();
+        NoodlesItemSystem.EnsureRegisteredInItemTable();
+        CookedNoodlesItemSystem.EnsureRegisteredInItemTable();
+        TkFastMtItemSystem.EnsureRegisteredInItemTable();
 
         // 通知集成模式武器物品已注册到 GlobalItems
         Plugin.IntegrationMode?.OnItemsSetup();

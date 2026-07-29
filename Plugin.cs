@@ -18,7 +18,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string ModGuid = "com.yourname.cu.tarkovweaponmod";
     public const string ModName = "Casualties: Unknown - Tarkov-Style Weapon Mod";
-    public const string ModVersion = "1.1.5.0";
+    public const string ModVersion = "1.2.0.0";
 
     internal static ManualLogSource Log = null!;
     internal static WeaponCUCoreLibMode IntegrationMode = null!;
@@ -213,6 +213,7 @@ public sealed class Plugin : BaseUnityPlugin
         NightVisionController.Tick();
         Tep300Controller.Tick();
         _updateNotifier?.Tick();
+        RecipePatch.InjectLiquidTranslations();
     }
 
     private void OnGUI()

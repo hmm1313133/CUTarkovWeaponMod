@@ -101,7 +101,12 @@ public static class ProFlexItemSystem
     public static void RegisterWithCUCoreLib(CustomItemInfo customInfo)
     {
         var icon = TryLoadIcon();
-        if (icon != null) customInfo.Icon = icon;
+        if (icon != null)
+        {
+            customInfo.Icon = icon;
+            customInfo.WornSprite = icon;
+            customInfo.WornSpriteOffset = Vector2.zero;
+        }
 
         customInfo.Battery = new BatteryProperties
         {

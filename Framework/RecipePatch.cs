@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using CUCoreLib.Helpers;
 using HarmonyLib;
+using UnityEngine;
 
 using CUTarkovMedicalMod.Framework;
 
@@ -290,18 +292,86 @@ public static class RecipePatch
                 ByQuality("heatsource"),
                 ByQuality("hammering"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 10 custom ammo recipes + 11 magazine recipes + 2 plate recipes.");
+            // === 食物配方 ===
+            // 煮熟的方便面：90%+耐久方便面 + 2热源 + 100ml水 -> 1个，INT=5
+            AddRecipe(recipes, CookedNoodlesItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Food,
+                5, // INT = 5
+                // 方便面（90%+耐久，消耗）
+                new[] { new RecipeItem(0f) { specific = true, specificId = NoodlesItemSystem.ItemKey, minimumCondition = 0.9f, destroyItem = true } },
+                // 2× 热源（不消耗）
+                ByQuality("heatsource"),
+                ByQuality("heatsource"),
+                // 100ml 水（消耗）
+                Liquid("water", 100f));
+
+            // === 液体配方 ===
+            // 注册糖水液体
+            if (!Liquids.Registry.ContainsKey("sugarwater"))
+            {
+                Liquids.Registry["sugarwater"] = new LiquidType
+                {
+                    localeName = "sugarwater",
+                    color = new Color(1f, 0.95f, 0.7f, 1f),
+                    valuePerLiter = 10f,
+                    onDrink = (ml, body) =>
+                    {
+                        float scale = ml * 0.01f;
+                        body.Eat(3f * scale, 0.02f * scale);
+                        body.thirst += 7f * scale;
+                        body.happiness += 0.6f * scale;
+                    },
+                };
+                Plugin.Log.LogInfo("[RecipePatch] Registered 'sugarwater' liquid.");
+            }
+
+            // 糖水配方：一包糖（10%+耐久）+ 100ml水 -> 100ml糖水，INT=5
+            var sugarWaterRecipe = new Recipe
+            {
+                INT = 5,
+                result = new RecipeResult
+                {
+                    id = "sugarwater",
+                    isLiquid = true,
+                    resultCondition = 100f, // 100ml
+                    amount = 1,
+                },
+                items = new List<RecipeItem>
+                {
+                    // 一包糖（10%+耐久，不消耗由配方系统处理，Postfix 手动减 10%）
+                    new RecipeItem(0f) { specific = true, specificId = SugarItemSystem.ItemKey, minimumCondition = 0.1f, destroyItem = false },
+                    new RecipeItem(0f) { specific = true, specificId = "water", isLiquid = true, minimumCondition = 100f, destroyItem = true },
+                },
+                category = Recipes.RecipeCategory.Food,
+            };
+            sugarWaterRecipe.index = recipes.Count;
+            recipes.Add(sugarWaterRecipe);
+            Plugin.Log.LogInfo("[RecipePatch] Added sugarwater liquid recipe.");
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 10 custom ammo recipes + 11 magazine recipes + 2 plate recipes + 1 food recipe + 1 liquid recipe.");
 
             // === Scav背包合成配方（与原版 bigpack 相同配方）===
             // 2绳+1木板+5帆布+3线+切割工具 → 1个，INT=13，Utilities
-            AddArmorRecipe(recipes, ScavPackItemSystem.ItemKey, 13,
+            AddRecipe(recipes, ScavPackItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities, 13,
                 Specific("rope", 2),
                 Specific("woodpanel", 1),
                 Specific("canvas", 5),
                 Specific("string", 3),
                 ByQuality("cutting"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 1 backpack recipe (scavpack).");
+            // TK Fast MT 头盔仿制品：2废料板 + 1废料管 + 3细绳 + 15ml生化流体 + 3捶打属性
+            AddRecipe(recipes, TkFastMtItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities, 11,
+                Specific("scrappanel", 2),
+                Specific("scraptube", 1),
+                Specific("string", 3),
+                Liquid("biochem", 15f),
+                ByQuality("hammering"),
+                ByQuality("hammering"),
+                ByQuality("hammering"));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 1 backpack recipe (scavpack) + 1 helmet recipe (tkfastmt).");
 
             // === 护甲修复配方 ===
             // isRepair=true: 材料匹配时不忽略产物自身ID（允许用损坏的护甲作为材料）
@@ -376,11 +446,57 @@ public static class RecipePatch
 
             // 注入自定义弹药名称到 Language.main 字典
             LocalePatch.InjectCustomEntries();
+            InjectLiquidTranslations();
         }
         catch (Exception ex)
         {
             Plugin.Log.LogError($"[RecipePatch] Failed to add recipes: {ex}");
         }
+    }
+
+    // === 合成配方翻译注入 ===
+
+    private static bool _recipeI18nInjected = false;
+
+    public static void InjectLiquidTranslations()
+    {
+        try
+        {
+            var lang = Locale.currentLang;
+            if (lang == null || lang.other == null || lang.main == null) return;
+
+            // 糖水液体名称/描述
+            var swName = I18n.Tr("sugarwater.name");
+            var swDesc = I18n.Tr("sugarwater.desc");
+            if (swName == "sugarwater.name") swName = "Sugar Water";
+            if (swDesc == "sugarwater.desc") swDesc = "Sweet sugar water, soothing and energizing.";
+            lang.other["sugarwater"] = swName;
+            lang.other["sugarwaterdsc"] = swDesc;
+
+            if (_recipeI18nInjected) return;
+            _recipeI18nInjected = true;
+
+            // 物品：Locale.GetItem(id) -> Language.main["id"]（名称，无后缀）
+            //        Locale.GetItem(id + "dsc") -> Language.main["iddsc"]（描述）
+            InjectItem(lang, "cookednoodles");
+            InjectItem(lang, "noodles");
+            InjectItem(lang, "sugar");
+            InjectItem(lang, "tkfastmt");
+
+            Plugin.Log.LogInfo("[RecipePatch] Recipe translations injected.");
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[RecipePatch] Recipe translation injection failed: {ex}");
+        }
+    }
+
+    private static void InjectItem(Language lang, string itemId)
+    {
+        var name = I18n.Tr(itemId + ".name");
+        var desc = I18n.Tr(itemId + ".desc");
+        if (name != itemId + ".name") lang.main[itemId] = name;
+        if (desc != itemId + ".desc") lang.main[itemId + "dsc"] = desc;
     }
 
     // === 材料定义辅助方法 ===
@@ -441,6 +557,10 @@ public static class RecipePatch
     /// </summary>
     private static void AddRecipe(List<Recipe> recipes, string ammoId, int resultAmount,
         Recipes.RecipeCategory category, params RecipeItem[][] materials)
+        => AddRecipe(recipes, ammoId, resultAmount, category, 9, materials);
+
+    private static void AddRecipe(List<Recipe> recipes, string ammoId, int resultAmount,
+        Recipes.RecipeCategory category, int intReq, params RecipeItem[][] materials)
     {
         var allItems = new List<RecipeItem>();
         foreach (var group in materials)
@@ -450,7 +570,7 @@ public static class RecipePatch
 
         var recipe = new Recipe
         {
-            INT = 9,
+            INT = intReq,
             result = new RecipeResult
             {
                 id = ammoId,

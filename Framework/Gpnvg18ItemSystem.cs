@@ -17,7 +17,7 @@ public static class Gpnvg18ItemSystem
     public const string WearSlotId = "eyes";
 
     // Compatible helmets (same as NVG/PVS-14 - mounts on these helmets only)
-    private static readonly string[] CompatibleHelmets = { "6b47", "calman", "fastmt" };
+    private static readonly string[] CompatibleHelmets = { "6b47", "calman", "fastmt", "tkfastmt" };
 
     public static string DisplayName => I18n.Tr("gpnvg18.name");
     public static string Description => I18n.Tr("gpnvg18.desc");
@@ -126,7 +126,12 @@ public static class Gpnvg18ItemSystem
     public static void RegisterWithCUCoreLib(CustomItemInfo customInfo)
     {
         var icon = TryLoadIcon();
-        if (icon != null) customInfo.Icon = icon;
+        if (icon != null)
+        {
+            customInfo.Icon = icon;
+            customInfo.WornSprite = icon;
+            customInfo.WornSpriteOffset = Vector2.zero;
+        }
 
         // Use vanilla battery system: medium battery, spawn with full charge
         customInfo.Battery = new BatteryProperties
@@ -190,6 +195,9 @@ public static class Gpnvg18ItemSystem
         {
             if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
                 return true;
+
+            // 多人模式：客户端跳过头盔兼容检查
+            if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost) return true;
 
             var helmet = __instance.GetWearableBySlotID("hat");
             if (helmet == null || !IsCompatibleHelmet(helmet.id))

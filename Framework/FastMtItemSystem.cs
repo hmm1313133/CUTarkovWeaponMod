@@ -25,7 +25,7 @@ public static class FastMtItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // 减伤40%: 1/(1+a) = 0.60, a = 0.67
-    public static float WearableArmor = 0.67f;
+    public static float WearableArmor = 1.596f;
     public static float Weight = 0.5f;
     public static float WearableHitDurabilityLossMultiplier = 0.39f;
     public static float WearableIsolation = 0.1f;

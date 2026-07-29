@@ -25,7 +25,7 @@ public static class RysTItemSystem
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
     // 减伤60%: 1/(1+a) = 0.4, a = 1.5
-    public static float WearableArmor = 1.5f;
+    public static float WearableArmor = 3.381f;
     public static float Weight = 1.2f;
     public static float WearableHitDurabilityLossMultiplier = 0.33f;
     public static float WearableIsolation = 0.2f;
