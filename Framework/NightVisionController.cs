@@ -20,7 +20,8 @@ public static class NightVisionController
     private static bool _nvgActive;
     private static bool _initialized;
 
-    private const KeyCode ToggleKey = KeyCode.N;
+    // 夜视仪开关键位从游戏设置界面获取（默认 N）
+    private static KeyCode ToggleKey => NvgKeybindPatch.CurrentKey;
 
     // Per-NVG drain rates
     private const float StandardDrainRate = 1f / 600f; // 10 minutes per full charge

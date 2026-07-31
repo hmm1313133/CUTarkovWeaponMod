@@ -214,7 +214,7 @@ public static class AKMItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 14f);
+                    new Vector2(0.35f, 0.5f), 14f);
                 _cachedIcon.name = "akm-icon";
             }
         }
@@ -247,7 +247,7 @@ public static class AKMItemSystem
 
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 14f);
+                    new Vector2(0.35f, 0.5f), 14f);
                 _cachedNoMagIcon.name = "akm-nomag-icon";
             }
         }

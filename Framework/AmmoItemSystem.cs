@@ -607,7 +607,7 @@ public static class Ammo338UCWItemSystem
             weight = 0.01f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 1,
+            value = 2,
             tags = "bullet",
             rec = new Recognition(8),
         };
@@ -629,7 +629,7 @@ public static class Ammo338UCWItemSystem
             combineable = true,
             weight = 0.01f,
             scaleWeightWithCondition = false,
-            value = 1,
+            value = 2,
             tags = "bullet",
             rec = new Recognition(8),
         };
@@ -773,7 +773,7 @@ public static class Ammo50CopperItemSystem
             weight = 0.01f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 1,
+            value = 2,
             tags = "bullet",
             rec = new Recognition(8),
         };
@@ -795,7 +795,7 @@ public static class Ammo50CopperItemSystem
             combineable = true,
             weight = 0.01f,
             scaleWeightWithCondition = false,
-            value = 1,
+            value = 2,
             tags = "bullet",
             rec = new Recognition(8),
         };

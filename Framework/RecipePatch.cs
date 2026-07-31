@@ -483,6 +483,10 @@ public static class RecipePatch
             InjectItem(lang, "sugar");
             InjectItem(lang, "tkfastmt");
 
+            // 游戏设置翻译：Locale.GetOther("gameset" + name) -> Language.other
+            lang.other["gamesetnvgkey"] = I18n.Tr("gamesetnvgkey") == "gamesetnvgkey" ? "Night Vision Toggle" : I18n.Tr("gamesetnvgkey");
+            lang.other["gamesetnvgkeydsc"] = I18n.Tr("gamesetnvgkeydsc") == "gamesetnvgkeydsc" ? "Key to toggle night vision on/off" : I18n.Tr("gamesetnvgkeydsc");
+
             Plugin.Log.LogInfo("[RecipePatch] Recipe translations injected.");
         }
         catch (Exception ex)

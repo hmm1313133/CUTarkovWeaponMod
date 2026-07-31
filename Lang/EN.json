@@ -242,5 +242,7 @@
     "sugarwater.name": "Sugar Water",
     "sugarwater.desc": "Sweet sugar water, soothing and energizing. Per 100ml: +3 hunger, +7 thirst, +0.6 happiness, +0.02 weight.",
     "tkfastmt.name": "TK Fast MT Helmet",
-    "tkfastmt.desc": "A FAST MT helmet replica you crafted based on ones you've seen. While its ballistic protection is minimal, the multi-function interface is surprisingly realistic and compatible with all genuine accessories."
+    "tkfastmt.desc": "A FAST MT helmet replica you crafted based on ones you've seen. While its ballistic protection is minimal, the multi-function interface is surprisingly realistic and compatible with all genuine accessories.",
+    "gamesetnvgkey": "Night Vision Toggle",
+    "gamesetnvgkeydsc": "Key to toggle night vision on/off"
 }

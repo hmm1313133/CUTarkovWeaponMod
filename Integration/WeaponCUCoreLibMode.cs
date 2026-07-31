@@ -508,12 +508,12 @@ public sealed class WeaponCUCoreLibMode
                 }
                 ItemRegistry.Register(itemId, customInfo, registerIcon);
 
-                // 注册到 ItemI18nRegistry，使语言切换时 RefreshAll() 更新 GlobalItems/RegisteredItems 的名称
-                ItemI18nRegistry.Register(itemId);
+                // 注册到 ItemI18nRegistry 并捕获 CustomItemInfo 引用，
+                // 使语言切换时 RefreshAll() 能更新名称和描述
+                ItemI18nRegistry.CaptureItemInfo(itemId, customInfo);
 
                 // 直接设置翻译名称：RefreshAll() 只在语言变化时运行，
                 // 武器模组在医疗模组之后加载，RefreshAll() 已跑过不会重跑。
-                // 需要同时更新 GlobalItems（plainInfo）和 RegisteredItems（customInfo）。
                 var regName = I18n.Tr(itemId + ".name");
                 var regDesc = I18n.Tr(itemId + ".desc");
                 if (regName != itemId + ".name")

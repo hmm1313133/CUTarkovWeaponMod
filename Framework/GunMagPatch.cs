@@ -55,7 +55,7 @@ public static class AXMCMagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[AXMC_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -124,7 +124,7 @@ public static class AXMCMagItemSystem
             weight = 0.55f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 20,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -157,7 +157,7 @@ public static class AXMCMagItemSystem
             combineable = true,
             weight = 0.55f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 20,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -270,7 +270,7 @@ public static class DVL10MagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[DVL10_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -333,7 +333,7 @@ public static class DVL10MagItemSystem
             weight = 0.35f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 17,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -365,7 +365,7 @@ public static class DVL10MagItemSystem
             combineable = true,
             weight = 0.35f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 17,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -475,7 +475,7 @@ public static class AKMMagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[AKM_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -538,7 +538,7 @@ public static class AKMMagItemSystem
             weight = 0.4f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 32,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -570,7 +570,7 @@ public static class AKMMagItemSystem
             combineable = true,
             weight = 0.4f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 32,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -679,7 +679,7 @@ public static class DeagleMagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Pistol;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[Deagle_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -742,7 +742,7 @@ public static class DeagleMagItemSystem
             weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 14,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -774,7 +774,7 @@ public static class DeagleMagItemSystem
             combineable = true,
             weight = 0.15f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 14,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -883,7 +883,7 @@ public static class Glock17MagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Pistol;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[Glock17_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -946,7 +946,7 @@ public static class Glock17MagItemSystem
             weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 17,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -978,7 +978,7 @@ public static class Glock17MagItemSystem
             combineable = true,
             weight = 0.15f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 17,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1085,7 +1085,7 @@ public static class M4A1MagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[M4A1_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -1148,7 +1148,7 @@ public static class M4A1MagItemSystem
             weight = 0.4f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 32,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1180,7 +1180,7 @@ public static class M4A1MagItemSystem
             combineable = true,
             weight = 0.4f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 32,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1287,7 +1287,7 @@ public static class P90MagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[P90_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -1350,7 +1350,7 @@ public static class P90MagItemSystem
             weight = 0.5f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 55,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1382,7 +1382,7 @@ public static class P90MagItemSystem
             combineable = true,
             weight = 0.5f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 55,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1489,7 +1489,7 @@ public static class UMP45MagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Pistol;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[UMP45_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -1552,7 +1552,7 @@ public static class UMP45MagItemSystem
             weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 26,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1584,7 +1584,7 @@ public static class UMP45MagItemSystem
             combineable = true,
             weight = 0.15f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 26,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1739,7 +1739,7 @@ public static class RPDMagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[RPD_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -1802,7 +1802,7 @@ public static class RPDMagItemSystem
             weight = 1f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 110,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1834,7 +1834,7 @@ public static class RPDMagItemSystem
             combineable = true,
             weight = 1f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 110,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -1941,7 +1941,7 @@ public static class USPMagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Pistol;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
         }
 
         var icon = TryLoadIcon();
@@ -2002,7 +2002,7 @@ public static class USPMagItemSystem
             weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 12,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -2028,7 +2028,7 @@ public static class USPMagItemSystem
             weight = 0.15f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 12,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -2126,7 +2126,7 @@ public static class VSSMagItemSystem
             ammo.itemType = AmmoScript.AmmoItemType.Magazine;
             ammo.ammoType = GunScript.AmmoType.Rifle;
             ammo.maxRounds = MaxRounds;
-            ammo.rounds = MaxRounds;
+            ammo.rounds = 0; // 空弹匣（世界生成时由 SpawnCustomItemAt 随机装弹）
 
             Plugin.Log.LogInfo($"[VSS_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
         }
@@ -2189,7 +2189,7 @@ public static class VSSMagItemSystem
             weight = 0.4f,
             scaleWeightWithCondition = false,
             combineable = true,
-            value = 2,
+            value = 33,
             tags = "belttool",
             rec = new Recognition(7),
         };
@@ -2221,7 +2221,7 @@ public static class VSSMagItemSystem
             combineable = true,
             weight = 0.4f,
             scaleWeightWithCondition = false,
-            value = 2,
+            value = 33,
             tags = "belttool",
             rec = new Recognition(7),
         };

@@ -35,7 +35,6 @@ public static class SlickersItemSystem
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (sr != null && icon != null) sr.sprite = icon;
-
         ResizeColliderToSprite(item);
         Plugin.Log.LogInfo($"[Slickers] Configured spawned item.");
     }

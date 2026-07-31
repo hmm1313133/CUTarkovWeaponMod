@@ -18,7 +18,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string ModGuid = "com.yourname.cu.tarkovweaponmod";
     public const string ModName = "Casualties: Unknown - Tarkov-Style Weapon Mod";
-    public const string ModVersion = "1.2.0.0";
+    public const string ModVersion = "1.2.0.5";
 
     internal static ManualLogSource Log = null!;
     internal static WeaponCUCoreLibMode IntegrationMode = null!;
@@ -191,6 +191,9 @@ public sealed class Plugin : BaseUnityPlugin
             Log.LogError($"WeaponCUCoreLibMode.Initialize() threw: {ex}");
         }
 
+        // NVG keybind is registered via Harmony Postfix on Settings.EnsureLoaded
+        // (see NvgKeybindPatch.EnsureLoaded_Postfix), which fires when Settings first loads.
+
         Log.LogInfo($"{ModName} loaded.");
 
         // Initialize Night Vision Controller (static, driven by Plugin.Update)
@@ -210,6 +213,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Update()
     {
+        NvgKeybindPatch.Tick();   // 延迟注册 NVG 键位（等待 Settings 就绪）
         NightVisionController.Tick();
         Tep300Controller.Tick();
         _updateNotifier?.Tick();

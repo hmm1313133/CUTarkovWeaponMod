@@ -2,13 +2,23 @@
 
 > `未知伤亡（Casualties: Unknown）：塔科夫武器模组`
 >
-> **v1.2.0**
+> **v1.2.0.5**
 
 一个为 **Casualties: Unknown Demo** 开发的 BepInEx 模组，将《逃离塔科夫》中的自定义枪械、弹药、弹匣、近战武器、护甲装备、头盔、背包及完整武器系统引入游戏。
 
 > **依赖：** 本模组依赖 [CUTarkovMedicalMod](https://github.com/hmm1313133/CUTarkovMedicalMod) 和 [CUCoreLib](https://github.com/hmm1313133/CUCoreLib)，必须同时安装。
 
 ## 更新日志
+
+### v1.2.0.5
+
+- **夜视仪键位可配置**：NVG 开关键从硬编码 N 改为游戏 Settings → Input 可改键
+- **弹匣价值差异化**：按容量计价（7发=11 ~ 100发=50），不再统一为 2
+- **弹匣默认空弹**：合成产出 0 发，世界生成随机装弹
+- **子弹价值调整**：.338 UCW / .50 AE 铜弹 value 1→2
+- **AKM 图标 pivot 微调**：手持位置修正
+- **MP133/MP153 贴图更新**
+- **语言切换修复**：I18nRegistry 改用 CaptureItemInfo 确保翻译正确刷新
 
 ### v1.2.0
 

@@ -218,7 +218,7 @@ public static class MP153ItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 24f);
+                    new Vector2(0.30f, 0.5f), 28f);
                 _cachedIcon.name = "mp153-icon";
             }
         }
