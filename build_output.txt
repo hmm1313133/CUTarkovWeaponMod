@@ -1,7 +1,6 @@
   正在确定要还原的项目…
-  已还原 g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj (用时 1.79 秒)。
-  已还原 g:\modmake\TKF_weapon\CUTarkovWeaponMod.csproj (用时 1.79 秒)。
-  1 个项目(共 3 个)是最新的，无法还原。
+  已还原 g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj (用时 5.66 秒)。
+  2 个项目(共 3 个)是最新的，无法还原。
   CUCoreLibRef -> g:\modmake\TKF_medical\CUCoreLibRef\bin\Release\net48\CUCoreLibRef.dll
 g:\modmake\TKF_medical\CUTarkovMedicalMod\Framework\R1EItemSystem.cs(345,22): warning CS0414: 字段“R1EEffectController._sideEffectActive”已被赋值，但从未使用过它的值 [g:\modmake\TKF_medical\CUTarkovMedicalMod\CUTarkovMedicalMod.csproj]
   CUTarkovMedicalMod -> g:\modmake\TKF_medical\CUTarkovMedicalMod\bin\Release\net48\CUTarkovMedicalMod.dll
@@ -167,4 +166,4 @@ g:\modmake\TKF_weapon\Framework\RecipePatch.cs(585,13): warning Harmony003: Harm
     78 个警告
     0 个错误
 
-已用时间 00:00:05.44
+已用时间 00:00:08.72

@@ -12,7 +12,21 @@ namespace CUTarkovWeaponMod.Framework;
 public static class NvgKeybindPatch
 {
     public const string SettingName = "nvgkey";
-    public static KeyCode CurrentKey = KeyCode.N;
+
+    /// <summary>当前 NVG 切换键位，每次访问实时从游戏设置读取</summary>
+    public static KeyCode CurrentKey
+    {
+        get
+        {
+            if (Settings.settings == null) return KeyCode.N;
+            foreach (var s in Settings.settings)
+            {
+                if (s is SettingKeybind kb && kb.name == SettingName)
+                    return kb.value;
+            }
+            return KeyCode.N; // 设置项尚未注册时回退到默认 N
+        }
+    }
 
     private static bool _registered;
 
@@ -99,19 +113,6 @@ public static class NvgKeybindPatch
         }
 
         _registered = true;
-        Plugin.Log.LogInfo($"[NvgKeybind] Registered NVG toggle key in settings (name={SettingName}, default={CurrentKey}).");
-    }
-
-    /// <summary>从设置中读取当前键位</summary>
-    public static void RefreshKey()
-    {
-        foreach (var s in Settings.settings)
-        {
-            if (s is SettingKeybind kb && kb.name == SettingName)
-            {
-                CurrentKey = kb.value;
-                return;
-            }
-        }
+        Plugin.Log.LogInfo($"[NvgKeybind] Registered NVG toggle key in settings (name={SettingName}, default=N).");
     }
 }
