@@ -160,7 +160,7 @@ public static class UMP45ItemSystem
             weight = 1.26f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 44,
+            value = 35,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };
@@ -184,7 +184,7 @@ public static class UMP45ItemSystem
             combineable = true,
             weight = 1.26f,
             scaleWeightWithCondition = false,
-            value = 44,
+            value = 35,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };

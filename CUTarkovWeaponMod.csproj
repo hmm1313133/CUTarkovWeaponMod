@@ -6,7 +6,7 @@
     <AssemblyName>CUTarkovWeaponMod</AssemblyName>
     <RootNamespace>CUTarkovWeaponMod</RootNamespace>
     <Product>Casualties: Unknown - Tarkov-Style Weapon Mod</Product>
-    <Version>1.2.0.5</Version>
+    <Version>1.2.0.7</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>$(NoWarn);0649;CS0162</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
@@ -107,6 +107,9 @@
     <Content Include="Framework\Assets\equipment\*.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Framework\Assets\foods\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Lang\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -135,6 +138,7 @@
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/knife" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" />
+    <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/foods" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Lang" />
     <CombinePath BasePath="$(OutDir)" Paths="$(RequiredFilesToCopy)">
       <Output TaskParameter="CombinedPaths" ItemName="RequiredFilesToCopy_Combined" />
@@ -146,6 +150,7 @@
       <PluginAmmo Include="$(OutDir)Framework\Assets\ammo\*.*" />
       <PluginKnife Include="$(OutDir)Framework\Assets\knife\*.*" />
       <PluginEquipment Include="$(OutDir)Framework\Assets\equipment\*.*" />
+      <PluginFoods Include="$(OutDir)Framework\Assets\foods\*.*" />
       <PluginLang Include="$(OutDir)Lang\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginAssets)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets" Condition="Exists('%(Identity)')" />
@@ -153,6 +158,7 @@
     <Copy SourceFiles="@(PluginAmmo)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/ammo" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginKnife)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginEquipment)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" Condition="Exists('%(Identity)')" />
+    <Copy SourceFiles="@(PluginFoods)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/foods" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginLang)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Lang" Condition="Exists('%(Identity)')" />
   </Target>
 </Project>

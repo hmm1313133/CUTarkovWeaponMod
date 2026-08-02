@@ -66,7 +66,7 @@ public static class DRDItemSystem
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
             info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+            info.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
 
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;

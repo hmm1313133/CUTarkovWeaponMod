@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
@@ -26,11 +27,20 @@ namespace CUTarkovWeaponMod.Framework;
 /// - 武器：pistol, rifle, shotgun, makeshiftrifle
 /// - 弹匣：smallmagazine, riflemagazine
 /// - 头盔：bikehelmet, riothelmet
+/// - 护甲/弹挂：traumarig
 /// </summary>
 public static class VanillaBlockPatch
 {
     /// <summary>是否启用原版物品封禁。默认 true，可通过控制台 toggle</summary>
     internal static bool BlockEnabled = true;
+
+    /// <summary>
+    /// 标志位：当前帧正在由配方系统生成 HiddenFromLootPoolIds 物品。
+    /// Item.Start 补丁检测到此标志为 true 时，不销毁隐藏物品。
+    /// 仅设置一个很短的窗口（在同一帧的 Prefix → Postfix 之间），
+    /// 避免误放行来自食物箱等非配方来源的隐藏物品。
+    /// </summary>
+    internal static bool IsCraftingHiddenItem = false;
 
     /// <summary>被封禁的原版物品ID集合</summary>
     internal static readonly HashSet<string> BlockedVanillaIds = new(StringComparer.OrdinalIgnoreCase)
@@ -51,6 +61,8 @@ public static class VanillaBlockPatch
         // 头盔
         "bikehelmet",
         "riothelmet",
+        // 护甲/弹挂
+        "traumarig",
     };
 
     /// <summary>
@@ -97,6 +109,9 @@ public static class VanillaBlockPatch
     [HarmonyPatch(typeof(ItemLootPool), nameof(ItemLootPool.InitializePool))]
     public static class ItemLootPoolPatch
     {
+        private static System.Reflection.FieldInfo _cachedPoolField;
+        private static bool _fieldSearchDone;
+
         [HarmonyPostfix]
         public static void Postfix()
         {
@@ -105,17 +120,10 @@ public static class VanillaBlockPatch
             {
                 // ItemLootPool.pool 是 static Dictionary<string, List<string>>
                 // key = category, value = 该类别下所有物品ID列表
-                var poolField = AccessTools.Field(typeof(ItemLootPool), "pool");
-                if (poolField == null)
-                {
-                    Plugin.Log.LogWarning("[VanillaBlock] Could not find ItemLootPool.pool field.");
-                    return;
-                }
-
-                var pool = poolField.GetValue(null) as Dictionary<string, List<string>>;
+                var pool = GetPoolDictionary();
                 if (pool == null)
                 {
-                    Plugin.Log.LogWarning("[VanillaBlock] ItemLootPool.pool is null.");
+                    Plugin.Log.LogWarning("[VanillaBlock] Could not access ItemLootPool pool dictionary.");
                     return;
                 }
 
@@ -125,12 +133,68 @@ public static class VanillaBlockPatch
                     removedTotal += categoryList.RemoveAll(id => IsHiddenFromLoot(id));
                 }
 
-                Plugin.Log.LogInfo($"[VanillaBlock] Removed {removedTotal} blocked vanilla items from ItemLootPool.");
+                Plugin.Log.LogInfo($"[VanillaBlock] Removed {removedTotal} blocked/hidden items from ItemLootPool.");
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"[VanillaBlock] ItemLootPool patch failed: {ex}");
             }
+        }
+
+        /// <summary>
+        /// 获取 ItemLootPool 的战利池字典。
+        /// 先尝试 "pool" 字段名，失败则按类型搜索所有静态字段。
+        /// </summary>
+        private static Dictionary<string, List<string>> GetPoolDictionary()
+        {
+            if (_cachedPoolField != null)
+                return _cachedPoolField.GetValue(null) as Dictionary<string, List<string>>;
+
+            if (_fieldSearchDone)
+                return null;
+            _fieldSearchDone = true;
+
+            // 1. 尝试已知字段名
+            var field = AccessTools.Field(typeof(ItemLootPool), "pool");
+            if (field != null)
+            {
+                var dict = field.GetValue(null) as Dictionary<string, List<string>>;
+                if (dict != null)
+                {
+                    _cachedPoolField = field;
+                    return dict;
+                }
+            }
+
+            // 2. 按类型搜索所有静态字段
+            var targetType = typeof(Dictionary<string, List<string>>);
+            foreach (var f in typeof(ItemLootPool).GetFields(
+                System.Reflection.BindingFlags.Static |
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.NonPublic))
+            {
+                if (f.FieldType == targetType || f.FieldType.IsAssignableFrom(targetType))
+                {
+                    var dict = f.GetValue(null) as Dictionary<string, List<string>>;
+                    if (dict != null)
+                    {
+                        _cachedPoolField = f;
+                        Plugin.Log.LogInfo($"[VanillaBlock] Found ItemLootPool pool via type search: field '{f.Name}'.");
+                        return dict;
+                    }
+                }
+            }
+
+            // 3. 列出所有字段名用于调试
+            var allFields = string.Join(", ",
+                typeof(ItemLootPool).GetFields(
+                    System.Reflection.BindingFlags.Static |
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.NonPublic)
+                .Select(f => $"{f.Name}({f.FieldType.Name})"));
+            Plugin.Log.LogWarning($"[VanillaBlock] Could not find pool dictionary in ItemLootPool. Fields: {allFields}");
+
+            return null;
         }
     }
 
@@ -310,23 +374,39 @@ public static class VanillaBlockPatch
             if (!BlockEnabled) return;
             try
             {
-                if (string.IsNullOrEmpty(__instance.id) || !IsBlocked(__instance.id))
-                    return;
+                if (string.IsNullOrEmpty(__instance.id)) return;
 
-                // 从 allItems 静态列表中移除（Start 刚添加了它）
-                var allItemsField = AccessTools.Field(typeof(Item), "allItems");
-                if (allItemsField != null)
+                // BlockedVanillaIds：始终销毁（原版武器/弹药/弹匣不应存在）
+                if (IsBlocked(__instance.id))
                 {
-                    var allItems = allItemsField.GetValue(null) as List<Item>;
-                    allItems?.Remove(__instance);
+                    RemoveFromAllItems(__instance);
+                    Plugin.Log.LogInfo($"[VanillaBlock] Destroyed blocked item '{__instance.id}' spawned in world (likely prefab child).");
+                    UnityEngine.Object.Destroy(__instance.gameObject);
+                    return;
                 }
 
-                Plugin.Log.LogInfo($"[VanillaBlock] Destroyed blocked item '{__instance.id}' spawned in world (likely prefab child).");
-                UnityEngine.Object.Destroy(__instance.gameObject);
+                // HiddenFromLootPoolIds：始终销毁（合成获取的物品如 cookednoodles 应仅通过配方获取）。
+                // 但配方系统在同一帧设置 IsCraftingHiddenItem=true，防止误杀配方产出。
+                if (HiddenFromLootPoolIds.Contains(__instance.id) && !IsCraftingHiddenItem)
+                {
+                    RemoveFromAllItems(__instance);
+                    Plugin.Log.LogInfo($"[VanillaBlock] Destroyed hidden item '{__instance.id}' (non-recipe spawn).");
+                    UnityEngine.Object.Destroy(__instance.gameObject);
+                }
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"[VanillaBlock] Item.Start block patch failed: {ex}");
+            }
+        }
+
+        private static void RemoveFromAllItems(Item item)
+        {
+            var allItemsField = AccessTools.Field(typeof(Item), "allItems");
+            if (allItemsField != null)
+            {
+                var allItems = allItemsField.GetValue(null) as List<Item>;
+                allItems?.Remove(item);
             }
         }
     }

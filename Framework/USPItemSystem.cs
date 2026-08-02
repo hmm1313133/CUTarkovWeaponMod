@@ -146,7 +146,7 @@ public static class USPItemSystem
             weight = 0.72f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 18,
+            value = 14,
             tags = "cangetwet,gun",
             rec = new Recognition(9),
         };
@@ -170,7 +170,7 @@ public static class USPItemSystem
             combineable = true,
             weight = 0.72f,
             scaleWeightWithCondition = false,
-            value = 18,
+            value = 14,
             tags = "cangetwet,gun",
             rec = new Recognition(9),
         };

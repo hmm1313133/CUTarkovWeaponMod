@@ -26,6 +26,7 @@ public static class WeaponItemRegistration
         P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey, RPDItemSystem.ItemKey,
         RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey, USPItemSystem.ItemKey,
         VSSItemSystem.ItemKey,
+        AA12ItemSystem.ItemKey,
         // 护甲/胸挂
         MBSSItemSystem.ItemKey,
         TV115ItemSystem.ItemKey,
@@ -87,6 +88,7 @@ public static class WeaponItemRegistration
         P90MagItemSystem.ItemKey, UMP45MagItemSystem.ItemKey, RPDMagItemSystem.ItemKey,
         USPMagItemSystem.ItemKey,
         VSSMagItemSystem.ItemKey,
+        AA12MagItemSystem.ItemKey,
         Ammo76251BPZItemSystem.ItemKey, Ammo76239SPItemSystem.ItemKey, Ammo12g85ItemSystem.ItemKey,
         Ammo338UCWItemSystem.ItemKey, Ammo50CopperItemSystem.ItemKey, Ammo45FMJItemSystem.ItemKey,
         Ammo919PSOItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey, Ammo5728SB193ItemSystem.ItemKey,
@@ -136,6 +138,7 @@ public static class WeaponItemRegistration
         prefabs[M2SwordItemSystem.ItemKey] = "bruisekit";
         prefabs[USPItemSystem.ItemKey] = "pistol";
         prefabs[VSSItemSystem.ItemKey] = "rifle";
+        prefabs[AA12ItemSystem.ItemKey] = "rifle";
 
         // 护甲/胸挂
         prefabs[MBSSItemSystem.ItemKey] = "bruisekit";
@@ -205,6 +208,7 @@ public static class WeaponItemRegistration
         prefabs[RPDMagItemSystem.ItemKey] = "riflemagazine";
         prefabs[USPMagItemSystem.ItemKey] = "riflemagazine";
         prefabs[VSSMagItemSystem.ItemKey] = "riflemagazine";
+        prefabs[AA12MagItemSystem.ItemKey] = "riflemagazine";
 
         // 弹药类
         prefabs[Ammo76251BPZItemSystem.ItemKey] = "556round";
@@ -278,6 +282,8 @@ public static class WeaponItemRegistration
             USPItemSystem.ConfigureSpawnedItem(item, request);
         else if (VSSItemSystem.IsVSSRequest(request))
             VSSItemSystem.ConfigureSpawnedItem(item, request);
+        else if (AA12ItemSystem.IsAA12Request(request))
+            AA12ItemSystem.ConfigureSpawnedItem(item, request);
         // 护甲/胸挂
         else if (MBSSItemSystem.IsMBSSRequest(request))
             MBSSItemSystem.ConfigureSpawnedItem(item, request);
@@ -410,6 +416,8 @@ public static class WeaponItemRegistration
             USPMagItemSystem.ConfigureSpawnedItem(item, request);
         else if (VSSMagItemSystem.IsVSSMagRequest(request))
             VSSMagItemSystem.ConfigureSpawnedItem(item, request);
+        else if (AA12MagItemSystem.IsAA12MagRequest(request))
+            AA12MagItemSystem.ConfigureSpawnedItem(item, request);
         // 弹药
         else if (Ammo76251BPZItemSystem.Is76251BPZRequest(request))
             Ammo76251BPZItemSystem.ConfigureSpawnedItem(item, request);
@@ -512,6 +520,7 @@ public static class WeaponItemRegistryPatch
         M2SwordItemSystem.EnsureRegisteredInItemTable();
         USPItemSystem.EnsureRegisteredInItemTable();
         VSSItemSystem.EnsureRegisteredInItemTable();
+        AA12ItemSystem.EnsureRegisteredInItemTable();
         MBSSItemSystem.EnsureRegisteredInItemTable();
         TV115ItemSystem.EnsureRegisteredInItemTable();
         TV110ItemSystem.EnsureRegisteredInItemTable();
@@ -568,6 +577,7 @@ public static class WeaponItemRegistryPatch
         SixB45ItemSystem.EnsureRegisteredInItemTable();
         USPMagItemSystem.EnsureRegisteredInItemTable();
         VSSMagItemSystem.EnsureRegisteredInItemTable();
+        AA12MagItemSystem.EnsureRegisteredInItemTable();
         Ammo939SP5ItemSystem.EnsureRegisteredInItemTable();
         WeaponRepairKitItemSystem.EnsureRegisteredInItemTable();
         Tep300ItemSystem.EnsureRegisteredInItemTable();

@@ -167,7 +167,7 @@ public static class VSSItemSystem
             weight = 1.8f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 78,
+            value = 50,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };
@@ -191,7 +191,7 @@ public static class VSSItemSystem
             combineable = true,
             weight = 1.8f,
             scaleWeightWithCondition = false,
-            value = 78,
+            value = 50,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };

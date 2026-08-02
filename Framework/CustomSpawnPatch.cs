@@ -36,7 +36,7 @@ public static class CustomSpawnPatch
 {
     // === 枪械分类列表（用于加权随机） ===
     private static readonly string[] PistolIds  = { DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, USPItemSystem.ItemKey };
-    private static readonly string[] SksShotgunIds = { SKSItemSystem.ItemKey, MP133ItemSystem.ItemKey, MP153ItemSystem.ItemKey };
+    private static readonly string[] SksShotgunIds = { SKSItemSystem.ItemKey, MP133ItemSystem.ItemKey, MP153ItemSystem.ItemKey, AA12ItemSystem.ItemKey };
     private static readonly string[] SmgIds     = { P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey };
     private static readonly string[] RifleIds   = { AKMItemSystem.ItemKey, M4A1ItemSystem.ItemKey };
     private static readonly string[] SniperIds  = { AXMCItemSystem.ItemKey, DVL10ItemSystem.ItemKey };
@@ -49,6 +49,7 @@ public static class CustomSpawnPatch
         DeagleItemSystem.ItemKey, Glock17ItemSystem.ItemKey, M4A1ItemSystem.ItemKey,
         P90ItemSystem.ItemKey, UMP45ItemSystem.ItemKey, RPDItemSystem.ItemKey,
         USPItemSystem.ItemKey, VSSItemSystem.ItemKey,
+        AA12ItemSystem.ItemKey,
     };
 
     // === 近战武器列表（物资箱专属） ===

@@ -33,6 +33,7 @@ public static class CaliberRegistry
         { RPDItemSystem.ItemKey,      "762x39"  },
         { USPItemSystem.ItemKey,      "45acp"   },
         { VSSItemSystem.ItemKey,      "9x39"    },
+        { AA12ItemSystem.ItemKey,     "12g"     },
     };
 
     // === 弹药 (Round) ItemKey -> 口径 ===
@@ -64,6 +65,7 @@ public static class CaliberRegistry
         { RPDMagItemSystem.ItemKey,     Ammo76239SPItemSystem.ItemKey },
         { USPMagItemSystem.ItemKey,      Ammo45FMJItemSystem.ItemKey },
         { VSSMagItemSystem.ItemKey,      Ammo939SP5ItemSystem.ItemKey },
+        { AA12MagItemSystem.ItemKey,     Ammo12g85ItemSystem.ItemKey },
     };
 
     /// <summary>

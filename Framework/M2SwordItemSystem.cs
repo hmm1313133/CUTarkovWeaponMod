@@ -78,7 +78,7 @@ public static class M2SwordItemSystem
                 weight = 0.8f,
                 scaleWeightWithCondition = false,
                 combineable = true,
-                value = 30,
+                value = 33,
                 tags = "tool,cutting,hammering,backflip",
                 qualities = new List<CraftingQuality>
                 {

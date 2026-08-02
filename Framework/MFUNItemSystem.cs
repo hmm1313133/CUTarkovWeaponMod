@@ -44,7 +44,7 @@ public static class MFUNItemSystem
         item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+        item.Stats.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
         if (icon != null && sr != null) { sr.sprite = icon; Plugin.Log.LogInfo($"[MF-UN] Set sprite ({icon.texture.width}x{icon.texture.height})."); }
@@ -72,7 +72,7 @@ public static class MFUNItemSystem
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
             info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+            info.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
 
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;

@@ -2297,6 +2297,231 @@ public sealed class VSSMagItemMarker : MonoBehaviour
     public string description = VSSMagItemSystem.Description;
 }
 
+// ===== AA-12 弹匣 =====
+
+/// <summary>
+/// AA-12 全自动霰弹枪弹鼓（20 发容量，发射 12 铅径霰弹）。
+/// 基于 "riflemagazine" prefab 克隆。
+/// </summary>
+public static class AA12MagItemSystem
+{
+    public const string ItemKey = "aa12_mag";
+    public const string BaseGameItemId = "riflemagazine";
+    public const int MaxRounds = 20;
+
+    public static string DisplayName => I18n.Tr("aa12_mag.name");
+    public static string Description => I18n.Tr("aa12_mag.desc");
+
+    private static Sprite? _cachedIcon;
+
+    public static bool IsAA12MagRequest(MedicalGrantRequest request)
+        => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
+
+    public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
+    {
+        if (!IsAA12MagRequest(request)) return;
+
+        EnsureRegisteredInItemTable();
+
+        item.id = ItemKey;
+        item.SetCondition(1f);
+
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+        {
+            ammo.itemType = AmmoScript.AmmoItemType.Magazine;
+            ammo.ammoType = GunScript.AmmoType.Shotgun;
+            ammo.maxRounds = MaxRounds;
+            ammo.rounds = 0;
+
+            Plugin.Log.LogInfo($"[AA12_MAG] Configured AmmoScript: maxRounds={MaxRounds}, rounds={ammo.rounds}");
+        }
+
+        var icon = TryLoadIcon();
+        if (icon != null)
+        {
+            var sr = item.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = icon;
+        }
+
+        ResizeColliderToSprite(item);
+
+        var marker = item.gameObject.GetComponent<AA12MagItemMarker>();
+        if (marker == null)
+            marker = item.gameObject.AddComponent<AA12MagItemMarker>();
+        marker.displayName = DisplayName;
+        marker.description = Description;
+
+        Plugin.Log.LogInfo($"[AA12_MAG] Configured spawned item '{ItemKey}'.");
+    }
+
+    public static bool EnsureRegisteredInItemTable()
+    {
+        if (Item.GlobalItems.ContainsKey(ItemKey))
+            return false;
+
+        try
+        {
+            if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
+            {
+                Item.GlobalItems[ItemKey] = CloneItemInfo(source);
+                Plugin.Log.LogInfo($"[AA12_MAG] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                return true;
+            }
+
+            Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
+            Plugin.Log.LogInfo($"[AA12_MAG] Registered '{ItemKey}' (fallback).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[AA12_MAG] Failed to register '{ItemKey}': {ex}");
+            return false;
+        }
+    }
+
+    private static ItemInfo CloneItemInfo(ItemInfo source)
+    {
+        var clone = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = source.category,
+            slotRotation = source.slotRotation,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            combineable = true,
+            weight = 1.2f,
+            scaleWeightWithCondition = false,
+            value = 25,
+            tags = "belttool",
+            rec = new Recognition(7),
+        };
+
+        var useMethod = typeof(AA12MagItemSystem).GetMethod(
+            nameof(MagUseAction),
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            clone.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        clone.SetTags();
+        return clone;
+    }
+
+    private static ItemInfo CreateFallbackItemInfo()
+    {
+        var info = new ItemInfo
+        {
+            fullName = DisplayName,
+            description = Description,
+            category = "custom",
+            slotRotation = -90f,
+            usable = true,
+            usableOnLimb = false,
+            destroyAtZeroCondition = true,
+            combineable = true,
+            weight = 1.2f,
+            scaleWeightWithCondition = false,
+            value = 25,
+            tags = "belttool",
+            rec = new Recognition(7),
+        };
+
+        var useMethod = typeof(AA12MagItemSystem).GetMethod(
+            nameof(MagUseAction), BindingFlags.Static | BindingFlags.NonPublic);
+        if (useMethod != null)
+        {
+            info.useAction = (ItemInfo.Use)Delegate.CreateDelegate(
+                typeof(ItemInfo.Use), useMethod);
+        }
+
+        info.SetTags();
+        return info;
+    }
+
+    private static void MagUseAction(Body body, Item item)
+    {
+        var ammo = item.GetComponent<AmmoScript>();
+        if (ammo != null)
+            ammo.UnloadRound();
+    }
+
+    private static Sprite? TryLoadIcon()
+    {
+        if (_cachedIcon != null) return _cachedIcon;
+
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "aa12", "aa12_magazine.png");
+
+            if (!File.Exists(iconPath))
+            {
+                iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "aa12", "aa12_magazine.webp");
+                if (!File.Exists(iconPath)) return null;
+            }
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            _cachedIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 26.7f);
+            _cachedIcon.name = "aa12-mag-icon";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[AA12_MAG] Failed to load icon: {ex.Message}");
+        }
+
+        return _cachedIcon;
+    }
+
+    private static void ResizeColliderToSprite(Item item)
+    {
+        var sr = item.GetComponent<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+        var col = item.GetComponent<BoxCollider2D>();
+        if (col == null) col = item.gameObject.AddComponent<BoxCollider2D>();
+        var bounds = sr.sprite.bounds;
+        col.size = new Vector2(bounds.size.x, bounds.size.y);
+        col.offset = Vector2.zero;
+    }
+}
+
+/// <summary>
+/// AA-12 弹匣标记组件。
+/// </summary>
+public sealed class AA12MagItemMarker : MonoBehaviour
+{
+    public string displayName = AA12MagItemSystem.DisplayName;
+    public string description = AA12MagItemSystem.Description;
+}
+
+// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
+public static class AA12MagHoverPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item item, ref (string, string) __result)
+    {
+        return; // Disabled: replaced by UnifiedHoverPatch
+        var marker = item.GetComponent<AA12MagItemMarker>();
+        if (marker == null) return;
+
+        if (!item.Stats.rec.recognizable) return;
+
+        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
+    }
+}
+
 // ===== Harmony Patches =====
 
 /// <summary>
@@ -2320,6 +2545,7 @@ public static class GunLoadMagPatch
         { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
         { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
         { VSSItemSystem.ItemKey, VSSMagItemSystem.ItemKey },
+        { AA12ItemSystem.ItemKey, AA12MagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magin音效文件名的映射</summary>
@@ -2336,6 +2562,7 @@ public static class GunLoadMagPatch
         { RPDItemSystem.ItemKey, ("rpd_magin", "rpd") },
         { USPItemSystem.ItemKey, ("usp_magin", "usp") },
         { VSSItemSystem.ItemKey, ("vss_magin", "vss") },
+        { AA12ItemSystem.ItemKey, ("aa12_magin", "aa12") },
     };
 
     [HarmonyPrefix]
@@ -2379,7 +2606,9 @@ public static class GunLoadMagPatch
             }
 
             // 对应弹匣可以装 — 执行自定义装弹匣逻辑（替代原方法）
-            if (!__instance.hasMag && __instance.feedType == GunScript.FeedType.Mag)
+            // GunToMagMap 中的枪必然是弹匣供弹，不额外检查 feedType
+            // （AA-12 基于 shotgun prefab，原生 feedType=Direct，需跳过此检查）
+            if (!__instance.hasMag)
             {
                 __instance.hasMag = true;
                 __instance.roundsInMag = ammo.rounds;
@@ -2431,6 +2660,7 @@ public static class GunUnloadMagPatch
         { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
         { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
         { VSSItemSystem.ItemKey, VSSMagItemSystem.ItemKey },
+        { AA12ItemSystem.ItemKey, AA12MagItemSystem.ItemKey },
     };
 
     /// <summary>自定义枪ID → magout音效文件名的映射</summary>
@@ -2447,6 +2677,7 @@ public static class GunUnloadMagPatch
         { RPDItemSystem.ItemKey, ("rpd_magout", "rpd") },
         { USPItemSystem.ItemKey, ("usp_magout", "usp") },
         { VSSItemSystem.ItemKey, ("vss_magout", "vss") },
+        { AA12ItemSystem.ItemKey, ("aa12_magout", "aa12") },
     };
 
     [HarmonyPrefix]
@@ -2544,6 +2775,8 @@ public static class GunUnloadMagPatch
                 USPMagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == VSSMagItemSystem.ItemKey)
                 VSSMagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == AA12MagItemSystem.ItemKey)
+                AA12MagItemSystem.ConfigureSpawnedItem(newItem, request);
 
             // 修正弹匣中的子弹数量为退弹时的数量
             var ammo = newItem.GetComponent<AmmoScript>();

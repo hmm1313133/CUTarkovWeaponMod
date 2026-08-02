@@ -169,7 +169,7 @@ public static class SKSItemSystem
             weight = 2.04f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 50,
+            value = 20,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -193,7 +193,7 @@ public static class SKSItemSystem
             combineable = true,
             weight = 2.04f,
             scaleWeightWithCondition = false,
-            value = 50,
+            value = 20,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };

@@ -81,7 +81,7 @@ public static class RedRebelItemSystem
                 weight = 1f,
                 scaleWeightWithCondition = false,
                 combineable = true,
-                value = 30,
+                value = 40,
                 tags = "tool,cutting,hammering,backflip",
                 qualities = new List<CraftingQuality>
                 {

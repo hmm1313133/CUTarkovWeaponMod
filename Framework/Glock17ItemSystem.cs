@@ -148,7 +148,7 @@ public static class Glock17ItemSystem
             weight = 0.78f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 18,
+            value = 13,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };
@@ -172,7 +172,7 @@ public static class Glock17ItemSystem
             combineable = true,
             weight = 0.78f,
             scaleWeightWithCondition = false,
-            value = 18,
+            value = 13,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };

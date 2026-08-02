@@ -102,7 +102,7 @@ public static class IDEAItemSystem
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
             info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+            info.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
             Plugin.Log.LogInfo($"[IDEA] Registered '{ItemKey}' as wearable bandolier (no armor, decays over time).");

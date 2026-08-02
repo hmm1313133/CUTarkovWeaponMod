@@ -246,11 +246,13 @@ public static class RecipePatch
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
+            // rpd_mag: 5废料板+1废料管+3弹匣基座+20ml生化流体+切割+锤打 → 1个RPD弹链盒
             AddRecipe(recipes, RPDMagItemSystem.ItemKey, 1,
                 Recipes.RecipeCategory.Utilities,
-                Specific("scrappanel", 3),
-                Specific("magazinebase", 1),
-                Liquid("biochem", 10f),
+                Specific("scrappanel", 5),
+                Specific("scraptube", 1),
+                Specific("magazinebase", 3),
+                Liquid("biochem", 20f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 
@@ -269,6 +271,16 @@ public static class RecipePatch
                 Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
                 Liquid("biochem", 15f),
+                ByQuality("cutting"),
+                ByQuality("hammering"));
+
+            // aa12_mag: 5废料板+1废料管+3弹匣基座+20ml生化流体+切割+锤打 → 1个AA-12弹鼓
+            AddRecipe(recipes, AA12MagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
+                Specific("scrappanel", 5),
+                Specific("scraptube", 1),
+                Specific("magazinebase", 3),
+                Liquid("biochem", 20f),
                 ByQuality("cutting"),
                 ByQuality("hammering"));
 

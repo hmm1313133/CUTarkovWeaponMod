@@ -160,7 +160,7 @@ public static class AXMCItemSystem
             weight = 2.52f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 79,
+            value = 59,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -184,7 +184,7 @@ public static class AXMCItemSystem
             combineable = true,
             weight = 2.52f,
             scaleWeightWithCondition = false,
-            value = 79,
+            value = 59,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };

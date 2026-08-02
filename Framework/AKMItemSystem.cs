@@ -161,7 +161,7 @@ public static class AKMItemSystem
             weight = 2.1f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 69,
+            value = 45,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };
@@ -185,7 +185,7 @@ public static class AKMItemSystem
             combineable = true,
             weight = 2.1f,
             scaleWeightWithCondition = false,
-            value = 69,
+            value = 45,
             tags = "cangetwet,gun",
             rec = new Recognition(10),
         };

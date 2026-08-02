@@ -66,7 +66,7 @@ public static class SsoAttack2ItemSystem
 
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+        item.Stats.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
 
         var container = item.GetComponent<Container>();
         if (container == null) container = item.gameObject.AddComponent<Container>();
@@ -132,7 +132,7 @@ public static class SsoAttack2ItemSystem
 
             info.rotSpeed = DecayRatePerSecond * 100f;
             info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+            info.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
 
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;

@@ -11,40 +11,41 @@ using CUTarkovMedicalMod.Framework;
 namespace CUTarkovWeaponMod.Framework;
 
 /// <summary>
-/// RPD 7.62x39 轻机枪。
-/// 基于原版 rifle 预制体克隆，修改 GunScript 字段实现自定义数值。
-/// 全自动射击模式，100发弹链盒供弹。
+/// MPS Auto Assault-12 Gen 1（AA-12）自动霰弹枪物品系统。
+/// 
+/// 使用 "rifle" 基础预制体，原生继承 Mag 供弹 + Auto 射击模式。
+/// ammoType 在 ConfigureSpawnedItem 中覆盖为 Shotgun。
 /// </summary>
-public static class RPDItemSystem
+public static class AA12ItemSystem
 {
-    public const string ItemKey = "rpd";
+    public const string ItemKey = "aa12";
     public const string BaseGameItemId = "rifle";
+    public const int MagCapacity = 20;
+    private const float KnockBack = 6f;
+    private const float AnimalDamage = 44f;
+    private const float StructureDamage = 30f;
+    private const float Loudness = 3.3f;
+    private const int ShotsPerFire = 8;
+    private const float VerticalSpread = 0.22f;
+    private const float ConditionLossPerShot = 0.45f;
+    private const float DesiredGasTime = 0.21f;
 
-    public static string DisplayName => I18n.Tr("rpd.name");
-    public static string Description => I18n.Tr("rpd.desc");
-
-    // === GunScript 数值 ===
-    private const int MagCapacity = 100;
-    private const float KnockBack = 4.8f;
-    private const float AnimalDamage = 87f;
-    private const float StructureDamage = 67f;
-    private const float Loudness = 3f;
-    private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.16f;
-    private const float ConditionLossPerShot = 0.36f;
-    private const float DesiredGasTime = 0.1f;
-    private const int FiringModeOverride = 2; // Auto
+    public static string DisplayName => I18n.Tr("aa12.name");
+    public static string Description => I18n.Tr("aa12.desc");
 
     private static Sprite? _cachedIcon;
     private static Sprite? _cachedNoMagIcon;
     private static AudioClip? _cachedFireSound;
 
-    public static bool IsRPDRequest(MedicalGrantRequest request)
+    public static bool IsAA12Request(MedicalGrantRequest request)
         => request.ItemKey.Equals(ItemKey, StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// 配置生成的 AA-12 物品实例。
+    /// </summary>
     public static void ConfigureSpawnedItem(Item item, MedicalGrantRequest request)
     {
-        if (!IsRPDRequest(request)) return;
+        if (!IsAA12Request(request)) return;
 
         EnsureRegisteredInItemTable();
 
@@ -54,7 +55,6 @@ public static class RPDItemSystem
         var gun = item.GetComponent<GunScript>();
         if (gun != null)
         {
-            gun.firingMode = (GunScript.FiringMode)FiringModeOverride;
             gun.magCapacity = MagCapacity;
             gun.roundsInMag = 0;
             gun.knockBack = KnockBack;
@@ -65,18 +65,24 @@ public static class RPDItemSystem
             gun.verticalSpread = VerticalSpread;
             gun.conditionLossPerShot = ConditionLossPerShot;
             gun.desiredGasTime = DesiredGasTime;
+            // rifle 基类原生 feedType=Mag、firingMode=Auto，无需覆盖。
+            // 只覆盖弹药类型为 Shotgun。
+            gun.ammoType = GunScript.AmmoType.Shotgun;
+            Plugin.Log.LogInfo($"[AA12] GunScript ammoType={gun.ammoType}, feedType={gun.feedType}, firingMode={gun.firingMode}");
 
             var fireSound = TryLoadFireSound();
             if (fireSound != null)
                 gun.fireSound = fireSound;
 
-            var rackSound = TryLoadSound("rpd_open", "rpd");
+            // 拉栓/闭栓音效
+            var rackSound = TryLoadSound("aa12_open", "aa12");
             if (rackSound != null)
                 gun.customRack = rackSound;
-            var unrackSound = TryLoadSound("rpd_close", "rpd");
+            var unrackSound = TryLoadSound("aa12_close", "aa12");
             if (unrackSound != null)
                 gun.customUnrack = unrackSound;
 
+            // 图标
             var icon = TryLoadIcon();
             var noMagIcon = TryLoadNoMagIcon();
             if (icon != null)
@@ -91,24 +97,24 @@ public static class RPDItemSystem
                     sr.sprite = icon;
             }
 
-            // 调整枪管和火光位置：与其他枪一致
+            // 调整枪管和火光位置
             if (gun.barrel != null)
-                gun.barrel.localPosition += new Vector3(1.5f, 0f, 0f);
+                gun.barrel.localPosition += new Vector3(1.0f, 0f, 0f);
             if (gun.muzzleParticle != null)
-                gun.muzzleParticle.transform.localPosition += new Vector3(2f, 0f, 0f);
+                gun.muzzleParticle.transform.localPosition += new Vector3(1.5f, 0f, 0f);
 
-            Plugin.Log.LogInfo($"[RPD] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto");
+            Plugin.Log.LogInfo($"[AA12] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}×8, spread={VerticalSpread}, mode=Auto, feed=Mag");
         }
 
         ResizeColliderToSprite(item);
 
-        var marker = item.gameObject.GetComponent<RPDItemMarker>();
+        var marker = item.gameObject.GetComponent<AA12ItemMarker>();
         if (marker == null)
-            marker = item.gameObject.AddComponent<RPDItemMarker>();
+            marker = item.gameObject.AddComponent<AA12ItemMarker>();
         marker.displayName = DisplayName;
         marker.description = Description;
 
-        Plugin.Log.LogInfo($"[RPD] Configured spawned item '{ItemKey}' (condition={item.condition}).");
+        Plugin.Log.LogInfo($"[AA12] Configured spawned item '{ItemKey}' (condition={item.condition}).");
     }
 
     public static bool EnsureRegisteredInItemTable()
@@ -121,17 +127,17 @@ public static class RPDItemSystem
             if (Item.GlobalItems.TryGetValue(BaseGameItemId, out var source))
             {
                 Item.GlobalItems[ItemKey] = CloneItemInfo(source);
-                Plugin.Log.LogInfo($"[RPD] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
+                Plugin.Log.LogInfo($"[AA12] Registered '{ItemKey}' (cloned from '{BaseGameItemId}').");
                 return true;
             }
 
             Item.GlobalItems[ItemKey] = CreateFallbackItemInfo();
-            Plugin.Log.LogInfo($"[RPD] Registered '{ItemKey}' (fallback).");
+            Plugin.Log.LogInfo($"[AA12] Registered '{ItemKey}' (fallback).");
             return true;
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"[RPD] Failed to register '{ItemKey}': {ex}");
+            Plugin.Log.LogError($"[AA12] Failed to register '{ItemKey}': {ex}");
             return false;
         }
     }
@@ -152,11 +158,11 @@ public static class RPDItemSystem
             useAction = source.useAction,
             useLimbAction = null,
             destroyAtZeroCondition = true,
-            weight = 3.6f,
+            combineable = true,
+            weight = 2.5f,
             scaleWeightWithCondition = false,
-            combineable = source.combineable,
-            value = 55,
-            tags = "cangetwet,gun",
+            value = 48,
+            tags = "cangetwet,gun,belttool",
             rec = new Recognition(11),
         };
         clone.SetTags();
@@ -169,18 +175,20 @@ public static class RPDItemSystem
         {
             fullName = DisplayName,
             description = Description,
-            category = "utility",
+            category = "weapon",
             slotRotation = -90f,
             usable = true,
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
+            rotSpeed = 3f,
+            useLimbAction = null,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 3.6f,
+            weight = 2.5f,
             scaleWeightWithCondition = false,
-            value = 55,
-            tags = "cangetwet,gun",
+            value = 48,
+            tags = "cangetwet,gun,belttool",
             rec = new Recognition(11),
         };
         info.SetTags();
@@ -196,7 +204,7 @@ public static class RPDItemSystem
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "rpd", "rpd.png");
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "aa12", "aa12.png");
 
             if (File.Exists(iconPath))
             {
@@ -208,25 +216,29 @@ public static class RPDItemSystem
 
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 10f);
-                _cachedIcon.name = "rpd-icon";
+                    new Vector2(0.45f, 0.5f), 14f);
+                _cachedIcon.name = "aa12-icon";
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[RPD] Failed to load icon: {ex.Message}");
+            Plugin.Log.LogWarning($"[AA12] Failed to load icon: {ex.Message}");
         }
 
         return _cachedIcon;
     }
 
+    // ===== No-Mag Icon =====
+
     private static Sprite? TryLoadNoMagIcon()
     {
         if (_cachedNoMagIcon != null) return _cachedNoMagIcon;
+
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "rpd", "rpd_magout.png");
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "aa12", "aa12_magout.png");
+
             if (File.Exists(iconPath))
             {
                 var bytes = File.ReadAllBytes(iconPath);
@@ -234,16 +246,19 @@ public static class RPDItemSystem
                 if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
                 texture.filterMode = FilterMode.Point;
                 texture.wrapMode = TextureWrapMode.Clamp;
+
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 10f);
-                _cachedNoMagIcon.name = "rpd-nomag-icon";
+                    new Vector2(0.45f, 0.5f), 14f);
+                _cachedNoMagIcon.name = "aa12-nomag-icon";
+                Plugin.Log.LogInfo("[AA12] Loaded no-mag icon 'aa12_magout.png'");
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[RPD] Failed to load no-mag icon: {ex.Message}");
+            Plugin.Log.LogWarning($"[AA12] Failed to load no-mag icon: {ex.Message}");
         }
+
         return _cachedNoMagIcon;
     }
 
@@ -252,9 +267,9 @@ public static class RPDItemSystem
     private static AudioClip? TryLoadFireSound()
     {
         if (_cachedFireSound != null) return _cachedFireSound;
-        _cachedFireSound = TryLoadSound("rpd_fire", "rpd");
+        _cachedFireSound = TryLoadSound("aa12_fire", "aa12");
         if (_cachedFireSound != null)
-            Plugin.Log.LogInfo("[RPD] Loaded fire sound 'rpd_fire.wav'");
+            Plugin.Log.LogInfo("[AA12] Loaded fire sound 'aa12_fire.wav'");
         return _cachedFireSound;
     }
 
@@ -269,7 +284,7 @@ public static class RPDItemSystem
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[RPD] Failed to load sound '{fileName}': {ex.Message}");
+            Plugin.Log.LogWarning($"[AA12] Failed to load sound '{fileName}': {ex.Message}");
         }
         return null;
     }
@@ -305,28 +320,29 @@ public static class RPDItemSystem
 }
 
 /// <summary>
-/// RPD 物品标记组件。
+/// AA-12 物品标记组件。
 /// </summary>
-public sealed class RPDItemMarker : MonoBehaviour
+public sealed class AA12ItemMarker : MonoBehaviour
 {
-    public string displayName = RPDItemSystem.DisplayName;
-    public string description = RPDItemSystem.Description;
+    public string displayName = AA12ItemSystem.DisplayName;
+    public string description = AA12ItemSystem.Description;
 }
 
 /// <summary>
-/// RPD 悬停描述补丁。
+/// AA-12 悬停描述补丁（已禁用，由 UnifiedHoverPatch 替代）。
 /// </summary>
 // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class RPDHoverPatch
+public static class AA12HoverPatch
 {
     [HarmonyPostfix]
     public static void Postfix(Item item, ref (string, string) __result)
     {
         return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<RPDItemMarker>();
+        var marker = item.GetComponent<AA12ItemMarker>();
         if (marker == null) return;
+
         if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
+
         HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
     }
 }

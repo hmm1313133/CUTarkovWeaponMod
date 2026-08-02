@@ -156,7 +156,7 @@ public static class M4A1ItemSystem
             weight = 2.04f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 66,
+            value = 44,
             tags = "cangetwet,gun",
             rec = new Recognition(12),
         };
@@ -180,7 +180,7 @@ public static class M4A1ItemSystem
             combineable = true,
             weight = 2.04f,
             scaleWeightWithCondition = false,
-            value = 66,
+            value = 44,
             tags = "cangetwet,gun",
             rec = new Recognition(12),
         };

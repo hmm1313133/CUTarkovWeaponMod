@@ -157,7 +157,7 @@ public static class DVL10ItemSystem
             weight = 2.22f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 60,
+            value = 46,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };
@@ -181,7 +181,7 @@ public static class DVL10ItemSystem
             combineable = true,
             weight = 2.22f,
             scaleWeightWithCondition = false,
-            value = 60,
+            value = 46,
             tags = "cangetwet,gun",
             rec = new Recognition(11),
         };

@@ -55,7 +55,7 @@ public static class Type56ItemSystem
         // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+        item.Stats.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
 
         // 绑定 Container（Item.Awake 在 CUCoreLib 创建 Container 前运行）
         var container = item.GetComponent<Container>();
@@ -106,7 +106,7 @@ public static class Type56ItemSystem
             info.wearableIsolation = WearableIsolation;
             info.rotSpeed = DecayRatePerSecond * 100f;
             info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+            info.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;
             Plugin.Log.LogInfo($"[Type56] Registered '{ItemKey}' as wearable bandolier (no armor, decays over time).");

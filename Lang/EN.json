@@ -73,6 +73,11 @@
     "5728sb193.name": "5.7x28mm SB193",
     "5728sb193.desc": "5.7x28mm FN SB193 subsonic cartridge, with a 4g lead core brass-jacketed bullet, brass case. Designed for use with FN57 and P90 suppressors to minimize sound signature, with reduced propellant charge to ensure reliable cycling. Despite low muzzle velocity, it can still effectively threaten low-to-medium tier armor, though its construction results in a higher probability of ricochet.",
 
+    "aa12.name": "MPS Auto Assault-12 Gen 1 12-Gauge Auto Shotgun [AA-12]",
+    "aa12.desc": "The AA-12 (abbreviation of Auto Assault-12) is a remarkably reliable 12-gauge shotgun. This automatic shotgun is manufactured by Military Police Systems, primarily targeting the military and law enforcement shotgun market. A defining feature of the AA-12 is its constant recoil system, which provides a relatively mild felt recoil without reducing rate of fire or switching to small-caliber shells with low stopping power. The first-generation AA-12 features a high-profile built-in iron sight.\n\n<color=#4fc3f7>Pellet damage (x8): Creature 44 / Block 30</color>",
+    "aa12_mag.name": "AA-12 20-Round Drum Magazine",
+    "aa12_mag.desc": "Dedicated 20-round drum magazine for the AA-12 automatic shotgun, compatible with 12-gauge shells.",
+
     "mp153.name": "MP-153 12-Gauge Semi-Auto Shotgun [MP 153]",
     "mp153.desc": "The MP-153 is a semi-automatic smoothbore shotgun designed and manufactured by IzhMekh (Izhevsk Mechanical Plant). A reliable and practical weapon for hunting and self-defense. It appears to have an extended magazine tube.\n\n<color=#4fc3f7>Pellet damage (x8): Creature 41 / Block 30</color>",
 

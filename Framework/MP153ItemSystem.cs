@@ -165,7 +165,7 @@ public static class MP153ItemSystem
             weight = 2.34f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 52,
+            value = 37,
             tags = "cangetwet,gun",
             rec = new Recognition(9),
         };
@@ -189,7 +189,7 @@ public static class MP153ItemSystem
             combineable = true,
             weight = 2.34f,
             scaleWeightWithCondition = false,
-            value = 52,
+            value = 37,
             tags = "cangetwet,gun",
             rec = new Recognition(9),
         };

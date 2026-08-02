@@ -1,0 +1,27 @@
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+g:\modmake\TKF_weapon\.pixelator\Program.cs(5,5): error CS0103: 当前上下文中不存在名称“Console” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(32,19): error CS0103: 当前上下文中不存在名称“File” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(74,12): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(74,29): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(78,15): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(79,13): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(80,13): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(128,16): error CS0103: 当前上下文中不存在名称“File” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(131,1): error CS0103: 当前上下文中不存在名称“Console” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+
+生成失败。
+
+g:\modmake\TKF_weapon\.pixelator\Program.cs(5,5): error CS0103: 当前上下文中不存在名称“Console” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(32,19): error CS0103: 当前上下文中不存在名称“File” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(74,12): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(74,29): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(78,15): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(79,13): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(80,13): error CS0103: 当前上下文中不存在名称“Math” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(128,16): error CS0103: 当前上下文中不存在名称“File” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+g:\modmake\TKF_weapon\.pixelator\Program.cs(131,1): error CS0103: 当前上下文中不存在名称“Console” [g:\modmake\TKF_weapon\.pixelator\Pixelator.csproj]
+    0 个警告
+    9 个错误
+
+已用时间 00:00:00.81

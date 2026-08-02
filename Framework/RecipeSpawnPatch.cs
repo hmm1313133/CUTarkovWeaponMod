@@ -31,8 +31,14 @@ public static class RecipeSpawnPatch
         if (resultId == null || !ConsoleSpawnPatch.IsCustomItemKey(resultId))
             return true;
 
+        // 如果是 HiddenFromLootPoolIds 物品，设置标志防止 Item.Start 误杀
+        bool isHidden = VanillaBlockPatch.HiddenFromLootPoolIds.Contains(resultId);
+        if (isHidden)
+            VanillaBlockPatch.IsCraftingHiddenItem = true;
+
         // CUCoreLib 模式下已注册到 ItemRegistry 的物品由 CUCoreLib 的 SpawnCustomResult 处理，
         // 此处不重复拦截，避免双重生成
+        // 标志位保持为 true，Postfix 会在所有 Instantiate 之后清除
         if (ItemRegistry.TryGetCustomInfo(resultId, out _))
             return true;
 
@@ -165,5 +171,15 @@ public static class RecipeSpawnPatch
             Plugin.Log.LogError($"[RecipeSpawn] Failed to spawn '{resultId}': {ex}");
             return true; // 出错时回退到原版逻辑
         }
+    }
+
+    /// <summary>
+    /// 清除配方生成标志。Harmony Postfix 在 Prefix 返回 false 时仍会执行，
+    /// 确保无论走哪个分支标志位都被正确清除。
+    /// </summary>
+    [HarmonyPostfix]
+    public static void Postfix()
+    {
+        VanillaBlockPatch.IsCraftingHiddenItem = false;
     }
 }

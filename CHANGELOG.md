@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0.7] - 2026-08-03
+
+### 新增
+
+- **AA-12 自动霰弹枪**（`aa12`）：MPS Auto Assault-12 Gen 1，12g 口径，全自动，20 发弹鼓供弹，一次射出 8 发弹丸，散布 0.22，生物伤 44×8，方块伤 30，噪音 3.3，后坐力 6，重量 2.5u，价值 48
+- **AA-12 弹鼓**（`aa12_mag`）：20 发容量，基于 `riflemagazine` 预制体，价值 25，重量 1.2u，可合成（5 废料板 + 1 废料管 + 3 弹匣基座 + 20ml 生化流体 + 切割 + 锤打）
+
+### 变更
+
+- **枪械价值调整**：批量更新 15 把枪械和 2 把近战武器价值（AXMC=59, VSS=50, RPD=55, AA12=48, DVL=46, AKM=45, M4A1=44, P90=42, UMP45=35, M2=33, MP153=37, MP133=27, 沙鹰=21, SKS=20, 格洛克=13, USP=14, 冰镐=40）
+- **背包/弹挂衰减类型调整**：21 件背包和弹挂的 DecayType 改为 `NoDecayWhenNotWorn | NoDecayWhenStill`（仅穿戴且移动时衰减），与原版背包行为一致
+- **RPD 弹鼓配方更新**：材料改为与 AA-12 弹鼓一致（5 废料板 + 1 废料管 + 3 弹匣基座 + 20ml 生化流体 + 切割 + 锤打）
+
+### 修复
+
+- **食物箱生成煮熟方便面**：`VanillaBlockPatch` 的 `Item.Start` 补丁现在始终销毁 `HiddenFromLootPoolIds` 中的隐藏物品，通过 `IsCraftingHiddenItem` 标志位区分合成路径，防止食物箱从 `Item.GlobalItems` 中错误生成隐藏的合成中间物品
+- **AA-12 弹匣装填/卸下问题**：基础预制体从 `shotgun` 改为 `rifle`，原生继承 `feedType=Mag` 和 `firingMode=Auto`，解决无 UI、无法装填/卸下弹匣、弹匣按钮状态不更新等问题
+- **AA-12 枪口/枪管位置调整**：barrel 和 muzzleParticle 同时偏移以保持弹道起点和火光效果一致
+
 ## [1.2.0.5] - 2026-07-31
 
 ### 新增

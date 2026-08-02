@@ -149,7 +149,7 @@ public static class P90ItemSystem
             weight = 1.8f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 57,
+            value = 42,
             tags = "cangetwet,gun",
             rec = new Recognition(13),
         };
@@ -173,7 +173,7 @@ public static class P90ItemSystem
             combineable = true,
             weight = 1.8f,
             scaleWeightWithCondition = false,
-            value = 57,
+            value = 42,
             tags = "cangetwet,gun",
             rec = new Recognition(13),
         };

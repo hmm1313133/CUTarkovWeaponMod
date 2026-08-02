@@ -52,7 +52,7 @@ public static class SH118ItemSystem
         item.Stats.wearableHitDurabilityLossMultiplier = WearableHitDurabilityLossMultiplier;
         item.Stats.rotSpeed = DecayRatePerSecond * 100f;
         item.Stats.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-        item.Stats.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+        item.Stats.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
         item.Stats.tags = "rippable";
         item.Stats.SetTags();
         if (item.Stats.qualities == null) item.Stats.qualities = new List<CraftingQuality>();
@@ -123,7 +123,7 @@ public static class SH118ItemSystem
 
             info.rotSpeed = DecayRatePerSecond * 100f;
             info.decayMinutes = (1f / DecayRatePerSecond) / 60f;
-            info.decayInfo = (byte)ItemInfo.DecayType.NoDecayWhenNotWorn;
+            info.decayInfo = (byte)(ItemInfo.DecayType.NoDecayWhenNotWorn | ItemInfo.DecayType.NoDecayWhenStill);
 
             info.SetTags();
             Item.GlobalItems[ItemKey] = info;

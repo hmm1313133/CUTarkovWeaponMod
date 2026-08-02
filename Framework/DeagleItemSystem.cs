@@ -154,7 +154,7 @@ public static class DeagleItemSystem
             weight = 1.02f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
-            value = 39,
+            value = 21,
             tags = "cangetwet,gun",
             rec = new Recognition(8),
         };
@@ -178,7 +178,7 @@ public static class DeagleItemSystem
             combineable = true,
             weight = 1.02f,
             scaleWeightWithCondition = false,
-            value = 39,
+            value = 21,
             tags = "cangetwet,gun",
             rec = new Recognition(8),
         };
