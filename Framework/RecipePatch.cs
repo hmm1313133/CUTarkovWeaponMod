@@ -75,13 +75,15 @@ public static class RecipePatch
             // === 自定义子弹合成配方 ===
             // category = Materials(0), INT = 9
 
-            // 338ucw: 2废料管+3易燃粉末+30ml生化流体+4弹壳+锤打工具 → 4发
+            // 338ucw: 2废料管+2钛棒+3易燃粉末+30ml生化流体+4弹壳+1热源+锤打工具 → 4发
             AddRecipe(recipes, Ammo338UCWItemSystem.ItemKey, 4,
                 Recipes.RecipeCategory.Materials,
                 Specific("scraptube", 2),
+                Specific("titaniumrod", 2),
                 Specific("flammablepowder", 3),
                 Liquid("biochem", 30f),
                 Specific("casing", 4),
+                ByQuality("heatsource"),
                 ByQuality("hammering"));
 
             // 76239sp: 2废料管+2易燃粉末+10ml生化流体+4弹壳+锤打工具 → 4发
@@ -93,11 +95,11 @@ public static class RecipePatch
                 Specific("casing", 4),
                 ByQuality("hammering"));
 
-            // 76251bpz: 2废料管+1废料板+3易燃粉末+10ml生化流体+4弹壳+锤打工具 → 4发
+            // 76251bpz: 3废料管+3废料板+3易燃粉末+10ml生化流体+4弹壳+锤打工具 → 4发
             AddRecipe(recipes, Ammo76251BPZItemSystem.ItemKey, 4,
                 Recipes.RecipeCategory.Materials,
-                Specific("scraptube", 2),
-                Specific("scrappanel", 1),
+                Specific("scraptube", 3),
+                Specific("scrappanel", 3),
                 Specific("flammablepowder", 3),
                 Liquid("biochem", 10f),
                 Specific("casing", 4),
@@ -114,11 +116,11 @@ public static class RecipePatch
                 Specific("casing", 4),
                 ByQuality("hammering"));
 
-            // 5728sb193: 1加工铜+2废料管+2易燃粉末+5ml生化流体+5弹壳+锤打工具 → 5发
+            // 5728sb193: 1加工铜+4废料管+2易燃粉末+5ml生化流体+5弹壳+锤打工具 → 5发
             AddRecipe(recipes, Ammo5728SB193ItemSystem.ItemKey, 5,
                 Recipes.RecipeCategory.Materials,
                 Specific("processedcopper", 1),
-                Specific("scraptube", 2),
+                Specific("scraptube", 4),
                 Specific("flammablepowder", 2),
                 Liquid("biochem", 5f),
                 Specific("casing", 5),

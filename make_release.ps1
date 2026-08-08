@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $pluginDir = "F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\CUTarkovWeaponMod"
 $releaseDir = "G:\modmake\TKF_medical\Release"
-$zipPath = "$releaseDir\CUTarkovWeaponMod_v1.2.0.7.zip"
+$zipPath = "$releaseDir\CUTarkovWeaponMod_v1.2.1.0.zip"
 
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 if (!(Test-Path $releaseDir)) { New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null }

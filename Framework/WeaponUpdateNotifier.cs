@@ -24,7 +24,7 @@ public sealed class WeaponUpdateNotifier
         "https://api.github.com/repos/hmm1313133/CUTarkovWeaponMod/releases/latest";
 
     private const string ReleasePageUrl =
-        "https://github.com/hmm1313133/CUTarkovWeaponMod/releases";
+        "https://github.com/hmm1313133/CUTarkovWeaponMod/releases/latest";
 
     private const float CheckDelaySeconds = 3f;
 

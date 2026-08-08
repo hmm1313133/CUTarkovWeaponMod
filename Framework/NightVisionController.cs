@@ -195,18 +195,26 @@ public static class NightVisionController
         _helmetCheckCounter++;
         if (_helmetCheckCounter % 15 != 0) return;
 
-        var equippedNvg = GetEquippedNVG();
-        if (equippedNvg == null) return;
-
         var body = PlayerCamera.main?.body;
         if (body == null) return;
 
         var helmet = body.GetWearableBySlotID("hat");
-        if (helmet == null || !IsCompatibleHelmetId(helmet.id, equippedNvg.id))
+
+        // NVG 检查：头盔缺失或不兼容时掉落
+        var equippedNvg = GetEquippedNVG();
+        if (equippedNvg != null && (helmet == null || !IsCompatibleHelmetId(helmet.id, equippedNvg.id)))
         {
             if (_nvgActive) TurnOff();
             body.DropWearable(equippedNvg);
             Plugin.Log.LogInfo("[NVG] Helmet removed, NVG dropped to ground.");
+        }
+
+        // FAST 护目罩检查：头盔缺失或不兼容时掉落
+        var equippedVisor = GetEquippedFastVisor();
+        if (equippedVisor != null && (helmet == null || !IsCompatibleHelmetId(helmet.id, equippedVisor.id)))
+        {
+            body.DropWearable(equippedVisor);
+            Plugin.Log.LogInfo($"[Visor] Helmet removed, '{equippedVisor.id}' dropped to ground.");
         }
     }
 
@@ -448,6 +456,19 @@ public static class NightVisionController
         return item;
     }
 
+    /// <summary>获取眼睛槽位上的 FAST 护目罩/防弹面罩（若无则返回 null）。</summary>
+    private static Item? GetEquippedFastVisor()
+    {
+        var body = PlayerCamera.main?.body;
+        if (body == null) return null;
+        var item = body.GetWearableBySlotID("eyes");
+        if (item == null) return null;
+        if (!item.id.Equals(FastVisorItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) &&
+            !item.id.Equals(FastVisor2ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+            return null;
+        return item;
+    }
+
     /// <summary>
     /// Returns the drain rate for the currently equipped NVG.
     /// GPNVG-18: 6 minutes (1/360), standard NVG/PVS-14: 10 minutes (1/600).
@@ -524,21 +545,30 @@ public static class NightVisionController
 
     private static bool IsCompatibleHelmetId(string helmetId, string nvgId)
     {
+        // FAST Visors only compatible with FAST MT / TK Fast MT
+        if (nvgId.Equals(FastVisorItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) ||
+            nvgId.Equals(FastVisor2ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+        {
+            return helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase) ||
+                   helmetId.Equals(TkFastMtItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
+        }
         // GPNVG-18 and PVS-31A are NOT compatible with 6B47
         if (nvgId.Equals(Gpnvg18ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) ||
             nvgId.Equals(Pvs31aItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
         {
             return helmetId.Equals("calman", StringComparison.OrdinalIgnoreCase) ||
-                   helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase);
+                   helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase) ||
+                   helmetId.Equals(TkFastMtItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
         }
-        // PVS-14 and standard NVG are compatible with all three helmets
+        // PVS-14 and standard NVG are compatible with all three helmets (+ tkfastmt)
         return helmetId.Equals("6b47", StringComparison.OrdinalIgnoreCase) ||
                helmetId.Equals("calman", StringComparison.OrdinalIgnoreCase) ||
-               helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase);
+               helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase) ||
+               helmetId.Equals(TkFastMtItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
-    /// Harmony Prefix for Body.WearWearable. Prevents wearing NVG/PVS-14 without compatible helmet.
+    /// Harmony Prefix for Body.WearWearable. Prevents wearing NVG/PVS-14/FASTVisor without compatible helmet.
     /// </summary>
     public static bool WearWearablePrefix(Body __instance, Item item)
     {
@@ -550,17 +580,19 @@ public static class NightVisionController
         var id = item.id;
         if (!id.Equals("pvs14", StringComparison.OrdinalIgnoreCase) &&
             !id.Equals(Gpnvg18ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) &&
-            !id.Equals(Pvs31aItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+            !id.Equals(Pvs31aItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) &&
+            !id.Equals(FastVisorItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) &&
+            !id.Equals(FastVisor2ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             return true;
 
         var helmet = __instance.GetWearableBySlotID("hat");
         if (helmet == null || !IsCompatibleHelmetId(helmet.id, id))
         {
             Plugin.Log.LogInfo(
-                $"[NVG] Cannot wear {id}: no compatible helmet (has: {helmet?.id ?? "none"}).");
+                $"[WearCheck] Cannot wear {id}: no compatible helmet (has: {helmet?.id ?? "none"}).");
             return false;
         }
-        Plugin.Log.LogInfo($"[NVG] {id} equipped with helmet '{helmet.id}'.");
+        Plugin.Log.LogInfo($"[WearCheck] {id} equipped with helmet '{helmet.id}'.");
         return true;
     }
 }

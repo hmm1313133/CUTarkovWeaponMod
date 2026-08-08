@@ -22,12 +22,12 @@ public static class AA12ItemSystem
     public const string BaseGameItemId = "rifle";
     public const int MagCapacity = 20;
     private const float KnockBack = 6f;
-    private const float AnimalDamage = 44f;
+    private const float AnimalDamage = 41f;
     private const float StructureDamage = 30f;
     private const float Loudness = 3.3f;
     private const int ShotsPerFire = 8;
     private const float VerticalSpread = 0.22f;
-    private const float ConditionLossPerShot = 0.45f;
+    private const float ConditionLossPerShot = 0.556f; // 100/180 ≈ 180发损坏
     private const float DesiredGasTime = 0.21f;
 
     public static string DisplayName => I18n.Tr("aa12.name");

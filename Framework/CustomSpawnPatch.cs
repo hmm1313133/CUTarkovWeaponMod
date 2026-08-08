@@ -334,15 +334,17 @@ public static class CustomSpawnPatch
         }
     }
 
-    // === 夜视仪列表（PVS-14 70%, GPNVG-18 30%） ===
+    // === 夜视仪+面罩刷新池（PVS-14 41%, FAST护目罩 24%, GPNVG-18 18%, FAST面罩 17%） ===
     private static readonly (string id, int weight)[] NvgIds =
     {
-        (Gpnvg18ItemSystem.ItemKey, 30),
-        (Pvs14ItemSystem.ItemKey,   70),
+        (Pvs14ItemSystem.ItemKey,     70),
+        (FastVisorItemSystem.ItemKey,  40),
+        (Gpnvg18ItemSystem.ItemKey,   30),
+        (FastVisor2ItemSystem.ItemKey, 30),
     };
-    private static readonly int NvgTotalWeight = 100;
+    private static readonly int NvgTotalWeight = 170;
 
-    /// <summary>从夜视仪列表中按权重随机选一件（GPNVG-18 70%, PVS-14 30%）</summary>
+    /// <summary>从刷新池中按权重随机选一件</summary>
     private static string GetRandomNvgId()
     {
         int w = UnityEngine.Random.Range(1, NvgTotalWeight + 1);

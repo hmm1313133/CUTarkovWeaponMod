@@ -456,6 +456,16 @@ public sealed class WeaponCUCoreLibMode
                     registerIcon = TkFastMtItemSystem.TryLoadIconPublic();
                     TkFastMtItemSystem.RegisterWithCUCoreLib(customInfo);
                 }
+                else if (itemId == FastVisorItemSystem.ItemKey)
+                {
+                    registerIcon = FastVisorItemSystem.TryLoadIconPublic();
+                    FastVisorItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == FastVisor2ItemSystem.ItemKey)
+                {
+                    registerIcon = FastVisor2ItemSystem.TryLoadIconPublic();
+                    FastVisor2ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
                 else if (itemId == ReadyPackItemSystem.ItemKey)
                 {
                     registerIcon = ReadyPackItemSystem.TryLoadIconPublic();

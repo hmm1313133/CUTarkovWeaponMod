@@ -26,7 +26,7 @@ public static class P90ItemSystem
     // === GunScript 数值 ===
     private const int MagCapacity = 50;
     private const float KnockBack = 3.1f;
-    private const float AnimalDamage = 45f;
+    private const float AnimalDamage = 50f;
     private const float StructureDamage = 35f;
     private const float Loudness = 1.9f;
     private const int ShotsPerFire = 1;

@@ -26,7 +26,7 @@ public static class Glock17ItemSystem
     // === GunScript 数值 ===
     private const int MagCapacity = 17;
     private const float KnockBack = 5f;
-    private const float AnimalDamage = 50f;
+    private const float AnimalDamage = 32f;
     private const float StructureDamage = 20f;
     private const float Loudness = 2f;
     private const int ShotsPerFire = 1;

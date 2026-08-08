@@ -17,7 +17,7 @@ public static class Pvs31aItemSystem
     public const string WearSlotId = "eyes";
 
     // Compatible helmets (same as PVS-14 / GPNVG-18)
-    private static readonly string[] CompatibleHelmets = { "6b47", "calman", "fastmt", "tkfastmt" };
+    private static readonly string[] CompatibleHelmets = { "6b47", "calman", "fastmt", "tkfastmt", "exfil" };
 
     public static string DisplayName => I18n.Tr("pvs31a.name");
     public static string Description => I18n.Tr("pvs31a.desc");

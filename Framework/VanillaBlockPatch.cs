@@ -198,6 +198,50 @@ public static class VanillaBlockPatch
         }
     }
 
+    /// <summary>
+    /// 战利池访问拦截（双保险）：即使池在物品注册后被重建，
+    /// RandomFromPool/AllItemsFromPool 也不会返回被封禁/隐藏的物品。
+    /// </summary>
+    [HarmonyPatch(typeof(ItemLootPool), nameof(ItemLootPool.RandomFromPool))]
+    public static class ItemLootPoolRandomPatch
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(string category, ref (string, ItemInfo) __result)
+        {
+            if (!BlockEnabled) return true;
+            try
+            {
+                if (ItemLootPool.pool == null ||
+                    !ItemLootPool.pool.TryGetValue(category, out var list) ||
+                    list == null || list.Count == 0)
+                    return true;
+
+                var valid = list.Where(id => !IsHiddenFromLoot(id)).ToArray();
+                if (valid.Length == 0) return true; // 全部被隐藏：回退原版逻辑
+
+                var picked = valid[UnityEngine.Random.Range(0, valid.Length)];
+                __result = (picked, Item.GetItem(picked));
+                return false;
+            }
+            catch { return true; }
+        }
+    }
+
+    [HarmonyPatch(typeof(ItemLootPool), nameof(ItemLootPool.AllItemsFromPool))]
+    public static class ItemLootPoolAllPatch
+    {
+        [HarmonyPostfix]
+        public static void Postfix(string category, ref List<(string, ItemInfo)> __result)
+        {
+            if (!BlockEnabled || __result == null || __result.Count == 0) return;
+            try
+            {
+                __result.RemoveAll(entry => IsHiddenFromLoot(entry.Item1));
+            }
+            catch { }
+        }
+    }
+
     // === 2. 商人库存拦截 ===
 
     /// <summary>根据物品 ItemInfo 返回细粒度类型（用于商人每类限量）</summary>
@@ -385,13 +429,25 @@ public static class VanillaBlockPatch
                     return;
                 }
 
-                // HiddenFromLootPoolIds：始终销毁（合成获取的物品如 cookednoodles 应仅通过配方获取）。
-                // 但配方系统在同一帧设置 IsCraftingHiddenItem=true，防止误杀配方产出。
+                // HiddenFromLootPoolIds：销毁非配方获取的物品。
+                // 自定义物品（WeaponItemIds）正常通过 Utils.Create（合成/控制台/背包）创建，
+                // 不销毁；但作为世界容器（食物箱等预制体）子物体生成的隐藏物品必须销毁。
+                // 由于 IsCraftingHiddenItem 标志在 Postfix 同步清除（早于 Item.Start），
+                // 合成产物靠"父级是玩家身体"来识别保护。
                 if (HiddenFromLootPoolIds.Contains(__instance.id) && !IsCraftingHiddenItem)
                 {
-                    RemoveFromAllItems(__instance);
-                    Plugin.Log.LogInfo($"[VanillaBlock] Destroyed hidden item '{__instance.id}' (non-recipe spawn).");
-                    UnityEngine.Object.Destroy(__instance.gameObject);
+                    bool isWorldContainerChild = __instance.transform.parent != null
+                        && __instance.transform.parent.GetComponent<Container>() != null
+                        && (PlayerCamera.main?.body == null
+                            || !__instance.transform.IsChildOf(PlayerCamera.main.body.transform));
+
+                    if (!WeaponItemRegistration.WeaponItemIds.Contains(__instance.id)
+                        || isWorldContainerChild)
+                    {
+                        RemoveFromAllItems(__instance);
+                        Plugin.Log.LogInfo($"[VanillaBlock] Destroyed hidden item '{__instance.id}' (non-recipe spawn).");
+                        UnityEngine.Object.Destroy(__instance.gameObject);
+                    }
                 }
             }
             catch (Exception ex)

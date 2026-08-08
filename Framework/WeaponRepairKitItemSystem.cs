@@ -12,7 +12,7 @@ namespace CUTarkovWeaponMod.Framework;
 /// <summary>
 /// 武器维修套件。
 /// 可使用4次，每次将手中枪械耐久回满。
-/// 重量8.5u，随耐久消耗减少。价值52。
+/// 重量4.5u，随耐久消耗减少。价值52。
 /// </summary>
 public static class WeaponRepairKitItemSystem
 {
@@ -22,7 +22,7 @@ public static class WeaponRepairKitItemSystem
     public static string DisplayName => I18n.Tr("weaponrepairkit.name");
     public static string Description => I18n.Tr("weaponrepairkit.desc");
 
-    private const float Weight = 8.5f;
+    private const float Weight = 4.5f;
     private const int Value = 52;
     private const float DurabilityPerUse = 0.25f; // 4 uses
 

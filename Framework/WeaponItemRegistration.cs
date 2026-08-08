@@ -108,6 +108,8 @@ public static class WeaponItemRegistration
         NoodlesItemSystem.ItemKey,
         CookedNoodlesItemSystem.ItemKey,
         TkFastMtItemSystem.ItemKey,
+        FastVisorItemSystem.ItemKey,
+        FastVisor2ItemSystem.ItemKey,
     };
 
     /// <summary>判断是否为武器模组自定义物品 ID</summary>
@@ -236,6 +238,8 @@ public static class WeaponItemRegistration
         prefabs[NoodlesItemSystem.ItemKey] = "bread";
         prefabs[CookedNoodlesItemSystem.ItemKey] = "bread";
         prefabs[TkFastMtItemSystem.ItemKey] = "bruisekit";
+        prefabs[FastVisorItemSystem.ItemKey] = "bruisekit";
+        prefabs[FastVisor2ItemSystem.ItemKey] = "bruisekit";
 
         // 2. 设置外部物品配置器
         ConsoleSpawnPatch.ExternalItemConfigurer = ConfigureWeaponItem;
@@ -469,6 +473,10 @@ public static class WeaponItemRegistration
             CookedNoodlesItemSystem.ConfigureSpawnedItem(item, request);
         else if (TkFastMtItemSystem.IsTkFastMtRequest(request))
             TkFastMtItemSystem.ConfigureSpawnedItem(item, request);
+        else if (FastVisorItemSystem.IsFastVisorRequest(request))
+            FastVisorItemSystem.ConfigureSpawnedItem(item, request);
+        else if (FastVisor2ItemSystem.IsFastVisor2Request(request))
+            FastVisor2ItemSystem.ConfigureSpawnedItem(item, request);
         else
             return false; // 不是枪械物品
 
@@ -594,6 +602,8 @@ public static class WeaponItemRegistryPatch
         NoodlesItemSystem.EnsureRegisteredInItemTable();
         CookedNoodlesItemSystem.EnsureRegisteredInItemTable();
         TkFastMtItemSystem.EnsureRegisteredInItemTable();
+        FastVisorItemSystem.EnsureRegisteredInItemTable();
+        FastVisor2ItemSystem.EnsureRegisteredInItemTable();
 
         // 通知集成模式武器物品已注册到 GlobalItems
         Plugin.IntegrationMode?.OnItemsSetup();

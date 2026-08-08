@@ -17,7 +17,7 @@ public static class Pvs14ItemSystem
     public const string WearSlotId = "eyes";
 
     // Compatible helmets (same as NVG - mounts on these helmets only)
-    private static readonly string[] CompatibleHelmets = { "6b47", "calman", "fastmt", "tkfastmt" };
+    private static readonly string[] CompatibleHelmets = { "6b47", "calman", "fastmt", "tkfastmt", "exfil" };
 
     public static string DisplayName => I18n.Tr("pvs14.name");
     public static string Description => I18n.Tr("pvs14.desc");

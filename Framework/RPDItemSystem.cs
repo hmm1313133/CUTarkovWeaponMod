@@ -26,8 +26,8 @@ public static class RPDItemSystem
     // === GunScript 数值 ===
     private const int MagCapacity = 100;
     private const float KnockBack = 4.8f;
-    private const float AnimalDamage = 87f;
-    private const float StructureDamage = 67f;
+    private const float AnimalDamage = 100f;
+    private const float StructureDamage = 70f;
     private const float Loudness = 3f;
     private const int ShotsPerFire = 1;
     private const float VerticalSpread = 0.16f;
