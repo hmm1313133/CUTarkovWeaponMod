@@ -48,6 +48,9 @@ public sealed class WeaponCUCoreLibMode
         // 注册武器运行时状态保存提供者（弹药数、弹匣状态）
         SaveRegistry.RegisterItemProvider("cutarkovweapon.runtime", new WeaponItemSaveProvider());
         Plugin.Log.LogInfo("[WeaponCUCoreLib] Registered WeaponItemSaveProvider (ammo/mag state).");
+
+        // 注册独立 vanilla 控制台命令（原版物品拦截管理：list/on/off/[item] true|false）
+        VanillaCommand.Register();
     }
 
     public void OnItemsSetup()
@@ -466,6 +469,221 @@ public sealed class WeaponCUCoreLibMode
                     registerIcon = FastVisor2ItemSystem.TryLoadIconPublic();
                     FastVisor2ItemSystem.RegisterWithCUCoreLib(customInfo);
                 }
+                else if (itemId == HexagonAKMSuppressorItemSystem.ItemKey)
+                {
+                    registerIcon = HexagonAKMSuppressorItemSystem.TryLoadIconPublic();
+                    HexagonAKMSuppressorItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MoeAkmItemSystem.ItemKey)
+                {
+                    registerIcon = MoeAkmItemSystem.TryLoadIconPublic();
+                    MoeAkmItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == HexagonAkHandguardItemSystem.ItemKey)
+                {
+                    registerIcon = HexagonAkHandguardItemSystem.TryLoadIconPublic();
+                    HexagonAkHandguardItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Rk3ItemSystem.ItemKey)
+                {
+                    registerIcon = Rk3ItemSystem.TryLoadIconPublic();
+                    Rk3ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Mg47ItemSystem.ItemKey)
+                {
+                    registerIcon = Mg47ItemSystem.TryLoadIconPublic();
+                    Mg47ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Ags74ItemSystem.ItemKey)
+                {
+                    registerIcon = Ags74ItemSystem.TryLoadIconPublic();
+                    Ags74ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Td120001ItemSystem.ItemKey)
+                {
+                    registerIcon = Td120001ItemSystem.TryLoadIconPublic();
+                    Td120001ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == StarkArrgItemSystem.ItemKey)
+                {
+                    registerIcon = StarkArrgItemSystem.TryLoadIconPublic();
+                    StarkArrgItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MiadItemSystem.ItemKey)
+                {
+                    registerIcon = MiadItemSystem.TryLoadIconPublic();
+                    MiadItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == F1st2pcItemSystem.ItemKey)
+                {
+                    registerIcon = F1st2pcItemSystem.TryLoadIconPublic();
+                    F1st2pcItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == ErgoItemSystem.ItemKey)
+                {
+                    registerIcon = ErgoItemSystem.TryLoadIconPublic();
+                    ErgoItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Rotor43ItemSystem.ItemKey)
+                {
+                    registerIcon = Rotor43ItemSystem.TryLoadIconPublic();
+                    Rotor43ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Nt4ItemSystem.ItemKey)
+                {
+                    registerIcon = Nt4ItemSystem.TryLoadIconPublic();
+                    Nt4ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == SakerItemSystem.ItemKey)
+                {
+                    registerIcon = SakerItemSystem.TryLoadIconPublic();
+                    SakerItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Kx3ItemSystem.ItemKey)
+                {
+                    registerIcon = Kx3ItemSystem.TryLoadIconPublic();
+                    Kx3ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Vp09ItemSystem.ItemKey)
+                {
+                    registerIcon = Vp09ItemSystem.TryLoadIconPublic();
+                    Vp09ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Rotor43762ItemSystem.ItemKey)
+                {
+                    registerIcon = Rotor43762ItemSystem.TryLoadIconPublic();
+                    Rotor43762ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Vipermod1ItemSystem.ItemKey)
+                {
+                    registerIcon = Vipermod1ItemSystem.TryLoadIconPublic();
+                    Vipermod1ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == CtrItemSystem.ItemKey)
+                {
+                    registerIcon = CtrItemSystem.TryLoadIconPublic();
+                    CtrItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Ds150fdeItemSystem.ItemKey)
+                {
+                    registerIcon = Ds150fdeItemSystem.TryLoadIconPublic();
+                    Ds150fdeItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == AcsItemSystem.ItemKey)
+                {
+                    registerIcon = AcsItemSystem.TryLoadIconPublic();
+                    AcsItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MoefgItemSystem.ItemKey)
+                {
+                    registerIcon = MoefgItemSystem.TryLoadIconPublic();
+                    MoefgItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MoefdeItemSystem.ItemKey)
+                {
+                    registerIcon = MoefdeItemSystem.TryLoadIconPublic();
+                    MoefdeItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MoesgItemSystem.ItemKey)
+                {
+                    registerIcon = MoesgItemSystem.TryLoadIconPublic();
+                    MoesgItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == PdcItemSystem.ItemKey)
+                {
+                    registerIcon = PdcItemSystem.TryLoadIconPublic();
+                    PdcItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == MrsItemSystem.ItemKey)
+                {
+                    registerIcon = MrsItemSystem.TryLoadIconPublic();
+                    MrsItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Eotech553ItemSystem.ItemKey)
+                {
+                    registerIcon = Eotech553ItemSystem.TryLoadIconPublic();
+                    Eotech553ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Hhs1ItemSystem.ItemKey)
+                {
+                    registerIcon = Hhs1ItemSystem.TryLoadIconPublic();
+                    Hhs1ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == SpecterDrItemSystem.ItemKey)
+                {
+                    registerIcon = SpecterDrItemSystem.TryLoadIconPublic();
+                    SpecterDrItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Monstr2x32ItemSystem.ItemKey)
+                {
+                    registerIcon = Monstr2x32ItemSystem.TryLoadIconPublic();
+                    Monstr2x32ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Ta01nsnItemSystem.ItemKey)
+                {
+                    registerIcon = Ta01nsnItemSystem.TryLoadIconPublic();
+                    Ta01nsnItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == RazorHdItemSystem.ItemKey)
+                {
+                    registerIcon = RazorHdItemSystem.TryLoadIconPublic();
+                    RazorHdItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Pm2ItemSystem.ItemKey)
+                {
+                    registerIcon = Pm2ItemSystem.TryLoadIconPublic();
+                    Pm2ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == OpforAak7ItemSystem.ItemKey)
+                {
+                    registerIcon = OpforAak7ItemSystem.TryLoadIconPublic();
+                    OpforAak7ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == KochergaItemSystem.ItemKey)
+                {
+                    registerIcon = KochergaItemSystem.TryLoadIconPublic();
+                    KochergaItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == ZhukovSItemSystem.ItemKey)
+                {
+                    registerIcon = ZhukovSItemSystem.TryLoadIconPublic();
+                    ZhukovSItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Cqr47ItemSystem.ItemKey)
+                {
+                    registerIcon = Cqr47ItemSystem.TryLoadIconPublic();
+                    Cqr47ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == LasTac2ItemSystem.ItemKey)
+                {
+                    registerIcon = LasTac2ItemSystem.TryLoadIconPublic();
+                    LasTac2ItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == Klesch2UItemSystem.ItemKey)
+                {
+                    registerIcon = Klesch2UItemSystem.TryLoadIconPublic();
+                    Klesch2UItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == BaldrProItemSystem.ItemKey)
+                {
+                    registerIcon = BaldrProItemSystem.TryLoadIconPublic();
+                    BaldrProItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == TblItemSystem.ItemKey)
+                {
+                    registerIcon = TblItemSystem.TryLoadIconPublic();
+                    TblItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == UmpOemItemSystem.ItemKey)
+                {
+                    registerIcon = UmpOemItemSystem.TryLoadIconPublic();
+                    UmpOemItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
+                else if (itemId == LeathermanItemSystem.ItemKey)
+                {
+                    registerIcon = LeathermanItemSystem.TryLoadIconPublic();
+                    LeathermanItemSystem.RegisterWithCUCoreLib(customInfo);
+                }
                 else if (itemId == ReadyPackItemSystem.ItemKey)
                 {
                     registerIcon = ReadyPackItemSystem.TryLoadIconPublic();
@@ -560,6 +778,16 @@ public sealed class WeaponCUCoreLibMode
         {
             Plugin.Log.LogError(
                 $"[WeaponCUCoreLib] Registered {registered} items but templateCache is null - 0 templates injected. ALL weapon items will appear as bandage!");
+        }
+
+        // 注册武器配件地堡 + 武器物资箱（世界生成）
+        try
+        {
+            WeaponCacheBunker.Register();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"[WeaponCUCoreLib] WeaponCacheBunker.Register() failed: {ex}");
         }
     }
 

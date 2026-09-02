@@ -74,6 +74,13 @@ public static class VanillaBlockPatch
         Pvs31aItemSystem.ItemKey,
         VSSItemSystem.ItemKey,
         CookedNoodlesItemSystem.ItemKey, // 仅合成获取
+        // 弹药盒：仅合成/控制台获取，不在世界刷新
+        "box_338ucw", "box_76251bpz", "box_50copper", "box_12g85",
+        "box_76239sp", "box_55645fmj", "box_939sp5", "box_45fmj",
+        "box_919pso", "box_5728sb193",
+        // 加长弹匣：仅制作/配件刷新池，不进入常规弹匣刷新池
+        X47MagItemSystem.ItemKey, M4A1Mag560ItemSystem.ItemKey,
+        GlockBigStickMagItemSystem.ItemKey, GlockG50MagItemSystem.ItemKey,
         "duffelbag",
         "smallpack",
         "bigpack",
@@ -94,12 +101,36 @@ public static class VanillaBlockPatch
         NoodlesItemSystem.ItemKey,
     };
 
-    /// <summary>判断物品ID是否被封禁（完全阻止创建）</summary>
-    public static bool IsBlocked(string itemId) => BlockedVanillaIds.Contains(itemId);
+    /// <summary>
+    /// 单独覆盖表：物品ID → 强制拦截状态。优先于全局开关 BlockEnabled：
+    /// true = 即使全局关闭也拦截；false = 即使全局开启也放行。
+    /// vanillablock on/off 会清空此表。
+    /// </summary>
+    internal static readonly Dictionary<string, bool> IndividualOverrides = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>是否存在强制拦截的单独覆盖（全局关闭时仍需执行过滤的判断依据）</summary>
+    internal static bool HasForceBlockOverrides
+    {
+        get
+        {
+            foreach (var forced in IndividualOverrides.Values)
+                if (forced) return true;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 判断物品ID是否被封禁（完全阻止创建）。
+    /// 单独覆盖优先；无覆盖时跟随全局开关。
+    /// </summary>
+    public static bool IsBlocked(string itemId)
+        => IndividualOverrides.TryGetValue(itemId, out var forced)
+            ? forced
+            : BlockEnabled && BlockedVanillaIds.Contains(itemId);
 
     /// <summary>判断物品ID是否应从战利池/商人库存中隐藏</summary>
     public static bool IsHiddenFromLoot(string itemId)
-        => (BlockedVanillaIds.Contains(itemId)
+        => (IsBlocked(itemId)
            || HiddenFromLootPoolIds.Contains(itemId)
            || WeaponItemRegistration.WeaponItemIds.Contains(itemId))
            && !FoodItemIds.Contains(itemId); // 食物使用原版战利池
@@ -115,7 +146,7 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix()
         {
-            if (!BlockEnabled) return;
+            if (!BlockEnabled && !HasForceBlockOverrides) return;
             try
             {
                 // ItemLootPool.pool 是 static Dictionary<string, List<string>>
@@ -208,7 +239,7 @@ public static class VanillaBlockPatch
         [HarmonyPrefix]
         public static bool Prefix(string category, ref (string, ItemInfo) __result)
         {
-            if (!BlockEnabled) return true;
+            if (!BlockEnabled && !HasForceBlockOverrides) return true;
             try
             {
                 if (ItemLootPool.pool == null ||
@@ -233,7 +264,7 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix(string category, ref List<(string, ItemInfo)> __result)
         {
-            if (!BlockEnabled || __result == null || __result.Count == 0) return;
+            if (!BlockEnabled && !HasForceBlockOverrides || __result == null || __result.Count == 0) return;
             try
             {
                 __result.RemoveAll(entry => IsHiddenFromLoot(entry.Item1));
@@ -275,7 +306,7 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix(TraderScript __instance)
         {
-            if (!BlockEnabled) return;
+            if (!BlockEnabled && !HasForceBlockOverrides) return;
             try
             {
                 var itemsField = AccessTools.Field(typeof(TraderScript), "items");
@@ -297,8 +328,8 @@ public static class VanillaBlockPatch
                     var itemId = idField.GetValue(traderItem) as string;
                     if (itemId == null) continue;
 
-                    // 封禁的原版物品：移除
-                    if (BlockedVanillaIds.Contains(itemId) || HiddenFromLootPoolIds.Contains(itemId))
+                    // 封禁的原版物品：移除（IsBlocked 含全局开关与单独覆盖）
+                    if (IsBlocked(itemId) || HiddenFromLootPoolIds.Contains(itemId))
                     {
                         toRemove.Add(i);
                         removed++;
@@ -348,7 +379,7 @@ public static class VanillaBlockPatch
         [HarmonyPrefix]
         public static bool Prefix(string id, ref GameObject __result)
         {
-            if (!BlockEnabled) return true;
+            // IsBlocked 内部已处理全局开关与单独覆盖
             if (id != null && IsBlocked(id))
             {
                 Plugin.Log.LogInfo($"[VanillaBlock] Blocked Utils.Create for '{id}'.");
@@ -359,49 +390,11 @@ public static class VanillaBlockPatch
         }
     }
 
-    // === 4. 控制台命令: spawn vanilla_on / spawn vanilla_off ===
-    // 也支持直接输入 vanilla_on / vanilla_off
-
-    [HarmonyPatch(typeof(ConsoleScript), nameof(ConsoleScript.TryExecuteCommand))]
-    public static class VanillaSpawnCommandPatch
-    {
-        [HarmonyPrefix]
-        public static bool Prefix(ConsoleScript __instance, string[] args, bool addToLog)
-        {
-            if (args == null || args.Length < 1) return true;
-
-            bool? enable = null;
-            // 格式1: spawn vanilla_on / spawn vanilla_off
-            if (args.Length >= 2 && args[0].Equals("spawn", StringComparison.OrdinalIgnoreCase))
-            {
-                if (args[1].Equals("vanilla_on", StringComparison.OrdinalIgnoreCase))
-                    enable = true;
-                else if (args[1].Equals("vanilla_off", StringComparison.OrdinalIgnoreCase))
-                    enable = false;
-            }
-            // 格式2: vanilla_on / vanilla_off (直接输入)
-            if (enable == null)
-            {
-                if (args[0].Equals("vanilla_on", StringComparison.OrdinalIgnoreCase))
-                    enable = true;
-                else if (args[0].Equals("vanilla_off", StringComparison.OrdinalIgnoreCase))
-                    enable = false;
-            }
-
-            if (enable == null) return true;
-
-            VanillaBlockPatch.BlockEnabled = !enable.Value;
-
-            var logMethod = AccessTools.Method(typeof(ConsoleScript), "LogToConsole");
-            string msg = enable.Value
-                ? "[WeaponMod] Vanilla weapon/ammo/mag/helmet spawn, crafting and trading ENABLED."
-                : "[WeaponMod] Vanilla weapon/ammo/mag/helmet spawn, crafting and trading DISABLED.";
-            Plugin.Log.LogInfo(msg);
-            logMethod?.Invoke(__instance, new object[] { msg });
-
-            return false;
-        }
-    }
+    // === 4. 控制台命令 "vanillablock" ===
+    // 独立命令（不再依附于 spawn），实现见 VanillaCommand.cs：
+    //   vanillablock list              显示全局开关与每个物品的拦截状态
+    //   vanillablock on / off          全局开启/关闭拦截（清空单独覆盖）
+    //   vanillablock [物品名] true/false  单独强制拦截/放行该物品
 
     // === 5. Item.Start 拦截（终极防线） ===
     // GenerateCollapsedPods/GenerateLifePods 实例化的预制体（如 LifepodCollapsed）包含子物体
@@ -415,12 +408,11 @@ public static class VanillaBlockPatch
         [HarmonyPostfix]
         public static void Postfix(Item __instance)
         {
-            if (!BlockEnabled) return;
             try
             {
                 if (string.IsNullOrEmpty(__instance.id)) return;
 
-                // BlockedVanillaIds：始终销毁（原版武器/弹药/弹匣不应存在）
+                // BlockedVanillaIds：由 IsBlocked 决定（含全局开关与单独覆盖）
                 if (IsBlocked(__instance.id))
                 {
                     RemoveFromAllItems(__instance);
@@ -429,12 +421,12 @@ public static class VanillaBlockPatch
                     return;
                 }
 
-                // HiddenFromLootPoolIds：销毁非配方获取的物品。
+                // HiddenFromLootPoolIds：销毁非配方获取的物品（仅全局开启时，保持原有行为）。
                 // 自定义物品（WeaponItemIds）正常通过 Utils.Create（合成/控制台/背包）创建，
                 // 不销毁；但作为世界容器（食物箱等预制体）子物体生成的隐藏物品必须销毁。
                 // 由于 IsCraftingHiddenItem 标志在 Postfix 同步清除（早于 Item.Start），
                 // 合成产物靠"父级是玩家身体"来识别保护。
-                if (HiddenFromLootPoolIds.Contains(__instance.id) && !IsCraftingHiddenItem)
+                if (BlockEnabled && HiddenFromLootPoolIds.Contains(__instance.id) && !IsCraftingHiddenItem)
                 {
                     bool isWorldContainerChild = __instance.transform.parent != null
                         && __instance.transform.parent.GetComponent<Container>() != null

@@ -24,17 +24,19 @@ public static class SKSItemSystem
     public static string Description => I18n.Tr("sks.desc");
 
     // === GunScript 数值 ===
-    private const int MagCapacity = 10;
+    public const int MagCapacity = 10;
     private const float KnockBack = 6f;
     private const float AnimalDamage = 150f;
     private const float StructureDamage = 100f;
     private const float Loudness = 2.9f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0f;
+    private const float VerticalSpread = 0.1f;
     private const float ConditionLossPerShot = 0.6f;
     private const float DesiredGasTime = 0.1f;
 
     private static Sprite? _cachedIcon;
+    private static Sprite? _cachedMagOutIcon;
+    private static Sprite? _cachedSksA5Icon;
     private static AudioClip? _cachedFireSound;
 
     public static bool IsSKSRequest(MedicalGrantRequest request)
@@ -108,6 +110,14 @@ public static class SKSItemSystem
             Plugin.Log.LogInfo($"[SKS] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}");
         }
 
+        // 默认自带 10 发弹仓改件（Direct 弹仓模式）
+        // 预填 GunAttachmentHolder.attachmentIds，使改枪面板左栏显示该改件，可卸下
+        var holder = item.GetComponent<GunAttachmentHolder>();
+        if (holder == null)
+            holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+        if (!holder.attachmentIds.Contains(SksIntegralMagItemSystem.ItemKey))
+            holder.attachmentIds.Add(SksIntegralMagItemSystem.ItemKey);
+
         // 调整碰撞箱
         ResizeColliderToSprite(item);
 
@@ -165,13 +175,13 @@ public static class SKSItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 2.04f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 20,
             tags = "cangetwet,gun",
-            rec = new Recognition(11),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -189,13 +199,13 @@ public static class SKSItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 2.04f,
             scaleWeightWithCondition = false,
             value = 20,
             tags = "cangetwet,gun",
-            rec = new Recognition(11),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -210,7 +220,8 @@ public static class SKSItemSystem
         try
         {
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
-            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "sks", "sks.png");
+            // SKS 基础贴图为 sks_10.png（游戏不支持 webp，均为 png）
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "sks", "sks_10.png");
 
             if (File.Exists(iconPath))
             {
@@ -232,6 +243,89 @@ public static class SKSItemSystem
         }
 
         return _cachedIcon;
+    }
+
+    /// <summary>公开访问基础贴图（供 GunVisualComposer 合成 UAS 层）。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+
+    /// <summary>加载无弹匣贴图（sks_magout.png，卸下弹仓/无弹匣时显示）。</summary>
+    private static Sprite? TryLoadMagOutIcon()
+    {
+        if (_cachedMagOutIcon != null) return _cachedMagOutIcon;
+        _cachedMagOutIcon = LoadSksSprite("sks_magout.png", "sks-magout");
+        return _cachedMagOutIcon;
+    }
+
+    /// <summary>加载装 SKS-A5 弹匣贴图（sks_sksa5.png）。</summary>
+    private static Sprite? TryLoadSksA5Icon()
+    {
+        if (_cachedSksA5Icon != null) return _cachedSksA5Icon;
+        _cachedSksA5Icon = LoadSksSprite("sks_sksa5.png", "sks-sksa5");
+        return _cachedSksA5Icon;
+    }
+
+    private static Sprite? LoadSksSprite(string file, string name)
+    {
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "sks", file);
+            if (!File.Exists(iconPath)) return null;
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+            var spr = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.30f, 0.5f), 22.5f);
+            spr.name = name;
+            return spr;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[SKS] Failed to load {file}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 根据 SKS 当前供弹方式返回基础贴图：
+    /// - 装 SKS-A5 弹匣（attachmentIds 或 currentMagId）：sks_sksa5.png
+    /// - 默认（有弹仓改件）：sks_10.png（带弹仓）
+    /// - 卸下弹仓/无弹匣：sks_magout.png
+    /// </summary>
+    public static Sprite? GetCurrentBaseSprite(Item gunItem)
+    {
+        if (gunItem == null) return TryLoadIcon();
+        var gun = gunItem.GetComponent<GunScript>();
+        if (gun == null) return TryLoadIcon();
+
+        // 判断是否装 SKS-A5 弹匣：改枪面板安装（attachmentIds）或原版装弹匣（currentMagId）
+        bool hasSksA5 = SuppressorSystem.IsAttachmentInstalled(gunItem, SksA5MagItemSystem.ItemKey);
+        if (!hasSksA5)
+        {
+            var holder = gunItem.GetComponent<GunAttachmentHolder>();
+            hasSksA5 = holder != null
+                && string.Equals(holder.currentMagId, SksA5MagItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (hasSksA5)
+            return TryLoadSksA5Icon();          // 装 SKS-A5 弹匣
+        if (SuppressorSystem.IsAttachmentInstalled(gunItem, SksIntegralMagItemSystem.ItemKey))
+            return TryLoadIcon();               // 默认弹仓改件（带弹仓）
+        return TryLoadMagOutIcon();             // 无弹匣（卸下弹仓）
+    }
+
+    /// <summary>
+    /// 刷新 SKS 渲染贴图：委托给 GunVisualComposer.Rebuild，
+    /// 由它根据当前供弹方式选择基础贴图并合成 UAS 等配件层。
+    /// 这样卸弹仓/装弹匣后 UAS 贴图不会丢失（此前 UpdateSksVisual 直接覆盖整图，
+    /// 会把已合成的 UAS 层冲掉）。
+    /// </summary>
+    public static void UpdateSksVisual(Item gunItem)
+    {
+        GunVisualComposer.Rebuild(gunItem);
     }
 
     // ===== Sounds =====
@@ -303,19 +397,3 @@ public sealed class SKSItemMarker : MonoBehaviour
 /// <summary>
 /// SKS 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class SKSHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<SKSItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

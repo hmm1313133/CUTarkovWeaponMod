@@ -160,13 +160,13 @@ public static class MP133ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 2.28f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 27,
             tags = "cangetwet,gun",
-            rec = new Recognition(9),
+            rec = new Recognition(6),
         };
         clone.SetTags();
         return clone;
@@ -184,13 +184,13 @@ public static class MP133ItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 2.28f,
             scaleWeightWithCondition = false,
             value = 27,
             tags = "cangetwet,gun",
-            rec = new Recognition(9),
+            rec = new Recognition(6),
         };
         info.SetTags();
         return info;
@@ -298,19 +298,3 @@ public sealed class MP133ItemMarker : MonoBehaviour
 /// <summary>
 /// MP-133 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class MP133HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<MP133ItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

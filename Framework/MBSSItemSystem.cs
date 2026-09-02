@@ -57,7 +57,11 @@ public static class MBSSItemSystem
         item.SetCondition(1f);
 
         var container = item.GetComponent<Container>();
-        if (container != null) item.cont = container;
+        if (container == null) container = item.gameObject.AddComponent<Container>();
+        container.maxWeight = ContainerCapacity;
+        container.maxWeightPerItem = ContainerMaxWeightPerItem > 0 ? ContainerMaxWeightPerItem : 3f;
+        container.encumberanceMult = 0.3f;
+        item.cont = container;
 
         // CUCoreLib 会覆盖 ItemInfo，需在 ConfigureSpawnedItem 中重新设置
         if (WearableHitDurabilityLossMultiplier > 0)
@@ -234,24 +238,9 @@ public static class MBSSItemSystem
         col.offset = Vector2.zero;
     }
 
-    // === 悬停描述 ===
-
     /// <summary>
     /// MBSS 悬停描述补丁。仅覆盖名称，保留游戏原生详细页面。
     /// </summary>
-    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-    public static class MBSSHoverPatch
-    {
-        [HarmonyPostfix]
-        public static void Postfix(Item item, ref (string, string) __result)
-        {
-        return; // Disabled: replaced by UnifiedHoverPatch
-            if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
-                return;
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = DisplayName;
-        }
-    }
 
     // === 双槽位锁定 ===
 

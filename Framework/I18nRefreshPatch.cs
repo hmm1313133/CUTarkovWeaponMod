@@ -22,10 +22,10 @@ public static class I18nRefreshPatch
         try
         {
             var key = item.id;
-            var newName = I18n.Tr(key + ".name");
-            var newDesc = I18n.Tr(key + ".desc");
+            var newName = WModLoc.Tr(key + ".name", item.Stats.fullName ?? key);
+            var newDesc = WModLoc.Tr(key + ".desc", item.Stats.description ?? "");
 
-            // 仅当翻译存在时更新（I18n.Tr 找不到时返回 key 本身）
+            // WModLoc 未命中时也会返回现有文本，这里无条件更新即可
             if (newName != key + ".name")
                 item.Stats.fullName = newName;
             if (newDesc != key + ".desc")

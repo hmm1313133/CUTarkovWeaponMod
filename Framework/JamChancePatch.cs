@@ -21,21 +21,43 @@ public static class JamChancePatch
 {
     /// <summary>缓存 it 字段访问器</summary>
     private static System.Reflection.FieldInfo? _itField;
+    private static int _logCounter;
 
     [HarmonyPrefix]
     public static bool Prefix(GunScript __instance, ref float __result)
     {
         try
         {
-            _itField ??= AccessTools.Field(typeof(GunScript), "it");
-            var item = _itField?.GetValue(__instance) as Item;
-            if (item == null)
+            // 关键：只在 Fire() 开火时机判定卡壳。
+            // 原版 JamChance() 被 3 个时机调用（Fire 开火 / Update 抛壳 / Update 上膛），
+            // 每发子弹触发 3 次独立判定，导致实际卡壳率 ≈ 1-(1-p)^3，远高于单次概率。
+            // 抛壳/上膛时机（InFire=false）返回 0，使每发子弹恰好判定一次。
+            if (!SuppressorSystem.FireEffectsPatch.InFire)
             {
                 __result = 0f;
                 return false;
             }
 
+            _itField ??= AccessTools.Field(typeof(GunScript), "it");
+            var item = _itField?.GetValue(__instance) as Item;
+            if (item == null)
+            {
+                // 诊断：反射失败或 it 未初始化（每 60 次打印一次）
+                if (++_logCounter % 60 == 0)
+                    Plugin.Log.LogWarning($"[JamChancePatch] it field FAILED (_itField={_itField != null}), returning 0 (no jam).");
+                __result = 0f;
+                return false;
+            }
+
             float condition = item.condition;
+            // 鲁棒归一化：兼容 condition 为 0~1 或 0~100 两种情况。
+            // 若 condition > 1，说明是 0~100（百分制），除以 100 归一化为 0~1。
+            // （实测 60 耐久几乎全卡，怀疑 condition 实为 0~100，阈值 0.8 被 60 恒真触发导致 100% 卡壳）
+            if (condition > 1f)
+                condition *= 0.01f;
+            // 诊断日志：确认补丁生效及 condition 范围（每 120 次打印一次，避免刷屏）
+            if (++_logCounter % 120 == 0)
+                Plugin.Log.LogInfo($"[JamChancePatch] it field OK, rawCondition={item.condition}, normalized={condition}, firingMode={__instance.firingMode}");
             float jamChance;
 
             // 分段线性映射

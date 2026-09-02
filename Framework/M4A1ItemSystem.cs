@@ -30,7 +30,7 @@ public static class M4A1ItemSystem
     private const float StructureDamage = 70f;
     private const float Loudness = 2.7f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.06f;
+    private const float VerticalSpread = 0.08f;
     private const float ConditionLossPerShot = 0.32f;
     private const float DesiredGasTime = 0.09f;
     // FiringMode: Auto = 2
@@ -152,13 +152,13 @@ public static class M4A1ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 2.04f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 44,
             tags = "cangetwet,gun",
-            rec = new Recognition(12),
+            rec = new Recognition(9),
         };
         clone.SetTags();
         return clone;
@@ -176,13 +176,13 @@ public static class M4A1ItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 2.04f,
             scaleWeightWithCondition = false,
             value = 44,
             tags = "cangetwet,gun",
-            rec = new Recognition(12),
+            rec = new Recognition(9),
         };
         info.SetTags();
         return info;
@@ -234,6 +234,74 @@ public static class M4A1ItemSystem
         }
         catch (Exception ex) { Plugin.Log.LogWarning($"[M4A1] Failed to load no-mag icon: {ex.Message}"); }
         return _cachedNoMagIcon;
+    }
+
+    // ===== 弹鼓 Icon（带 MAG5-60 弹鼓的完整枪械贴图）=====
+
+    private static Sprite? _cachedDrumIcon;
+
+    /// <summary>公开：M4A1 标准含弹匣贴图。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+
+    /// <summary>公开：M4A1 无弹匣贴图。</summary>
+    public static Sprite? TryLoadNoMagIconPublic() => TryLoadNoMagIcon();
+
+    /// <summary>公开：带 MAG5-60 弹鼓的 M4A1 完整贴图。</summary>
+    public static Sprite? TryLoadDrumIconPublic() => TryLoadDrumIcon();
+
+    private static Sprite? TryLoadDrumIcon()
+    {
+        if (_cachedDrumIcon != null) return _cachedDrumIcon;
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "m4", "m4a1_mag560.png");
+            if (!File.Exists(iconPath)) return null;
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            _cachedDrumIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.30f, 0.5f), 15.5f);
+            _cachedDrumIcon.name = "m4a1-mag560-icon";
+        }
+        catch (Exception ex) { Plugin.Log.LogWarning($"[M4A1] Failed to load drum icon: {ex.Message}"); }
+        return _cachedDrumIcon;
+    }
+
+    /// <summary>
+    /// 根据当前弹匣更新 M4A1 枪身贴图：装 MAG5-60 弹鼓时使用带弹鼓的完整贴图，
+    /// 否则使用标准含弹匣贴图。无弹匣态贴图保持不变。
+    /// </summary>
+    public static void UpdateDrumVisual(Item gunItem)
+    {
+        if (gunItem == null) return;
+        var gun = gunItem.GetComponent<GunScript>();
+        if (gun == null) return;
+
+        var holder = gunItem.GetComponent<GunAttachmentHolder>();
+        bool isDrum = holder != null
+            && holder.currentMagId.Equals(M4A1Mag560ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
+
+        Sprite? withMag = isDrum
+            ? (TryLoadDrumIconPublic() ?? TryLoadIcon())
+            : TryLoadIcon();
+        if (withMag == null) return;
+
+        gun.normalSprite = withMag;
+        gun.rackedSprite = withMag;
+
+        var sr = gunItem.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.sprite = !gun.racked
+                ? (gun.hasMag ? gun.normalSprite : gun.normalSpriteNoMag)
+                : (gun.hasMag ? gun.rackedSprite : gun.rackedSpriteNoMag);
+        }
     }
 
     private static AudioClip? TryLoadFireSound()
@@ -290,17 +358,3 @@ public sealed class M4A1ItemMarker : MonoBehaviour
     public string description = M4A1ItemSystem.Description;
 }
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class M4A1HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<M4A1ItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

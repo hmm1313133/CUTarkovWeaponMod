@@ -157,13 +157,13 @@ public static class AA12ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 2.5f,
             scaleWeightWithCondition = false,
             value = 48,
             tags = "cangetwet,gun,belttool",
-            rec = new Recognition(11),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -183,13 +183,13 @@ public static class AA12ItemSystem
             autoAttack = true,
             rotSpeed = 3f,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 2.5f,
             scaleWeightWithCondition = false,
             value = 48,
             tags = "cangetwet,gun,belttool",
-            rec = new Recognition(11),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
@@ -331,18 +331,3 @@ public sealed class AA12ItemMarker : MonoBehaviour
 /// <summary>
 /// AA-12 悬停描述补丁（已禁用，由 UnifiedHoverPatch 替代）。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AA12HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<AA12ItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

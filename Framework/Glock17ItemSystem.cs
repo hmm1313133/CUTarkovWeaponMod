@@ -30,9 +30,9 @@ public static class Glock17ItemSystem
     private const float StructureDamage = 20f;
     private const float Loudness = 2f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.2f;
+    private const float VerticalSpread = 0.15f;
     private const float ConditionLossPerShot = 0.7f;
-    private const float DesiredGasTime = 0.2f;
+    private const float DesiredGasTime = 0.1f;
     // FiringMode: pistol base is already SemiAuto(1), inherit from base
 
     private static Sprite? _cachedIcon;
@@ -95,6 +95,9 @@ public static class Glock17ItemSystem
 
         ResizeColliderToSprite(item);
 
+        // 移除 pistol prefab 继承的激光子物体（游戏原生手枪自带红色激光）
+        GunPrefabCleanup.RemoveInheritedLaser(item);
+
         var marker = item.gameObject.GetComponent<Glock17ItemMarker>();
         if (marker == null)
             marker = item.gameObject.AddComponent<Glock17ItemMarker>();
@@ -144,13 +147,13 @@ public static class Glock17ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 0.78f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 13,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         clone.SetTags();
         return clone;
@@ -168,13 +171,13 @@ public static class Glock17ItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 0.78f,
             scaleWeightWithCondition = false,
             value = 13,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         info.SetTags();
         return info;
@@ -196,7 +199,7 @@ public static class Glock17ItemSystem
                 texture.wrapMode = TextureWrapMode.Clamp;
                 _cachedIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 27f);
+                    new Vector2(0.75f, 0.75f), 27f);
                 _cachedIcon.name = "glock17-icon";
             }
         }
@@ -220,13 +223,19 @@ public static class Glock17ItemSystem
                 texture.wrapMode = TextureWrapMode.Clamp;
                 _cachedNoMagIcon = Sprite.Create(texture,
                     new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.30f, 0.5f), 27f);
+                    new Vector2(0.75f, 0.75f), 27f);
                 _cachedNoMagIcon.name = "glock17-nomag-icon";
             }
         }
         catch (Exception ex) { Plugin.Log.LogWarning($"[Glock17] Failed to load no-mag icon: {ex.Message}"); }
         return _cachedNoMagIcon;
     }
+
+    /// <summary>公开：加载格洛克基础贴图（有弹匣态）。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+
+    /// <summary>公开：加载格洛克无弹匣贴图。</summary>
+    public static Sprite? TryLoadNoMagIconPublic() => TryLoadNoMagIcon();
 
     private static AudioClip? TryLoadFireSound()
     {
@@ -282,17 +291,3 @@ public sealed class Glock17ItemMarker : MonoBehaviour
     public string description = Glock17ItemSystem.Description;
 }
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class Glock17HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<Glock17ItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

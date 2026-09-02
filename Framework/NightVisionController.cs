@@ -58,6 +58,7 @@ public static class NightVisionController
     private static Image? _greenImg;
     private static Image? _noiseImg;
     private static Image? _vignetteImg;
+
     private static Texture2D? _vignetteTex;
 
     private static AudioClip? _cachedToggleSound;

@@ -244,20 +244,6 @@ public sealed class RedRebelItemMarker : MonoBehaviour
 /// 构建完整详细页面。攀爬功能由 RedRebelJumpPatch 提供，描述文本中已包含说明。
 /// 功能性 tags（cangetwet, tool, cutting, hammering）在 ItemInfo.tags 中声明。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class RedRebelHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<RedRebelItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        // 不覆盖 Item2：保留游戏构建的完整描述页（含重量/价值/tags/描述等）
-    }
-}
 
 /// <summary>
 /// Red Rebel 攀爬补丁 - 在 Body.Jump Postfix 中检测主手是否持有冰镐，

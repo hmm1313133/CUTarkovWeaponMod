@@ -6,7 +6,7 @@
     <AssemblyName>CUTarkovWeaponMod</AssemblyName>
     <RootNamespace>CUTarkovWeaponMod</RootNamespace>
     <Product>Casualties: Unknown - Tarkov-Style Weapon Mod</Product>
-    <Version>1.2.1.0</Version>
+    <Version>2.0.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>$(NoWarn);0649;CS0162</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
@@ -26,6 +26,13 @@
   <!-- Program.cs 属于 DecompileClaw 调试项目，不编译进插件 -->
   <ItemGroup>
     <Compile Remove="Program.cs" />
+  </ItemGroup>
+
+  <!-- _tools/ 是辅助工具项目（Pixellate 像素化等），不编译进插件 -->
+  <ItemGroup>
+    <Compile Remove="_tools/**/*.cs" />
+    <None Remove="_tools/**/*" />
+    <Content Remove="_tools/**/*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,7 +90,7 @@
     <Content Include="Framework\Assets\guns\**\*.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Framework\Assets\guns\**\*" Exclude="Framework\Assets\guns\**\*.wav;Framework\Assets\guns\**\*_preview.png">
+    <Content Include="Framework\Assets\guns\**\*" Exclude="Framework\Assets\guns\**\*.wav;Framework\Assets\guns\**\*_preview.png;Framework\Assets\guns\工具钳\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Framework\Assets\ammo\*.png">
@@ -110,7 +117,18 @@
     <Content Include="Framework\Assets\foods\*.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Framework\Assets\structures\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Lang\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- 插件根目录语言文件（CUCoreLib LocaleLoader 扫描插件根目录的 zh_CN.json/EN.json，
+         用于设置选项等 option 分类翻译） -->
+    <Content Include="zh_CN.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EN.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -134,11 +152,13 @@
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/p90" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/ump45" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/rpd" />
+    <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/leatherman" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/mp153" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/knife" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/foods" />
+    <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/structures" />
     <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)/Lang" />
     <CombinePath BasePath="$(OutDir)" Paths="$(RequiredFilesToCopy)">
       <Output TaskParameter="CombinedPaths" ItemName="RequiredFilesToCopy_Combined" />
@@ -151,6 +171,7 @@
       <PluginKnife Include="$(OutDir)Framework\Assets\knife\*.*" />
       <PluginEquipment Include="$(OutDir)Framework\Assets\equipment\*.*" />
       <PluginFoods Include="$(OutDir)Framework\Assets\foods\*.*" />
+      <PluginStructures Include="$(OutDir)Framework\Assets\structures\*.*" />
       <PluginLang Include="$(OutDir)Lang\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginAssets)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets" Condition="Exists('%(Identity)')" />
@@ -158,7 +179,14 @@
     <Copy SourceFiles="@(PluginAmmo)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/ammo" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginKnife)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginEquipment)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" Condition="Exists('%(Identity)')" />
+    <Copy SourceFiles="@(PluginStructures)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/structures" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginFoods)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/foods" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginLang)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Lang" Condition="Exists('%(Identity)')" />
+    <!-- 插件根目录语言文件（CUCoreLib LocaleLoader 扫描插件根目录的 zh_CN.json/EN.json） -->
+    <Copy SourceFiles="$(OutDir)zh_CN.json" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)" Condition="Exists('$(OutDir)zh_CN.json')" />
+    <Copy SourceFiles="$(OutDir)EN.json" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)" Condition="Exists('$(OutDir)EN.json')" />
+
+    <!-- 清理已废弃的"工具钳"目录（源 webp 已像素化为 leatherman.png） -->
+    <Exec Command="if exist &quot;$(BepInExDir)\plugins\$(PluginDirName)\Framework\Assets\guns\工具钳&quot; rd /s /q &quot;$(BepInExDir)\plugins\$(PluginDirName)\Framework\Assets\guns\工具钳&quot;" IgnoreExitCode="true" />
   </Target>
 </Project>

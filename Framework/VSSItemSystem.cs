@@ -30,7 +30,7 @@ public static class VSSItemSystem
     private const float StructureDamage = 88f;
     private const float Loudness = 0.32f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0f;
+    private const float VerticalSpread = 0.07f;
     private const float ConditionLossPerShot = 0.5f;
     private const float DesiredGasTime = 0.08f;
     // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
@@ -163,13 +163,13 @@ public static class VSSItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 1.8f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 50,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         clone.SetTags();
         return clone;
@@ -187,13 +187,13 @@ public static class VSSItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 1.8f,
             scaleWeightWithCondition = false,
             value = 50,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         info.SetTags();
         return info;
@@ -334,19 +334,3 @@ public sealed class VSSItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class VSSHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<VSSItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

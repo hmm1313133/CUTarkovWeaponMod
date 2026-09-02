@@ -2506,21 +2506,6 @@ public sealed class AA12MagItemMarker : MonoBehaviour
     public string description = AA12MagItemSystem.Description;
 }
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AA12MagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<AA12MagItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
 
 // ===== Harmony Patches =====
 
@@ -2531,21 +2516,22 @@ public static class AA12MagHoverPatch
 [HarmonyPatch(typeof(GunScript), nameof(GunScript.LoadMag))]
 public static class GunLoadMagPatch
 {
-    /// <summary>枪ID → 对应弹匣ID 的映射</summary>
-    private static readonly Dictionary<string, string> GunToMagMap = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>枪ID → 允许的弹匣ID 列表（支持一把枪多个弹匣）</summary>
+    private static readonly Dictionary<string, string[]> GunToMagMap = new(StringComparer.OrdinalIgnoreCase)
     {
-        { AXMCItemSystem.ItemKey, AXMCMagItemSystem.ItemKey },
-        { DVL10ItemSystem.ItemKey, DVL10MagItemSystem.ItemKey },
-        { AKMItemSystem.ItemKey, AKMMagItemSystem.ItemKey },
-        { DeagleItemSystem.ItemKey, DeagleMagItemSystem.ItemKey },
-        { Glock17ItemSystem.ItemKey, Glock17MagItemSystem.ItemKey },
-        { M4A1ItemSystem.ItemKey, M4A1MagItemSystem.ItemKey },
-        { P90ItemSystem.ItemKey, P90MagItemSystem.ItemKey },
-        { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
-        { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
-        { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
-        { VSSItemSystem.ItemKey, VSSMagItemSystem.ItemKey },
-        { AA12ItemSystem.ItemKey, AA12MagItemSystem.ItemKey },
+        { AXMCItemSystem.ItemKey, new[] { AXMCMagItemSystem.ItemKey } },
+        { DVL10ItemSystem.ItemKey, new[] { DVL10MagItemSystem.ItemKey } },
+        { AKMItemSystem.ItemKey, new[] { AKMMagItemSystem.ItemKey, X47MagItemSystem.ItemKey } },
+        { DeagleItemSystem.ItemKey, new[] { DeagleMagItemSystem.ItemKey } },
+        { Glock17ItemSystem.ItemKey, new[] { Glock17MagItemSystem.ItemKey, GlockBigStickMagItemSystem.ItemKey, GlockG50MagItemSystem.ItemKey } },
+        { M4A1ItemSystem.ItemKey, new[] { M4A1MagItemSystem.ItemKey, M4A1Mag560ItemSystem.ItemKey } },
+        { P90ItemSystem.ItemKey, new[] { P90MagItemSystem.ItemKey } },
+        { UMP45ItemSystem.ItemKey, new[] { UMP45MagItemSystem.ItemKey } },
+        { RPDItemSystem.ItemKey, new[] { RPDMagItemSystem.ItemKey } },
+        { USPItemSystem.ItemKey, new[] { USPMagItemSystem.ItemKey } },
+        { VSSItemSystem.ItemKey, new[] { VSSMagItemSystem.ItemKey } },
+        { AA12ItemSystem.ItemKey, new[] { AA12MagItemSystem.ItemKey } },
+        { SKSItemSystem.ItemKey, new[] { SksA5MagItemSystem.ItemKey } },
     };
 
     /// <summary>自定义枪ID → magin音效文件名的映射</summary>
@@ -2563,6 +2549,7 @@ public static class GunLoadMagPatch
         { USPItemSystem.ItemKey, ("usp_magin", "usp") },
         { VSSItemSystem.ItemKey, ("vss_magin", "vss") },
         { AA12ItemSystem.ItemKey, ("aa12_magin", "aa12") },
+        { SKSItemSystem.ItemKey, ("akm_magin", "akm") },   // SKS 装卸弹匣音效复用 AKM
     };
 
     [HarmonyPrefix]
@@ -2592,16 +2579,25 @@ public static class GunLoadMagPatch
         if (GunToMagMap.ContainsKey(gunId))
         {
 
-        // 如果弹匣物品是 Magazine 类型，检查是否匹配对应弹匣ID
+        // 如果弹匣物品是 Magazine 类型，检查是否匹配允许的弹匣ID列表
         if (ammo.itemType == AmmoScript.AmmoItemType.Magazine)
         {
             var ammoItem = ammo.GetComponent<Item>();
-            var expectedMagId = GunToMagMap[gunId];
+            var allowedMags = GunToMagMap[gunId];
 
-            // 只允许对应弹匣装入
-            if (ammoItem == null || ammoItem.id != expectedMagId)
+            // 只允许列表内的弹匣装入
+            if (ammoItem == null || Array.IndexOf(allowedMags, ammoItem.id) < 0)
             {
-                Plugin.Log.LogInfo($"[GunMagPatch] Blocked wrong magazine '{ammoItem?.id ?? "null"}' for gun '{gunId}', expected '{expectedMagId}'.");
+                Plugin.Log.LogInfo($"[GunMagPatch] Blocked wrong magazine '{ammoItem?.id ?? "null"}' for gun '{gunId}', allowed [{string.Join(",", allowedMags)}].");
+                return false;
+            }
+
+            // SKS 特定守卫：SKS 仍装有 10 发弹仓改件时，禁止装入 SKS-A5 弹匣
+            // （必须先卸下弹仓改件，枪才会变 Mag 模式，才能装弹匣）
+            if (gunId == SKSItemSystem.ItemKey
+                && SuppressorSystem.IsAttachmentInstalled(item, SksIntegralMagItemSystem.ItemKey))
+            {
+                Plugin.Log.LogInfo($"[GunMagPatch] Blocked loading mag into SKS: 10-round integral mag still installed.");
                 return false;
             }
 
@@ -2612,6 +2608,19 @@ public static class GunLoadMagPatch
             {
                 __instance.hasMag = true;
                 __instance.roundsInMag = ammo.rounds;
+
+                // 记录当前弹匣ID（多弹匣：卸载时生成正确弹匣）
+                var holder = __instance.GetComponent<GunAttachmentHolder>();
+                if (holder == null)
+                    holder = __instance.gameObject.AddComponent<GunAttachmentHolder>();
+                holder.currentMagId = ammoItem.id;
+                AimSystem.InvalidateAimTimeCache(__instance.GetComponent<Item>());
+                SuppressorSystem.UpdateMagVisual(__instance.GetComponent<Item>());
+
+                // SKS 装上弹匣：切换为 SKS-A5 弹匣贴图
+                if (gunId == SKSItemSystem.ItemKey)
+                    SKSItemSystem.UpdateSksVisual(item);
+
                 // 播放自定义 magin 音效
                 if (MagInSoundMap.TryGetValue(gunId, out var soundInfo))
                 {
@@ -2627,7 +2636,7 @@ public static class GunLoadMagPatch
                 }
                 UnityEngine.Object.Destroy(ammo.gameObject);
 
-                Plugin.Log.LogInfo($"[GunMagPatch] Loaded correct magazine '{expectedMagId}' into gun '{gunId}', rounds={ammo.rounds}.");
+                Plugin.Log.LogInfo($"[GunMagPatch] Loaded magazine '{ammoItem.id}' into gun '{gunId}', rounds={ammo.rounds}.");
             }
 
             return false; // 跳过原方法
@@ -2636,6 +2645,18 @@ public static class GunLoadMagPatch
 
         // Round（口径已检查）或原版枪：放行原版逻辑
         return true;
+    }
+
+    /// <summary>
+    /// 获取枪械的自定义装弹匣音效（供 HHS-1 检查弹匣等复用）。
+    /// 无自定义音效返回 null（调用方回退原版 gunloadmag）。
+    /// </summary>
+    public static AudioClip? GetMagInSound(Item gunItem)
+    {
+        if (gunItem == null) return null;
+        if (MagInSoundMap.TryGetValue(gunItem.id, out var soundInfo))
+            return GunMagSoundHelper.TryLoadSound(soundInfo.fileName, soundInfo.gunDir);
+        return null;
     }
 }
 
@@ -2646,21 +2667,22 @@ public static class GunLoadMagPatch
 [HarmonyPatch(typeof(GunScript), nameof(GunScript.UnloadMag))]
 public static class GunUnloadMagPatch
 {
-    /// <summary>枪ID → 对应弹匣ID 的映射</summary>
-    private static readonly Dictionary<string, string> GunToMagMap = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>枪ID → 允许的弹匣ID 列表（卸载时优先用 holder.currentMagId）</summary>
+    private static readonly Dictionary<string, string[]> GunToMagMap = new(StringComparer.OrdinalIgnoreCase)
     {
-        { AXMCItemSystem.ItemKey, AXMCMagItemSystem.ItemKey },
-        { DVL10ItemSystem.ItemKey, DVL10MagItemSystem.ItemKey },
-        { AKMItemSystem.ItemKey, AKMMagItemSystem.ItemKey },
-        { DeagleItemSystem.ItemKey, DeagleMagItemSystem.ItemKey },
-        { Glock17ItemSystem.ItemKey, Glock17MagItemSystem.ItemKey },
-        { M4A1ItemSystem.ItemKey, M4A1MagItemSystem.ItemKey },
-        { P90ItemSystem.ItemKey, P90MagItemSystem.ItemKey },
-        { UMP45ItemSystem.ItemKey, UMP45MagItemSystem.ItemKey },
-        { RPDItemSystem.ItemKey, RPDMagItemSystem.ItemKey },
-        { USPItemSystem.ItemKey, USPMagItemSystem.ItemKey },
-        { VSSItemSystem.ItemKey, VSSMagItemSystem.ItemKey },
-        { AA12ItemSystem.ItemKey, AA12MagItemSystem.ItemKey },
+        { AXMCItemSystem.ItemKey, new[] { AXMCMagItemSystem.ItemKey } },
+        { DVL10ItemSystem.ItemKey, new[] { DVL10MagItemSystem.ItemKey } },
+        { AKMItemSystem.ItemKey, new[] { AKMMagItemSystem.ItemKey, X47MagItemSystem.ItemKey } },
+        { DeagleItemSystem.ItemKey, new[] { DeagleMagItemSystem.ItemKey } },
+        { Glock17ItemSystem.ItemKey, new[] { Glock17MagItemSystem.ItemKey, GlockBigStickMagItemSystem.ItemKey, GlockG50MagItemSystem.ItemKey } },
+        { M4A1ItemSystem.ItemKey, new[] { M4A1MagItemSystem.ItemKey, M4A1Mag560ItemSystem.ItemKey } },
+        { P90ItemSystem.ItemKey, new[] { P90MagItemSystem.ItemKey } },
+        { UMP45ItemSystem.ItemKey, new[] { UMP45MagItemSystem.ItemKey } },
+        { RPDItemSystem.ItemKey, new[] { RPDMagItemSystem.ItemKey } },
+        { USPItemSystem.ItemKey, new[] { USPMagItemSystem.ItemKey } },
+        { VSSItemSystem.ItemKey, new[] { VSSMagItemSystem.ItemKey } },
+        { AA12ItemSystem.ItemKey, new[] { AA12MagItemSystem.ItemKey } },
+        { SKSItemSystem.ItemKey, new[] { SksA5MagItemSystem.ItemKey } },
     };
 
     /// <summary>自定义枪ID → magout音效文件名的映射</summary>
@@ -2678,6 +2700,7 @@ public static class GunUnloadMagPatch
         { USPItemSystem.ItemKey, ("usp_magout", "usp") },
         { VSSItemSystem.ItemKey, ("vss_magout", "vss") },
         { AA12ItemSystem.ItemKey, ("aa12_magout", "aa12") },
+        { SKSItemSystem.ItemKey, ("akm_magout", "akm") },   // SKS 装卸弹匣音效复用 AKM
     };
 
     [HarmonyPrefix]
@@ -2709,14 +2732,28 @@ public static class GunUnloadMagPatch
 
         __instance.hasMag = false;
 
-        // 生成自定义弹匣
-        var expectedMagId = GunToMagMap[item.id];
-        SpawnCustomMagazine(__instance, expectedMagId, __instance.roundsInMag);
+        // 生成当前装的弹匣（多弹匣：读 holder.currentMagId，无则用默认）
+        var holder = __instance.GetComponent<GunAttachmentHolder>();
+        var magId = (holder != null && !string.IsNullOrEmpty(holder.currentMagId))
+            ? holder.currentMagId
+            : GunToMagMap[item.id][0];
+        if (holder != null)
+        {
+            holder.currentMagId = "";
+        }
+
+        AimSystem.InvalidateAimTimeCache(__instance.GetComponent<Item>());
+        SpawnCustomMagazine(__instance, magId, __instance.roundsInMag);
+        SuppressorSystem.UpdateMagVisual(__instance.GetComponent<Item>());
+
+        // SKS 卸下弹匣：切换为无弹匣贴图（sks_magout.png）
+        if (item.id == SKSItemSystem.ItemKey)
+            SKSItemSystem.UpdateSksVisual(item);
 
         var ejectedRounds = __instance.roundsInMag;
         __instance.roundsInMag = 0;
 
-        Plugin.Log.LogInfo($"[GunMagPatch] Unloaded custom magazine '{expectedMagId}' from gun '{item.id}', rounds={ejectedRounds}.");
+        Plugin.Log.LogInfo($"[GunMagPatch] Unloaded custom magazine '{magId}' from gun '{item.id}', rounds={ejectedRounds}.");
 
         return false; // 跳过原方法
     }
@@ -2724,7 +2761,7 @@ public static class GunUnloadMagPatch
     /// <summary>
     /// 生成自定义弹匣物品到枪附近，自动拾取。
     /// </summary>
-    private static void SpawnCustomMagazine(GunScript gun, string magId, int rounds)
+    internal static void SpawnCustomMagazine(GunScript gun, string magId, int rounds)
     {
         try
         {
@@ -2759,12 +2796,20 @@ public static class GunUnloadMagPatch
                 DVL10MagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == AKMMagItemSystem.ItemKey)
                 AKMMagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == X47MagItemSystem.ItemKey)
+                X47MagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == DeagleMagItemSystem.ItemKey)
                 DeagleMagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == Glock17MagItemSystem.ItemKey)
                 Glock17MagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == GlockBigStickMagItemSystem.ItemKey)
+                GlockBigStickMagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == GlockG50MagItemSystem.ItemKey)
+                GlockG50MagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == M4A1MagItemSystem.ItemKey)
                 M4A1MagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == M4A1Mag560ItemSystem.ItemKey)
+                M4A1Mag560ItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == P90MagItemSystem.ItemKey)
                 P90MagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == UMP45MagItemSystem.ItemKey)
@@ -2777,6 +2822,8 @@ public static class GunUnloadMagPatch
                 VSSMagItemSystem.ConfigureSpawnedItem(newItem, request);
             else if (magId == AA12MagItemSystem.ItemKey)
                 AA12MagItemSystem.ConfigureSpawnedItem(newItem, request);
+            else if (magId == SksA5MagItemSystem.ItemKey)
+                SksA5MagItemSystem.ConfigureSpawnedItem(newItem, request);
 
             // 修正弹匣中的子弹数量为退弹时的数量
             var ammo = newItem.GetComponent<AmmoScript>();
@@ -2808,183 +2855,71 @@ public static class GunUnloadMagPatch
         }
     }
 
+    /// <summary>
+    /// 获取枪械的自定义卸弹匣音效（供 HHS-1 检查弹匣等复用）。
+    /// 无自定义音效返回 null（调用方回退原版 gununloadmag）。
+    /// </summary>
+    public static AudioClip? GetMagOutSound(Item gunItem)
+    {
+        if (gunItem == null) return null;
+        if (MagOutSoundMap.TryGetValue(gunItem.id, out var soundInfo))
+            return GunMagSoundHelper.TryLoadSound(soundInfo.fileName, soundInfo.gunDir);
+        return null;
+    }
+
+    /// <summary>
+    /// 获取枪械当前弹匣的容量。
+    /// 通过 holder.currentMagId 对应的弹匣物品系统 MaxRounds 读取。
+    /// 无弹匣返回 0。
+    /// </summary>
+    public static int GetMagCapacity(Item gunItem)
+    {
+        if (gunItem == null) return 0;
+
+        // Direct 模式（弹仓供弹，如 SKS 10发弹仓）：返回枪械弹仓容量
+        var gunScript = gunItem.GetComponent<GunScript>();
+        if (gunScript != null && gunScript.feedType == GunScript.FeedType.Direct)
+            return Mathf.Max(0, gunScript.magCapacity);
+
+        var holder = gunItem.GetComponent<GunAttachmentHolder>();
+        if (holder == null || string.IsNullOrEmpty(holder.currentMagId)) return 0;
+
+        var magId = holder.currentMagId;
+        if (magId == AXMCMagItemSystem.ItemKey) return AXMCMagItemSystem.MaxRounds;
+        if (magId == DVL10MagItemSystem.ItemKey) return DVL10MagItemSystem.MaxRounds;
+        if (magId == AKMMagItemSystem.ItemKey) return AKMMagItemSystem.MaxRounds;
+        if (magId == X47MagItemSystem.ItemKey) return X47MagItemSystem.MaxRounds;
+        if (magId == DeagleMagItemSystem.ItemKey) return DeagleMagItemSystem.MaxRounds;
+        if (magId == Glock17MagItemSystem.ItemKey) return Glock17MagItemSystem.MaxRounds;
+        if (magId == GlockBigStickMagItemSystem.ItemKey) return GlockBigStickMagItemSystem.MaxRounds;
+        if (magId == GlockG50MagItemSystem.ItemKey) return GlockG50MagItemSystem.MaxRounds;
+        if (magId == M4A1MagItemSystem.ItemKey) return M4A1MagItemSystem.MaxRounds;
+        if (magId == M4A1Mag560ItemSystem.ItemKey) return M4A1Mag560ItemSystem.MaxRounds;
+        if (magId == P90MagItemSystem.ItemKey) return P90MagItemSystem.MaxRounds;
+        if (magId == UMP45MagItemSystem.ItemKey) return UMP45MagItemSystem.MaxRounds;
+        if (magId == RPDMagItemSystem.ItemKey) return RPDMagItemSystem.MaxRounds;
+        if (magId == USPMagItemSystem.ItemKey) return USPMagItemSystem.MaxRounds;
+        if (magId == VSSMagItemSystem.ItemKey) return VSSMagItemSystem.MaxRounds;
+        if (magId == AA12MagItemSystem.ItemKey) return AA12MagItemSystem.MaxRounds;
+        if (magId == SksA5MagItemSystem.ItemKey) return SksA5MagItemSystem.MaxRounds;
+        return 0;
+    }
+
 }
 
 /// <summary>
 /// 弹匣悬停描述补丁。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AXMCMagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<AXMCMagItemMarker>();
-        if (marker == null) return;
 
-        if (!item.Stats.rec.recognizable) return;
 
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class DVL10MagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<DVL10MagItemMarker>();
-        if (marker == null) return;
 
-        if (!item.Stats.rec.recognizable) return;
 
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AKMMagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<AKMMagItemMarker>();
-        if (marker == null) return;
 
-        if (!item.Stats.rec.recognizable) return;
 
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class VSSMagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<VSSMagItemMarker>();
-        if (marker == null) return;
 
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class DeagleMagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<DeagleMagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class Glock17MagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<Glock17MagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class M4A1MagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<M4A1MagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class P90MagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<P90MagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class UMP45MagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<UMP45MagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class RPDMagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<RPDMagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
-
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class USPMagHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<USPMagItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
 
 /// <summary>
 /// 弹匣音效加载辅助类。

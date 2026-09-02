@@ -20,17 +20,17 @@ public static class UMP45ItemSystem
     public const string ItemKey = "ump45";
     public const string BaseGameItemId = "rifle";
 
-    public static string DisplayName => I18n.Tr("ump45.name");
-    public static string Description => I18n.Tr("ump45.desc");
+    public static string DisplayName => WModLoc.Tr("ump45.name", "HK UMP 45 .45 ACP 全自动冲锋枪");
+    public static string Description => WModLoc.Tr("ump45.desc", "HK UMP 冲锋枪由德国黑克勒 & 科赫公司于20世纪研发，旨在打造一款更加轻便、廉价的冲锋枪设计以取代 MP5。该版本的 UMP 发射 .45 ACP 弹药，射速较低。");
 
     // === GunScript 数值 ===
     private const int MagCapacity = 25;
     private const float KnockBack = 2.8f;
     private const float AnimalDamage = 44f;
     private const float StructureDamage = 27f;
-    private const float Loudness = 0.2f;
+    private const float Loudness = 2.2f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.1f;
+    private const float VerticalSpread = 0.12f;
     private const float ConditionLossPerShot = 0.33f;
     private const float DesiredGasTime = 0.1f;
     private const int FiringModeOverride = 2; // Auto
@@ -95,13 +95,6 @@ public static class UMP45ItemSystem
             if (gun.barrel != null)
                 gun.barrel.localPosition += new Vector3(1.5f, 0f, 0f);
 
-            // 去掉开枪火光（消音器效果）
-            if (gun.muzzleParticle != null)
-            {
-                var emission = gun.muzzleParticle.emission;
-                emission.enabled = false;
-            }
-
             Plugin.Log.LogInfo($"[UMP45] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto, loudness={Loudness}");
         }
 
@@ -156,13 +149,13 @@ public static class UMP45ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 1.26f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 35,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         clone.SetTags();
         return clone;
@@ -180,13 +173,13 @@ public static class UMP45ItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 1.26f,
             scaleWeightWithCondition = false,
             value = 35,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         info.SetTags();
         return info;
@@ -224,6 +217,9 @@ public static class UMP45ItemSystem
 
         return _cachedIcon;
     }
+
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+    public static Sprite? TryLoadNoMagIconPublic() => TryLoadNoMagIcon();
 
     private static Sprite? TryLoadNoMagIcon()
     {
@@ -321,17 +317,3 @@ public sealed class UMP45ItemMarker : MonoBehaviour
 /// <summary>
 /// UMP 45 悬停描述补丁。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class UMP45HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<UMP45ItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

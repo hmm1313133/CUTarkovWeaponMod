@@ -1,0 +1,44 @@
+{
+    "option": {
+        "cutarkovweapon.nvgkey": "Night Vision Toggle",
+        "cutarkovweapon.nvgkeydsc": "Toggle the night vision device on/off.",
+        "cutarkovweapon.tacticaldevicekey": "Tactical Device Toggle",
+        "cutarkovweapon.tacticaldevicekeydsc": "Toggle the tactical device (light/laser) on/off.",
+        "cutarkovweapon.gunsmithkey": "Gunsmith Panel",
+        "cutarkovweapon.gunsmithkeydsc": "Open/close the gunsmith panel.",
+        "cutarkovweapon.gunhotkey_rack": "Rack Gun",
+        "cutarkovweapon.gunhotkey_rackdsc": "Rack/charge the held gun.",
+        "cutarkovweapon.gunhotkey_unloadmag": "Unload Magazine",
+        "cutarkovweapon.gunhotkey_unloadmagdsc": "Unload the magazine from the held gun.",
+        "cutarkovweapon.gunhotkey_safety": "Toggle Safety",
+        "cutarkovweapon.gunhotkey_safetydsc": "Toggle the safety of the held gun.",
+        "cutarkovweapon.gunhotkey_checkammo": "Check Ammo",
+        "cutarkovweapon.gunhotkey_checkammodsc": "Check the ammo count of the held gun."
+    },
+    "building": {
+        "weapon_cache_box": "Weapon Cache Box",
+        "weapon_cache_boxdsc": "A locked crate containing weapon modification parts.",
+        "weapon_cache_door": "Blue-White Reinforced Door",
+        "weapon_cache_doordsc": "A blue-white reinforced door opened by a card reader.",
+        "weapon_cache_card_reader": "Card Reader",
+        "weapon_cache_card_readerdsc": "Swipe an E-PDA to open the blue-white reinforced door.",
+        "weapon_cache_box_large": "Large Weapon Crate",
+        "weapon_cache_box_largedsc": "A large locked crate containing weapons and attachments.",
+        "weapon_cache_box_optional": "Weapon Crate",
+        "weapon_cache_box_optionaldsc": "A locked crate containing weapon modification parts.",
+        "blue_area_door": "Blue Area Reinforced Door",
+        "blue_area_doordsc": "A reinforced door opened by a Terragroup Blue Area keycard.",
+        "blue_area_card_reader": "Blue Area Card Reader",
+        "blue_area_card_readerdsc": "Swipe a Terragroup Blue Area keycard to open the door.",
+        "smu06_bag": "SMU06 Medical Bag",
+        "smu06_bagdsc": "A medical bag that can be right-clicked to open.",
+        "smu06_bag_optional": "SMU06 Medical Bag",
+        "smu06_bag_optionaldsc": "A medical bag that can be right-clicked to open.",
+        "auto_med_system": "Auto-Med System",
+        "auto_med_systemdsc": "Automated surgery and infusion system. Reduces bleeding, repairs skin and muscle, lowers radiation, and replenishes blood. 10 min cooldown."
+    },
+    "title": {
+        "bulletproof_steel": "Bulletproof Reinforced Steel",
+        "bulletproof_steeldsc": "Composite steel plate roughly three times as strong as heat-resistant alloy."
+    }
+}

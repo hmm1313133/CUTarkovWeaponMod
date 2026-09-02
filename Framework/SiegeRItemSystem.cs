@@ -54,7 +54,11 @@ public static class SiegeRItemSystem
         item.SetCondition(1f);
 
         var container = item.GetComponent<Container>();
-        if (container != null) item.cont = container;
+        if (container == null) container = item.gameObject.AddComponent<Container>();
+        container.maxWeight = ContainerCapacity;
+        container.maxWeightPerItem = ContainerMaxWeightPerItem > 0 ? ContainerMaxWeightPerItem : 3f;
+        container.encumberanceMult = ContainerEncumbranceReduction;
+        item.cont = container;
 
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
@@ -307,21 +311,6 @@ public static class SiegeRItemSystem
         col.offset = Vector2.zero;
     }
 
-    // === 悬停描述 ===
-
-    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-    public static class SiegeRHoverPatch
-    {
-        [HarmonyPostfix]
-        public static void Postfix(Item item, ref (string, string) __result)
-        {
-        return; // Disabled: replaced by UnifiedHoverPatch
-            if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
-                return;
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = DisplayName;
-        }
-    }
 
     // === 多部位防护（UpTorso + DownTorso + UpArmF/B） ===
     //

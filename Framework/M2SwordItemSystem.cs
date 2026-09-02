@@ -228,17 +228,3 @@ public sealed class M2SwordItemMarker : MonoBehaviour
 /// 构建完整详细页面。
 /// 功能性 tags（cangetwet, tool, cutting, hammering）在 ItemInfo.tags 中声明。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class M2SwordHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<M2SwordItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        // 不覆盖 Item2：保留游戏构建的完整描述页（含重量/价值/tags/描述等）
-    }
-}

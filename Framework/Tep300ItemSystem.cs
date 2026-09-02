@@ -18,22 +18,8 @@ namespace CUTarkovWeaponMod.Framework;
 public static class Tep300ItemSystem
 {
     public const string ItemKey = "tep300";
-    public const string DisplayName = "Peltor TEP-300";
-    public const string Description =
-        "为保护听力与通讯而特别设计的入耳式耳机，由 3M Peltor 公司设计制造。狼棕色版本。" +
-        "也只有这种耳机刚刚好能塞到你的耳洞了。使用小型电池进行供电。\n\n" +
-        "<color=#4fc3f7>【有电量时】\n" +
-        "· 听力损伤降低 60%\n" +
-        "· 可听范围扩大 20%\n" +
-        "· 环境音量增强 +5dB\n" +
-        "· 主动降噪（过滤高频噪音）</color>\n\n" +
-        "<color=#4fc3f7>【无电量时】\n" +
-        "· 听力损伤降低 50%\n" +
-        "· 可听范围缩小 60%\n" +
-        "· 环境音量降低 -13dB</color>\n\n" +
-        "<color=#4fc3f7>【通用效果】\n" +
-        "· 减轻声波炮的视觉、听觉影响</color>\n\n" +
-        "耳机满电可使用 20 分钟。";
+    public static string DisplayName => WModLoc.Tr("tep300.name", "Peltor TEP-300");
+    public static string Description => WModLoc.Tr("tep300.desc", "为保护听力与通讯而特别设计的入耳式耳机，由 3M Peltor 公司设计制造。狼棕色版本。也只有这种耳机刚刚好能塞到你的耳洞了。使用小型电池进行供电。");
 
     private const string WearSlotId = "ear";
     private const string DesiredWearLimb = "Head";

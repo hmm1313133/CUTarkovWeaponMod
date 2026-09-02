@@ -1,3 +1,6 @@
+using System;
+using CUCoreLib.Data;
+using CUCoreLib.Registries;
 using HarmonyLib;
 using UnityEngine;
 
@@ -5,13 +8,13 @@ namespace CUTarkovWeaponMod.Framework;
 
 /// <summary>
 /// 将夜视仪开关键位注册到游戏设置界面的 Input 分类。
+/// 使用 CUCoreLib 的 ModOptionsRegistry（自动处理设置菜单注册、本地化、存档/网络同步）。
 /// 由于 Settings.EnsureLoaded 可能在 mod 加载前就被调用，
-/// 采用延迟注册：在 EnsureLoaded Postfix + Update 轮询双重保障，
-/// 一旦 Settings.settings 就绪且尚未注册则立即注入。
+/// 采用延迟注册：在 EnsureLoaded Postfix + Update 轮询双重保障。
 /// </summary>
 public static class NvgKeybindPatch
 {
-    public const string SettingName = "nvgkey";
+    public const string SettingName = "cutarkovweapon.nvgkey";
 
     /// <summary>当前 NVG 切换键位，每次访问实时从游戏设置读取</summary>
     public static KeyCode CurrentKey
@@ -39,11 +42,12 @@ public static class NvgKeybindPatch
     public static void EnsureLoaded_Postfix()
     {
         TryRegister();
+        // 注册后恢复保存的选项值（确保延迟注册的 keybind 也能持久化）
+        ModOptionSaveRestorePatch.RestoreAfterLoad();
     }
 
     /// <summary>
-    /// Plugin.Update 每帧调用，一旦 Settings 就绪且未注册则立即注入。
-    /// 这是主要触发路径，因为 EnsureLoaded 通常在 mod 加载前就已执行。
+    /// Plugin.Update 每帧调用，一旦注册成功则停止。
     /// </summary>
     public static void Tick()
     {
@@ -54,65 +58,24 @@ public static class NvgKeybindPatch
     private static void TryRegister()
     {
         if (_registered) return;
-        if (Settings.settings == null) return;
 
-        // 避免重复添加
-        foreach (var s in Settings.settings)
-        {
-            if (s.name == SettingName) return;
-        }
-
-        // Step 1: 创建 SettingKeybind 并注入到设置列表
-        var keybind = new SettingKeybind
-        {
-            name = SettingName,
-            category = Setting.SettingCategory.Input,
-            value = CurrentKey,
-        };
-
-        Settings.settings.Add(keybind);
-
-        // Step 2: 注册 Locale 标签（关键！没有这个设置界面无法显示文本）
-        // LocaleRegistry.Register(int type, string key, string text)
-        // type: 0=Item, 1=Building, 2=Moodle, 3=Other, 4=Log, 5=Command, 6=Option
         try
         {
-            var localeType = System.Type.GetType("CUCoreLib.Registries.LocaleRegistry, CUCoreLib");
-            if (localeType != null)
-            {
-                var registerMethod = localeType.GetMethod("Register",
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
-                    null, new[] { typeof(int), typeof(string), typeof(string) }, null);
-                if (registerMethod != null)
-                {
-                    registerMethod.Invoke(null, new object[] { 6, SettingName, "NVG Toggle" });
-                    Plugin.Log.LogInfo($"[NvgKeybind] Registered locale Option/{SettingName} = \"NVG Toggle\".");
-                }
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Plugin.Log.LogWarning($"[NvgKeybind] Locale registration failed: {ex.Message}");
-        }
+            // 方式1（ModOptionsRegistry 设置菜单显示）+ 方式2（直接加入 Settings.settings 确保持久化）
+            ModOptionKeybindHelper.RegisterKeybind(
+                SettingName,
+                "NVG Toggle",
+                "Toggle night vision goggles.",
+                KeyCode.N,
+                value => { /* 值由 CUCoreLib 写入 Settings，CurrentKey 自动读取 */ });
 
-        // Step 3: 刷新设置 UI
-        try
-        {
-            var extenderType = System.Type.GetType("CUCoreLib.Helpers.SettingsMenuCategoryExtender, CUCoreLib");
-            if (extenderType != null)
-            {
-                var refreshMethod = extenderType.GetMethod("RefreshLiveMenu",
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                refreshMethod?.Invoke(null, null);
-                Plugin.Log.LogInfo($"[NvgKeybind] Refreshed settings menu UI.");
-            }
+            _registered = true;
+            ModOptionLocaleInjector.Inject(); // 注入设置选项中英文翻译
+            Plugin.Log.LogInfo($"[NvgKeybind] Registered NVG toggle key (name={SettingName}, default=N).");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"[NvgKeybind] Settings menu refresh failed: {ex.Message}");
+            Plugin.Log.LogWarning($"[NvgKeybind] Registration failed: {ex.Message}");
         }
-
-        _registered = true;
-        Plugin.Log.LogInfo($"[NvgKeybind] Registered NVG toggle key in settings (name={SettingName}, default=N).");
     }
 }

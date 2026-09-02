@@ -29,9 +29,9 @@ public static class USPItemSystem
     private const float StructureDamage = 42f;
     private const float Loudness = 2.2f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.1f;
+    private const float VerticalSpread = 0.15f;
     private const float ConditionLossPerShot = 0.4f;
-    private const float DesiredGasTime = 0.16f;
+    private const float DesiredGasTime = 0.1f;
 
     private static Sprite? _cachedIcon;
     private static Sprite? _cachedNoMagIcon;
@@ -93,6 +93,9 @@ public static class USPItemSystem
 
         ResizeColliderToSprite(item);
 
+        // 移除 pistol prefab 继承的激光子物体（游戏原生手枪自带红色激光）
+        GunPrefabCleanup.RemoveInheritedLaser(item);
+
         var marker = item.gameObject.GetComponent<USPItemMarker>();
         if (marker == null)
             marker = item.gameObject.AddComponent<USPItemMarker>();
@@ -142,13 +145,13 @@ public static class USPItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 0.72f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 14,
             tags = "cangetwet,gun",
-            rec = new Recognition(9),
+            rec = new Recognition(6),
         };
         clone.SetTags();
         return clone;
@@ -166,13 +169,13 @@ public static class USPItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 0.72f,
             scaleWeightWithCondition = false,
             value = 14,
             tags = "cangetwet,gun",
-            rec = new Recognition(9),
+            rec = new Recognition(6),
         };
         info.SetTags();
         return info;
@@ -301,17 +304,3 @@ public sealed class USPItemMarker : MonoBehaviour
     public string description = USPItemSystem.Description;
 }
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class USPHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<USPItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

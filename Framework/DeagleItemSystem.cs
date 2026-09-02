@@ -30,9 +30,9 @@ public static class DeagleItemSystem
     private const float StructureDamage = 60f;
     private const float Loudness = 5.5f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.2f;
+    private const float VerticalSpread = 0.17f;
     private const float ConditionLossPerShot = 0.9f;
-    private const float DesiredGasTime = 0.3f;
+    private const float DesiredGasTime = 0.1f;
     // FiringMode: pistol base is already SemiAuto(1), inherit from base
     // No override needed
 
@@ -101,6 +101,9 @@ public static class DeagleItemSystem
 
         ResizeColliderToSprite(item);
 
+        // 移除 pistol prefab 继承的激光子物体（游戏原生手枪自带红色激光）
+        GunPrefabCleanup.RemoveInheritedLaser(item);
+
         var marker = item.gameObject.GetComponent<DeagleItemMarker>();
         if (marker == null)
             marker = item.gameObject.AddComponent<DeagleItemMarker>();
@@ -150,13 +153,13 @@ public static class DeagleItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 1.02f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 21,
             tags = "cangetwet,gun",
-            rec = new Recognition(8),
+            rec = new Recognition(5),
         };
         clone.SetTags();
         return clone;
@@ -174,19 +177,22 @@ public static class DeagleItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 1.02f,
             scaleWeightWithCondition = false,
             value = 21,
             tags = "cangetwet,gun",
-            rec = new Recognition(8),
+            rec = new Recognition(5),
         };
         info.SetTags();
         return info;
     }
 
     // ===== Icon =====
+
+    /// <summary>公开访问基础贴图（供 GunVisualComposer 合成瞄准镜层）。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
 
     private static Sprite? TryLoadIcon()
     {
@@ -321,19 +327,3 @@ public sealed class DeagleItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class DeagleHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<DeagleItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

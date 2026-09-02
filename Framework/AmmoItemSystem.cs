@@ -103,7 +103,7 @@ public static class Ammo76251BPZItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -126,7 +126,7 @@ public static class Ammo76251BPZItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -270,7 +270,7 @@ public static class Ammo76239SPItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.03f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -293,7 +293,7 @@ public static class Ammo76239SPItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.03f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -437,7 +437,7 @@ public static class Ammo12g85ItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -460,7 +460,7 @@ public static class Ammo12g85ItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -604,7 +604,7 @@ public static class Ammo338UCWItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.07f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 2,
@@ -627,7 +627,7 @@ public static class Ammo338UCWItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.07f,
             scaleWeightWithCondition = false,
             value = 2,
             tags = "bullet",
@@ -770,7 +770,7 @@ public static class Ammo50CopperItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.03f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 2,
@@ -793,7 +793,7 @@ public static class Ammo50CopperItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.03f,
             scaleWeightWithCondition = false,
             value = 2,
             tags = "bullet",
@@ -936,7 +936,7 @@ public static class Ammo45FMJItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.02f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -959,7 +959,7 @@ public static class Ammo45FMJItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.02f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -1103,7 +1103,7 @@ public static class Ammo919PSOItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.02f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -1126,7 +1126,7 @@ public static class Ammo919PSOItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.02f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -1270,7 +1270,7 @@ public static class Ammo55645FMJItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -1293,7 +1293,7 @@ public static class Ammo55645FMJItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -1437,7 +1437,7 @@ public static class Ammo5728SB193ItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.03f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -1460,7 +1460,7 @@ public static class Ammo5728SB193ItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.03f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -1604,7 +1604,7 @@ public static class Ammo939SP5ItemSystem
             usable = true,
             usableOnLimb = false,
             destroyAtZeroCondition = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             combineable = true,
             value = 1,
@@ -1627,7 +1627,7 @@ public static class Ammo939SP5ItemSystem
             usableOnLimb = false,
             destroyAtZeroCondition = true,
             combineable = true,
-            weight = 0.01f,
+            weight = 0.04f,
             scaleWeightWithCondition = false,
             value = 1,
             tags = "bullet",
@@ -1683,25 +1683,3 @@ public sealed class Ammo939SP5Marker : MonoBehaviour
 /// <summary>
 /// 弹药悬停描述统一补丁 — 所有自定义弹药物品共享此 HarmonyPatch。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AmmoHoverPatch
-{
-    private static readonly HashSet<string> AmmoIds = new(StringComparer.OrdinalIgnoreCase)
-    {
-        Ammo338UCWItemSystem.ItemKey, Ammo76251BPZItemSystem.ItemKey,
-        Ammo76239SPItemSystem.ItemKey, Ammo12g85ItemSystem.ItemKey,
-        Ammo50CopperItemSystem.ItemKey, Ammo45FMJItemSystem.ItemKey,
-        Ammo919PSOItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey,
-        Ammo5728SB193ItemSystem.ItemKey, Ammo939SP5ItemSystem.ItemKey,
-    };
-
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        if (item == null || !AmmoIds.Contains(item.id)) return;
-        if (!item.Stats.rec.recognizable) return;
-        // 名称已由 I18nRefreshPatch.Prefix 设置，只需 StripEffects
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

@@ -1,0 +1,44 @@
+{
+    "option": {
+        "cutarkovweapon.nvgkey": "夜视仪开关",
+        "cutarkovweapon.nvgkeydsc": "切换夜视仪的开关状态。",
+        "cutarkovweapon.tacticaldevicekey": "战术设备开关",
+        "cutarkovweapon.tacticaldevicekeydsc": "切换战术设备（手电/激光）的开关状态。",
+        "cutarkovweapon.gunsmithkey": "改枪面板",
+        "cutarkovweapon.gunsmithkeydsc": "打开/关闭改枪面板。",
+        "cutarkovweapon.gunhotkey_rack": "拉栓",
+        "cutarkovweapon.gunhotkey_rackdsc": "拉栓/上膛当前手持枪械。",
+        "cutarkovweapon.gunhotkey_unloadmag": "卸下弹匣",
+        "cutarkovweapon.gunhotkey_unloadmagdsc": "从当前手持枪械卸下弹匣。",
+        "cutarkovweapon.gunhotkey_safety": "切换保险",
+        "cutarkovweapon.gunhotkey_safetydsc": "切换当前手持枪械的保险状态。",
+        "cutarkovweapon.gunhotkey_checkammo": "检查弹药",
+        "cutarkovweapon.gunhotkey_checkammodsc": "检查当前手持枪械的弹药余量。"
+    },
+    "building": {
+        "weapon_cache_box": "武器物资箱",
+        "weapon_cache_boxdsc": "存放武器改装配件的上锁物资箱。",
+        "weapon_cache_door": "蓝白加固门",
+        "weapon_cache_doordsc": "刷门禁卡开启的蓝白相间加固门。",
+        "weapon_cache_card_reader": "门禁刷卡装置",
+        "weapon_cache_card_readerdsc": "使用 E-PDA 刷卡开启蓝白加固门。",
+        "weapon_cache_box_large": "大型武器箱",
+        "weapon_cache_box_largedsc": "存放大量武器与配件的上锁大型物资箱。",
+        "weapon_cache_box_optional": "武器物资箱",
+        "weapon_cache_box_optionaldsc": "存放武器改装配件的上锁物资箱。",
+        "blue_area_door": "Blue Area 加固门",
+        "blue_area_doordsc": "需要 Terragroup Blue Area 钥匙卡开启的加固门。",
+        "blue_area_card_reader": "Blue Area 刷卡装置",
+        "blue_area_card_readerdsc": "使用 Terragroup Blue Area 钥匙卡开启加固门。",
+        "smu06_bag": "SMU06 医疗包",
+        "smu06_bagdsc": "可直接右键开启的医疗物资包。",
+        "smu06_bag_optional": "SMU06 医疗包",
+        "smu06_bag_optionaldsc": "可直接右键开启的医疗物资包。",
+        "auto_med_system": "自动医疗系统",
+        "auto_med_systemdsc": "自动外科与输液系统。减少出血、修复表皮与肌肉、降低辐射并补充血液。冷却 10 分钟。"
+    },
+    "title": {
+        "bulletproof_steel": "防弹加强钢",
+        "bulletproof_steeldsc": "由耐热合金复合而成的防弹钢板，强度约为耐热合金的三倍。"
+    }
+}

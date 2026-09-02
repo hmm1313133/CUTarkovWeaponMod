@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3.0] - 2026-08-12
+
+### 新增
+
+- **Spike Tactical Dynacomp 膛口制退器**（`dynacomp`）：AKM 专属枪口装置。后坐力 -8%、瞄准速度 +0.05s
+- **Zenit DTK-1 膛口制退器**（`dtk1`）：AKM 专属枪口装置。后坐力 -12%、瞄准速度 +0.1s、安装后无枪口火光
+- **TDI AKM-L 护木（电镀红）**（`akml`）：AKM 专属护木。瞄准速度 -0.35s、每发耐久损耗 -3%，需要 Leatherman 工具钳安装
+- **武器配件地堡 + 武器物资箱**（`WeaponCacheBunker`）：CUCoreLib `BuildingEntityRegistry` + `StructureRegistry` 注册 35x12 实验室风格地堡（双层防弹加强钢墙体，tile 36，90000 血量；可自定义背景 `lab_background.png`），每深度层生成 3 个。左侧刷卡进入：门禁刷卡装置（`weapon_cache_card_reader`，需 `weaponroom_keycard`，每次使用损耗 2% 耐久）开启蓝白加固门（`weapon_cache_door`，原版门 3 倍血量）；室内每个房间随机 2~3 个 2x2 小武器箱（`weapon_cache_box`，4200 血量）+ 1 个 3x3 大型武器箱（`weapon_cache_box_large`，30% 掉枪、掉 2~4 配件）。背景墙改为干净/脏贴图混合（约 7:3），中央挂黑底白字 `Weapon Area` 长条，并随机贴海报（`labposter.png` / `labsposter.png`，5 格宽）。门/武器箱受击音效为金属，刷卡机为橡胶。防弹加强钢墙体挖掘/近战只承受 10% 伤害，爆炸清块会被保护补丁恢复；关闭金属切割 10 倍加成；门/武器箱同样关闭金属切割加成。大武器箱已使用新贴图。新增 Blue Area 地堡（同尺寸，蓝底白字 `Blue area`，内含 SMU06 医疗包、食物箱、自动医疗系统；门血量为武器房 2 倍，需 Blue Area 钥匙卡）。两个地堡天花板均增加两盏应急灯，且第五地层不刷新。
+
+### 变更
+
+- **瞄准速度数据调整**（`AimSystem.cs`）：
+  - AKM 30 发弹匣（`akm_mag`）瞄准速度 +0.2s（变慢）
+  - X-47 50 发弹鼓（`x47mag`）瞄准速度 +0.5s（变慢）
+  - TBL 蓝色激光（`tbl`）瞄准速度 +0.1s、Klesch-2U（`klesch2u`）+0.25s、Baldr Pro（`baldrpro`）+0.18s、LAS/TAC 2（`lastac2`）+0.15s（均变慢）
+  - Razor HD（`razorhd`）与 PM II（`pm2`）改为加瞄准速度：+0.5s / +0.7s（由加快改为变慢）
+  - 弹匣瞄准速度通过 `GunAttachmentHolder.currentMagId` 应用，装/卸弹匣时失效瞄准时间缓存（`GunMagPatch.cs`）
+- **枪械属性面板瞄准速度显示精确到小数点后 2 位**（`UnifiedHoverPatch.cs`）：`{aimTime:0.##}s`，便于核对多配件叠加后的实际瞄准时间
+
+## [1.2.2.0] - 2026-08-09
+
+### 新增
+
+- **Leatherman 多功能工具钳**（`leatherman`）：紧凑泛用的金属工具钳，重量 0.5u，价值 20，类别 custom（不消耗、不右键触发）。配方：2 废料管 + 1 废料板 + 2 细绳 + 2 钉子性质物品 + 3 切割性质 + 2 捶打性质，INT=12，Tools(1)。贴图 32x20 PPI 16（与军用饼干大小相近）
+- **Magpul MOE AKM 护木 (FDE)**（`moeakm`）：AKM/AK-74 兼容护木，M-LOK 插槽，重量 0.4u，价值 30。装备后后坐力 -1%、每发耐久损耗 -3%，需要 Leatherman 工具钳安装，是握把/战术手电/激光的安装前提（机制已预留）
+- **配件工具钳检测机制**（`ToolSystem.cs`）：面板检测玩家身上是否有 Leatherman。提供 `RegisterAttachmentRequiringLeatherman(id)` / `AttachmentRequiresLeatherman(id)` / `HasTool(body, id)` 公共接口，为后续护木/后托/握把等需要工具钳才能安装的配件预留接入点
+- **配件安装前提机制**（`ToolSystem.cs`）：`RegisterPrerequisite(id, prereqId)` / `GetMissingPrerequisites(gun, id)` 管理配件之间的安装前提（如握把依赖护木）
+- **改枪面板配件安装条件提示**（`GunsmithPanel.cs`）：无工具时按钮禁用（变灰），标签追加黄色 `<color=#ffcc4d>(需工具钳)</color>`；缺前提配件时追加 `<color=#ffcc4d>(需先装 护木)</color>`；有工具时追加绿色 `<color=#90ee90>(需工具钳 ✓)</color>` 提示
+- **拖拽安装工具钳校验**（`SuppressorSystem.cs`）：需要工具钳的配件拖拽到枪上时同样校验，无工具钳时禁止安装
+
+### 变更
+
+- 配件视觉采用方案 A：局部叠加贴图（透明背景配件局部，与消音器视觉同机制）。任意数量配件可同时显示，无整图冲突
+- `CreateButton` 新增 `bool interactable = true` 参数：禁用时按钮颜色变暗、文字变灰
+- **工具钳价值**：35 → 20
+
+### 工程
+
+- 工具钳原 webp 像素化为 32x20 PNG（透明背景 + NEAREST 缩放），原"工具钳"目录已从构建产物排除
+- 新增辅助工具 `_tools/Pixellate/`（ImageSharp 像素化），从 csproj `<Compile>` 排除，不打包进插件
+
 ## [1.2.1.0] - 2026-08-08
 
 ### 新增

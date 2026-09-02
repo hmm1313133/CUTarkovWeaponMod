@@ -30,7 +30,7 @@ public static class AKMItemSystem
     private const float StructureDamage = 90f;
     private const float Loudness = 3f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0.1f;
+    private const float VerticalSpread = 0.08f;
     private const float ConditionLossPerShot = 0.3f;
     private const float DesiredGasTime = 0.1f;
     // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
@@ -106,6 +106,9 @@ public static class AKMItemSystem
             Plugin.Log.LogInfo($"[AKM] Configured GunScript: mag={MagCapacity}, dmg={AnimalDamage}, spread={VerticalSpread}, mode=Auto");
         }
 
+        // 配件系统：预载消音开火音效（安装/卸下由拖拽 + 右键处理）
+        SuppressorSystem.TryLoadSilencedSound();
+
         ResizeColliderToSprite(item);
 
         var marker = item.gameObject.GetComponent<AKMItemMarker>();
@@ -163,7 +166,7 @@ public static class AKMItemSystem
             combineable = source.combineable,
             value = 45,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         clone.SetTags();
         return clone;
@@ -187,7 +190,7 @@ public static class AKMItemSystem
             scaleWeightWithCondition = false,
             value = 45,
             tags = "cangetwet,gun",
-            rec = new Recognition(10),
+            rec = new Recognition(7),
         };
         info.SetTags();
         return info;
@@ -259,6 +262,46 @@ public static class AKMItemSystem
         return _cachedNoMagIcon;
     }
 
+    // ===== 弹鼓 Icon（带 X-47 弹鼓的完整枪械贴图）=====
+
+    private static Sprite? _cachedDrumIcon;
+
+    /// <summary>公开：带 X-47 弹鼓的 AKM 完整贴图。</summary>
+    public static Sprite? TryLoadDrumIconPublic() => TryLoadDrumIcon();
+
+    private static Sprite? TryLoadDrumIcon()
+    {
+        if (_cachedDrumIcon != null) return _cachedDrumIcon;
+        try
+        {
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Paths.PluginPath;
+            var iconPath = Path.Combine(assemblyDir, "Framework", "Assets", "guns", "akm", "akm_x47.png");
+            if (!File.Exists(iconPath)) return null;
+
+            var bytes = File.ReadAllBytes(iconPath);
+            var texture = new Texture2D(2, 2);
+            if (!ImageConversion.LoadImage(texture, bytes, false)) return null;
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            _cachedDrumIcon = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.35f, 0.5f), 14f);
+            _cachedDrumIcon.name = "akm-x47-icon";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"[AKM] Failed to load drum icon: {ex.Message}");
+        }
+        return _cachedDrumIcon;
+    }
+
+    /// <summary>公开：AKM 标准贴图（含弹匣）。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+
+    /// <summary>公开：AKM 无弹匣贴图。</summary>
+    public static Sprite? TryLoadNoMagIconPublic() => TryLoadNoMagIcon();
+
     // ===== Sounds =====
 
     private static AudioClip? TryLoadFireSound()
@@ -328,19 +371,3 @@ public sealed class AKMItemMarker : MonoBehaviour
 /// <summary>
 /// 悬停描述补丁 - 智力不足时显示"Unknown Object"。
 /// </summary>
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class AKMHoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<AKMItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

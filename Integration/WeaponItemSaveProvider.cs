@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using CUCoreLib.Saving;
 using CUTarkovMedicalMod.Framework;
@@ -50,6 +51,35 @@ public sealed class WeaponItemSaveProvider : IItemSaveProvider
             data["roundsInMag"] = gun.roundsInMag;
         }
 
+        // 当前弹匣 ID（多弹匣）
+        var magHolder = item.GetComponent<GunAttachmentHolder>();
+        if (magHolder != null && !string.IsNullOrEmpty(magHolder.currentMagId))
+            data["currentMagId"] = magHolder.currentMagId;
+
+        // 配件状态（安装顺序列表）
+        var holder = item.GetComponent<GunAttachmentHolder>();
+        if (holder != null && holder.attachmentIds.Count > 0)
+        {
+            data["attachments"] = new JArray(holder.attachmentIds);
+        }
+
+        // 战术手电电量（LAS/TAC 2 / Klesch-2U）
+        if (holder != null && holder.lasTacCharge < 1f)
+        {
+            data["lasTacCharge"] = holder.lasTacCharge;
+        }
+        if (holder != null && holder.kleschCharge < 1f)
+        {
+            data["kleschCharge"] = holder.kleschCharge;
+        }
+        if (holder != null && holder.baldrCharge < 1f)
+        {
+            data["baldrCharge"] = holder.baldrCharge;
+        }
+        if (holder != null && holder.tblCharge < 1f)
+        {
+            data["tblCharge"] = holder.tblCharge;
+        }
         return data.HasValues ? data : null!;
     }
 
@@ -101,5 +131,91 @@ public sealed class WeaponItemSaveProvider : IItemSaveProvider
                 if (roundsToken != null) gun.roundsInMag = roundsToken.Value<int>();
             }
         }
+
+        // 恢复当前弹匣 ID（多弹匣）
+        var currentMagToken = obj["currentMagId"];
+        if (currentMagToken != null && !string.IsNullOrEmpty(currentMagToken.Value<string>()))
+        {
+            var magHolder = item.GetComponent<GunAttachmentHolder>();
+            if (magHolder == null)
+                magHolder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            magHolder.currentMagId = currentMagToken.Value<string>();
+        }
+
+        // 恢复配件状态（安装顺序列表）
+        var attachmentsToken = obj["attachments"];
+        if (attachmentsToken is JArray attachments && attachments.Count > 0)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null)
+                holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.attachmentIds = attachments
+                .Where(t => t.Type == JTokenType.String)
+                .Select(t => t.Value<string>())
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+        }
+
+        // 恢复战术手电电量（LAS/TAC 2 / Klesch-2U）
+        var lasTacToken = obj["lasTacCharge"];
+        if (lasTacToken != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.lasTacCharge = lasTacToken.Value<float>();
+            // 如果存档中有手电，恢复时确保 controller 挂载（但不强制激活灯）
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(LasTac2ItemSystem.ItemKey))
+                LasTac2Controller.Attach(item, holder.lasTacCharge);
+        }
+        var kleschToken = obj["kleschCharge"];
+        if (kleschToken != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.kleschCharge = kleschToken.Value<float>();
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(Klesch2UItemSystem.ItemKey))
+                Klesch2UController.Attach(item);
+        }
+        var baldrToken = obj["baldrCharge"];
+        if (baldrToken != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.baldrCharge = baldrToken.Value<float>();
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(BaldrProItemSystem.ItemKey))
+                BaldrProController.Attach(item);
+        }
+        var tblToken = obj["tblCharge"];
+        if (tblToken != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.tblCharge = tblToken.Value<float>();
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(TblItemSystem.ItemKey))
+                TblController.Attach(item);
+        }
+        // 变倍瞄具（HHS-1 / SpecterDR / Monstr 2x32）：恢复时挂上倍率控制器（无供电机制）
+        var zoomHolder = item.GetComponent<GunAttachmentHolder>();
+        if (zoomHolder != null && zoomHolder.attachmentIds != null)
+        {
+            if (zoomHolder.attachmentIds.Contains(Hhs1ItemSystem.ItemKey))
+                Hhs1Controller.Attach(item);
+            if (zoomHolder.attachmentIds.Contains(SpecterDrItemSystem.ItemKey))
+                SpecterDrController.Attach(item);
+            if (zoomHolder.attachmentIds.Contains(Monstr2x32ItemSystem.ItemKey))
+                Monstr2x32Controller.Attach(item);
+            if (zoomHolder.attachmentIds.Contains(Ta01nsnItemSystem.ItemKey))
+                Ta01nsnController.Attach(item);
+            if (zoomHolder.attachmentIds.Contains(RazorHdItemSystem.ItemKey))
+                RazorHdController.Attach(item);
+            if (zoomHolder.attachmentIds.Contains(Pm2ItemSystem.ItemKey))
+                Pm2Controller.Attach(item);
+        }
+
+        // 恢复配件后同步枪械视觉（消音器 + 护木 + 弹鼓外观）
+        SuppressorSystem.UpdateSuppressorVisual(item);
+        SuppressorSystem.UpdateHandguardVisual(item);
+        SuppressorSystem.UpdateMagVisual(item);
+        AimSystem.InvalidateAimTimeCache(item);
     }
 }

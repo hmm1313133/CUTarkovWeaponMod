@@ -53,6 +53,7 @@ public static class RecipeSpritePatch
         USPMagItemSystem.ItemKey,
         VSSMagItemSystem.ItemKey,
         AA12MagItemSystem.ItemKey,
+        SksA5MagItemSystem.ItemKey,
     };
 
     // 所有自定义护甲 ItemKey 列表
@@ -120,6 +121,7 @@ public static class RecipeSpritePatch
         { USPMagItemSystem.ItemKey, "usp_magazine" },
         { VSSMagItemSystem.ItemKey, "vss_magazine" },
         { AA12MagItemSystem.ItemKey, "aa12_magazine" },
+        { SksA5MagItemSystem.ItemKey, "SKS-A5" },
     };
 
     // 护甲 ItemKey -> 图标文件名的映射（仅 ItemKey 与文件名不一致的条目）
@@ -144,6 +146,7 @@ public static class RecipeSpritePatch
         { "usp_magazine", "usp" },
         { "vss_magazine", "vss" },
         { "aa12_magazine", "aa12" },
+        { "SKS-A5", "sks" },
     };
 
     [HarmonyPrefix]

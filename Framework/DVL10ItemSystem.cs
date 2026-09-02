@@ -29,7 +29,7 @@ public static class DVL10ItemSystem
     private const float StructureDamage = 180f;
     private const float Loudness = 4.5f;
     private const int ShotsPerFire = 1;
-    private const float VerticalSpread = 0f;
+    private const float VerticalSpread = 0.07f;
     private const float ConditionLossPerShot = 0.6f;
     private const float DesiredGasTime = 0.15f;
     // FiringMode enum actual values: Pump=0, SemiAuto=1, Auto=2
@@ -153,13 +153,13 @@ public static class DVL10ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 2.22f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 46,
             tags = "cangetwet,gun",
-            rec = new Recognition(11),
+            rec = new Recognition(8),
         };
         clone.SetTags();
         return clone;
@@ -177,17 +177,23 @@ public static class DVL10ItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 2.22f,
             scaleWeightWithCondition = false,
             value = 46,
             tags = "cangetwet,gun",
-            rec = new Recognition(11),
+            rec = new Recognition(8),
         };
         info.SetTags();
         return info;
     }
+
+    /// <summary>公开访问基础贴图（供 GunVisualComposer 合成）。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+
+    /// <summary>公开访问无弹匣贴图（供 GunVisualComposer 合成）。</summary>
+    public static Sprite? TryLoadNoMagIconPublic() => TryLoadNoMagIcon();
 
     private static Sprite? TryLoadIcon()
     {
@@ -310,19 +316,3 @@ public sealed class DVL10ItemMarker : MonoBehaviour
     public string description = DVL10ItemSystem.Description;
 }
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class DVL10HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<DVL10ItemMarker>();
-        if (marker == null) return;
-
-        if (!item.Stats.rec.recognizable) return;
-
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}

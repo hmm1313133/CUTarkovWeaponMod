@@ -57,15 +57,29 @@ public static class CaliberRegistry
         { AXMCMagItemSystem.ItemKey,  Ammo338UCWItemSystem.ItemKey   },
         { DVL10MagItemSystem.ItemKey, Ammo76251BPZItemSystem.ItemKey },
         { AKMMagItemSystem.ItemKey,   Ammo76239SPItemSystem.ItemKey  },
+        { X47MagItemSystem.ItemKey,   Ammo76239SPItemSystem.ItemKey  },
         { DeagleMagItemSystem.ItemKey, Ammo50CopperItemSystem.ItemKey },
         { Glock17MagItemSystem.ItemKey, Ammo919PSOItemSystem.ItemKey },
         { M4A1MagItemSystem.ItemKey,   Ammo55645FMJItemSystem.ItemKey },
+        { M4A1Mag560ItemSystem.ItemKey, Ammo55645FMJItemSystem.ItemKey },
         { P90MagItemSystem.ItemKey,     Ammo5728SB193ItemSystem.ItemKey },
         { UMP45MagItemSystem.ItemKey,   Ammo45FMJItemSystem.ItemKey },
         { RPDMagItemSystem.ItemKey,     Ammo76239SPItemSystem.ItemKey },
         { USPMagItemSystem.ItemKey,      Ammo45FMJItemSystem.ItemKey },
         { VSSMagItemSystem.ItemKey,      Ammo939SP5ItemSystem.ItemKey },
         { AA12MagItemSystem.ItemKey,     Ammo12g85ItemSystem.ItemKey },
+        { SksA5MagItemSystem.ItemKey,    Ammo76239SPItemSystem.ItemKey },
+        // 弹药盒：退弹/装弹时使用正确的自定义弹药
+        { "box_338ucw",     Ammo338UCWItemSystem.ItemKey },
+        { "box_76251bpz",   Ammo76251BPZItemSystem.ItemKey },
+        { "box_50copper",   Ammo50CopperItemSystem.ItemKey },
+        { "box_12g85",      Ammo12g85ItemSystem.ItemKey },
+        { "box_76239sp",    Ammo76239SPItemSystem.ItemKey },
+        { "box_55645fmj",   Ammo55645FMJItemSystem.ItemKey },
+        { "box_939sp5",     Ammo939SP5ItemSystem.ItemKey },
+        { "box_45fmj",      Ammo45FMJItemSystem.ItemKey },
+        { "box_919pso",     Ammo919PSOItemSystem.ItemKey },
+        { "box_5728sb193",  Ammo5728SB193ItemSystem.ItemKey },
     };
 
     /// <summary>
@@ -121,20 +135,38 @@ public static class AmmoLoadRoundPatch
     [HarmonyPrefix]
     public static bool Prefix(AmmoScript __instance, AmmoScript ammo)
     {
+        if (ammo == null) return true;
+
         var magItem = __instance.GetComponent<Item>();
         if (magItem == null) return true;
 
-        // 非自定义弹匣，放行原版逻辑
+        // 非自定义弹匣/弹药盒，放行原版逻辑
         var expectedAmmoId = CaliberRegistry.GetAmmoForMag(magItem.id);
         if (expectedAmmoId == null) return true;
 
-        // 自定义弹匣：检查子弹口径
+        // 自定义弹匣/弹药盒：检查子弹口径
         var roundItem = ammo.GetComponent<Item>();
         var roundId = roundItem?.id ?? "";
 
         if (!string.Equals(roundId, expectedAmmoId, StringComparison.OrdinalIgnoreCase))
         {
             Plugin.Log.LogInfo($"[CaliberPatch] Blocked round '{roundId}' from magazine '{magItem.id}' (expected '{expectedAmmoId}').");
+            return false;
+        }
+
+        // 弹药盒兼容：旧存档里的弹药盒 itemType 仍为 Round，
+        // 原版 LoadRound 只接受 target=Magazine，会直接跳过。
+        // 这里手动完成装弹，让旧弹药盒也能把子弹装回去。
+        if (AmmoBoxItemSystem.IsAmmoBoxId(magItem.id) && __instance.itemType != AmmoScript.AmmoItemType.Magazine)
+        {
+            if (ammo.itemType != AmmoScript.AmmoItemType.Round) return false;
+            if (ammo.ammoType != __instance.ammoType) return false;
+            if (__instance.rounds >= __instance.maxRounds) return false;
+
+            __instance.rounds++;
+            Sound.Play("gunloadshell", __instance.transform.position);
+            UnityEngine.Object.Destroy(ammo.gameObject);
+            Plugin.Log.LogInfo($"[CaliberPatch] Loaded round '{roundId}' into ammo box '{magItem.id}' (manual, target itemType={__instance.itemType}).");
             return false;
         }
 
@@ -261,7 +293,58 @@ public static class AmmoUnloadRoundPatch
     }
 }
 
+// ===== GunScript.LoadMag 弹药盒拦截补丁 =====
+
+/// <summary>
+/// 拦截 GunScript.LoadMag - 禁止将弹药盒插入枪械。
+/// 弹药盒 itemType=Magazine（用于装/退弹和悬停显示剩余弹药），
+/// 但它不是可插枪的弹匣，直接在入口处拦截。
+/// </summary>
+[HarmonyPatch(typeof(GunScript), nameof(GunScript.LoadMag))]
+public static class GunLoadMagAmmoBoxBlockPatch
+{
+    [HarmonyPrefix]
+    public static bool Prefix(GunScript __instance, AmmoScript ammo)
+    {
+        if (ammo == null) return true;
+        var magItem = ammo.GetComponent<Item>();
+        if (magItem == null) return true;
+
+        if (AmmoBoxItemSystem.IsAmmoBoxId(magItem.id))
+        {
+            Plugin.Log.LogInfo($"[CaliberPatch] Blocked ammo box '{magItem.id}' from being inserted into a gun.");
+            return false;
+        }
+
+        return true;
+    }
+}
+
+// ===== Body.CanCombine 弹药盒拦截补丁 =====
+
+/// <summary>
+/// 拦截 Body.CanCombine - 枪 + 弹药盒不显示为可合并。
+/// 与 GunLoadMagAmmoBoxBlockPatch 配合，让弹药盒成为"插不到枪上的弹匣"。
+/// </summary>
+[HarmonyPatch(typeof(Body), nameof(Body.CanCombine))]
+public static class CanCombineAmmoBoxPatch
+{
+    [HarmonyPostfix]
+    public static void Postfix(Item it1, Item it2, ref bool __result)
+    {
+        if (!__result) return;
+
+        bool gunAndBox =
+            (it1 != null && it1.GetComponent<GunScript>() != null && it2 != null && AmmoBoxItemSystem.IsAmmoBoxId(it2.id)) ||
+            (it2 != null && it2.GetComponent<GunScript>() != null && it1 != null && AmmoBoxItemSystem.IsAmmoBoxId(it1.id));
+
+        if (gunAndBox)
+            __result = false;
+    }
+}
+
 // ===== GunScript.Update 拉栓退膛补丁 =====
+
 
 /// <summary>
 /// 拦截 GunScript.Update - 拉栓退膛时弹出正确的自定义子弹。

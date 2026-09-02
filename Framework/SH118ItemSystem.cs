@@ -274,17 +274,4 @@ public static class SH118ItemSystem
         col.offset = Vector2.zero;
     }
 
-    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-    public static class SH118HoverPatch
-    {
-        [HarmonyPostfix]
-        public static void Postfix(Item item, ref (string, string) __result)
-        {
-        return; // Disabled: replaced by UnifiedHoverPatch
-            if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
-                return;
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = DisplayName;
-        }
-    }
 }

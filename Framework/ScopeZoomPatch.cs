@@ -42,10 +42,10 @@ public static class ScopeZoomPatch
         {
             // Check hand item FIRST (common case: not AXMC → immediate exit)
             var handItem = body.GetItem(body.handSlot);
-            bool shouldZoom = handItem != null && handItem.id == AXMCItemSystem.ItemKey;
+            bool isAxmc = handItem != null && handItem.id == AXMCItemSystem.ItemKey;
 
             // Fast path: not holding AXMC and zoom not active → no work
-            if (!shouldZoom)
+            if (!isAxmc)
             {
                 if (_scopeZoomActive)
                 {
@@ -55,7 +55,21 @@ public static class ScopeZoomPatch
                 return;
             }
 
-            // Holding AXMC: check autozoomgoggles (only when actually needed)
+            // AXMC 原厂不再自动有瞄准镜视野扩展（改为可更换瞄准镜）。
+            // 只有倍镜已放大（IsZoomed/Mode>0）时才激活视野扩展。
+            // 1x 档位（红点 MRS/EOTech 553，或倍镜未放大）不放大。
+            bool magnifiedZoomed = SuppressorSystem.IsMagnifiedSightZoomed(handItem);
+            if (!magnifiedZoomed)
+            {
+                if (_scopeZoomActive)
+                {
+                    _scopeZoomActive = false;
+                    Plugin.Log.LogInfo("[ScopeZoom] Scope zoom deactivated (magnified sight not zoomed).");
+                }
+                return;
+            }
+
+            // Holding AXMC with sight: check autozoomgoggles (only when actually needed)
             if (body.HasWearable("autozoomgoggles"))
             {
                 if (_scopeZoomActive)
@@ -70,7 +84,7 @@ public static class ScopeZoomPatch
             if (!_scopeZoomActive)
             {
                 _scopeZoomActive = true;
-                Plugin.Log.LogInfo("[ScopeZoom] Scope zoom activated (AXMC).");
+                Plugin.Log.LogInfo("[ScopeZoom] Scope zoom activated (AXMC with sight).");
             }
         }
         catch (Exception ex)

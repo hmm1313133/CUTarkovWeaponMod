@@ -11,11 +11,11 @@ namespace CUTarkovWeaponMod.Framework;
 /// 自定义枪械和弹匣的世界生成补丁。
 ///
 /// 生成规则（触发后从模组列表随机选一个）：
-/// - 物资箱（Container）: 18.6% 枪械 + 22% 弹匣 + 13% 近战 + 17% 护甲/胸挂 + 17% 头盔 + 13% 背包(1~2个) + 10% 夜视仪
+/// - 物资箱（Container）: 5% 枪械 + 10% 弹匣 + 10% 近战 + 5% 护甲/胸挂 + 5% 头盔 + 3% 背包(1~2个) + 2% 夜视仪 + 4.5% Blue Area钥匙卡 + 7% 武器室钥匙卡
 /// - 空投舱（LifePod）: 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包 + 8% 夜视仪（通过 GenerateLifePods 期间的 Container.Awake）
 /// - 空投胶囊（DropCapsule）: 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包 + 10% 夜视仪（通过 GenerateDropCapsules 期间的 Container.Awake）
 /// - 医疗箱（medcrate）: 20% 护甲（BuildingEntity 被破坏时触发）
-/// - 尸体（CorpseScript）: 15% 枪械 + 15% 弹匣 + 7% 护甲/弹挂 + 5% 头盔 + 3% 背包
+/// - 尸体（CorpseScript）: 1.5% 枪械 + 5% 弹匣 + 3% 护甲/弹挂 + 2% 头盔 + 3% 背包 + 2.8% 武器室钥匙卡（每次 roll，共 2 次）
 /// - 崩溃舱（CollapsedPod）: 62% 弹匣（通过 Item.Start 替换被 VanillaBlockPatch 销毁的原版弹匣）
 /// 世界生成的弹匣内子弹在 0~满 之间随机；合成出来的弹匣内没有子弹（见 RecipeSpawnPatch）。
 ///
@@ -55,26 +55,36 @@ public static class CustomSpawnPatch
     // === 近战武器列表（物资箱专属） ===
     private static readonly string[] MeleeIds = { RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey };
 
-    /// <summary>加权随机选一把枪械 ID</summary>
+    /// <summary>加权随机选一把枪械 ID（用户指定权重）</summary>
+    private static readonly (string id, int weight)[] GunSpawnTable =
+    {
+        (Glock17ItemSystem.ItemKey, 10),
+        (USPItemSystem.ItemKey, 10),
+        (MP133ItemSystem.ItemKey, 8),
+        (SKSItemSystem.ItemKey, 7),
+        (UMP45ItemSystem.ItemKey, 7),
+        (DeagleItemSystem.ItemKey, 7),
+        (MP153ItemSystem.ItemKey, 6),
+        (DVL10ItemSystem.ItemKey, 5),
+        (P90ItemSystem.ItemKey, 4),
+        (AKMItemSystem.ItemKey, 3),
+        (M4A1ItemSystem.ItemKey, 3),
+        (RPDItemSystem.ItemKey, 2),
+        (AXMCItemSystem.ItemKey, 1),
+        (AA12ItemSystem.ItemKey, 1),
+    };
+    private static readonly int GunTotalWeight = 74;
+
     private static string GetRandomGunId()
     {
-        float roll = UnityEngine.Random.Range(0f, 100f);
-        if (roll < 35f) // 35% 手枪
-            return PistolIds[UnityEngine.Random.Range(0, PistolIds.Length)];
-        roll -= 35f;
-        if (roll < 20f) // 20% SKS + 霰弹枪
-            return SksShotgunIds[UnityEngine.Random.Range(0, SksShotgunIds.Length)];
-        roll -= 20f;
-        if (roll < 17f) // 17% 冲锋枪
-            return SmgIds[UnityEngine.Random.Range(0, SmgIds.Length)];
-        roll -= 17f;
-        if (roll < 13f) // 13% 步枪
-            return RifleIds[UnityEngine.Random.Range(0, RifleIds.Length)];
-        roll -= 13f;
-        if (roll < 10f) // 10% 狙击枪
-            return SniperIds[UnityEngine.Random.Range(0, SniperIds.Length)];
-        // 5% 轻机枪
-        return LmgIds[UnityEngine.Random.Range(0, LmgIds.Length)];
+        int w = UnityEngine.Random.Range(1, GunTotalWeight + 1);
+        int accum = 0;
+        foreach (var (id, weight) in GunSpawnTable)
+        {
+            accum += weight;
+            if (w <= accum) return id;
+        }
+        return GunSpawnTable[GunSpawnTable.Length - 1].id;
     }
 
     /// <summary>加权随机选一把近战武器 ID（40%冰镐 60%M2）</summary>
@@ -381,6 +391,9 @@ public static class CustomSpawnPatch
     // 已处理的 BuildingEntity（医疗箱）实例 ID（避免重复生成）
     private static readonly HashSet<int> _processedMedcrates = new();
 
+    // 安全上限：超过后清空（实例 ID 只在世界生成期间使用，Awake 只会触发一次）
+    private const int MaxProcessedInstanceTrack = 5000;
+
     // === 诊断计数器 ===
     internal static int ContainerCalls = 0;
     internal static int ContainerSkippedDup = 0;
@@ -518,6 +531,20 @@ public static class CustomSpawnPatch
     {
         if (UnityEngine.Random.Range(0f, 1f) > chance) return;
         SpawnCustomItemAt(WeaponRepairKitItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成 Blue Area 钥匙卡</summary>
+    internal static void TrySpawnBlueAreaKeycard(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(BlueAreaKeycardItemSystem.ItemKey, pos);
+    }
+
+    /// <summary>以指定概率在指定位置生成武器室钥匙卡</summary>
+    internal static void TrySpawnWeaponRoomKeycard(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(WeaponRoomKeycardItemSystem.ItemKey, pos);
     }
 
     /// <summary>以指定概率在指定位置生成一个 TEP-300 战术耳塞</summary>
@@ -685,6 +712,7 @@ public static class CustomSpawnPatch
                     return;
                 }
                 _processedContainers.Add(instanceId);
+                if (_processedContainers.Count > MaxProcessedInstanceTrack) _processedContainers.Clear();
                 ContainerCalls++;
 
                 var pos = (Vector2)__instance.transform.position;
@@ -693,40 +721,33 @@ public static class CustomSpawnPatch
                 if (InLifePodGen)
                 {
                     // 空投舱(LifePod): 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包 + 8% 夜视仪
-                    TrySpawnRandomGun(pos, 0.20f);
-                    TrySpawnRandomArmor(pos, 0.25f);
-                    TrySpawnRandomHelmet(pos, 0.20f);
-                    TrySpawnRandomBackpack(pos, 0.06f);
-                    TrySpawnRandomNvg(pos, 0.08f);
-                    TrySpawnTep300(pos, 0.05f);
-                    TrySpawnProFlex(pos, 0.03f);
+                    TrySpawnRandomGun(pos, 0.02f);
+                    TrySpawnRandomRig(pos, 0.02f);
+                    TrySpawnRandomHelmet(pos, 0.02f);
+                    TrySpawnRandomBackpack(pos, 0.01f);
+                    TrySpawnRandomNvg(pos, 0f);
                 }
                 else if (InDropCapsuleGen)
                 {
                     // 空投胶囊(DropCapsule): 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包 + 10% 夜视仪
-                    TrySpawnRandomGun(pos, 0.29f);
-                    TrySpawnRandomRig(pos, 0.32f);
-                    TrySpawnRandomHelmetCount(pos, 0.17f, 1, 2);
-                    TrySpawnRandomBackpack(pos, 0.16f);
-                    TrySpawnRandomNvg(pos, 0.10f);
-                    TrySpawnRepairKit(pos, 0.12f);
-                    TrySpawnTep300(pos, 0.08f);
-                    TrySpawnProFlex(pos, 0.05f);
+                    TrySpawnRandomGun(pos, 0.03f);
+                    TrySpawnRandomRig(pos, 0.07f);
+                    TrySpawnRandomHelmetCount(pos, 0.10f, 1, 1);
+                    TrySpawnRandomBackpack(pos, 0.06f);
+                    TrySpawnRandomNvg(pos, 0.01f);
                 }
                 else
                 {
-                    // 物资箱: 18.6% 枪械 + 22% 弹匣 + 13% 近战武器 + 17% 护甲/胸挂 + 17% 头盔 + 13% 背包(1~2个) + 10% 夜视仪
-                    TrySpawnRandomGun(pos, 0.186f);
-                    TrySpawnRandomMag(pos, 0.22f);
-                    TrySpawnRandomMelee(pos, 0.13f);
-                    TrySpawnRandomArmor(pos, 0.17f);
-                    TrySpawnRandomHelmet(pos, 0.17f);
-                    TrySpawnRandomBackpackCount(pos, 0.13f, 1, 2);
-                    TrySpawnRandomNvg(pos, 0.10f);
-                    TrySpawnRepairKit(pos, 0.07f);
-                    TrySpawnTep300(pos, 0.05f);
-                    TrySpawnProFlex(pos, 0.03f);
-                    TrySpawnArmorPlate(pos, 0.10f);
+                    // 物资箱: 5% 枪械 + 10% 弹匣 + 10% 近战武器 + 5% 护甲/胸挂 + 5% 头盔 + 3% 背包(1~2个) + 2% 夜视仪 + 4.5% Blue Area钥匙卡 + 7% 武器室钥匙卡
+                    TrySpawnRandomGun(pos, 0.05f);
+                    TrySpawnRandomMag(pos, 0.10f);
+                    TrySpawnRandomMelee(pos, 0.10f);
+                    TrySpawnRandomArmor(pos, 0.05f);
+                    TrySpawnRandomHelmet(pos, 0.05f);
+                    TrySpawnRandomBackpackCount(pos, 0.03f, 1, 2);
+                    TrySpawnRandomNvg(pos, 0.02f);
+                    TrySpawnBlueAreaKeycard(pos, 0.045f);
+                    TrySpawnWeaponRoomKeycard(pos, 0.07f);
                     // 食物使用原版战利池生成，不在此处生成
                 }
 
@@ -767,15 +788,12 @@ public static class CustomSpawnPatch
                 {
                     float roll = UnityEngine.Random.Range(0f, 1f);
                     string type = null;
-                    if (roll < 0.15f) type = "gun";
-                    else if (roll < 0.28f) type = "mag";
-                    else if (roll < 0.35f) type = "armor";
-                    else if (roll < 0.40f) type = "helmet";
-                    else if (roll < 0.44f) type = "nvg";
-                    else if (roll < 0.47f) type = "backpack";
-                    else if (roll < 0.50f) type = "repairkit";
-                    else if (roll < 0.52f) type = "tep300";
-                    else if (roll < 0.53f) type = "proflextac";
+                    if (roll < 0.015f) type = "gun";
+                    else if (roll < 0.065f) type = "mag";
+                    else if (roll < 0.095f) type = "armor";
+                    else if (roll < 0.115f) type = "helmet";
+                    else if (roll < 0.145f) type = "backpack";
+                    else if (roll < 0.173f) type = "weaponroom_keycard"; // 武器室钥匙卡 2.8%
 
                     if (type == null || !spawnedTypes.Add(type)) continue;
 
@@ -785,11 +803,8 @@ public static class CustomSpawnPatch
                         case "mag": TrySpawnRandomMag(pos, 1f); break;
                         case "armor": TrySpawnRandomArmor(pos, 1f); break;
                         case "helmet": TrySpawnRandomHelmet(pos, 1f); break;
-                        case "nvg": TrySpawnRandomNvg(pos, 1f); break;
                         case "backpack": TrySpawnRandomBackpack(pos, 1f); break;
-                        case "repairkit": TrySpawnRepairKit(pos, 1f); break;
-                        case "tep300": TrySpawnTep300(pos, 1f); break;
-                        case "proflextac": TrySpawnProFlex(pos, 1f); break;
+                        case "weaponroom_keycard": TrySpawnWeaponRoomKeycard(pos, 1f); break;
                     }
                 }
                 // 53% 无物品, 37% 1件, 10% 2件
@@ -886,6 +901,7 @@ public static class CustomSpawnPatch
                     return;
                 }
                 _processedMedcrates.Add(instanceId);
+                if (_processedMedcrates.Count > MaxProcessedInstanceTrack) _processedMedcrates.Clear();
 
                 string goName = __instance.gameObject.name.ToLowerInvariant();
                 string buildingId = (__instance.id ?? "").ToLowerInvariant();

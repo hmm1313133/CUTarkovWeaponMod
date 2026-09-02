@@ -59,7 +59,11 @@ public static class UmkaItemSystem
 
         // 绑定 Container（Item.Awake 在 CUCoreLib 创建 Container 前运行）
         var container = item.GetComponent<Container>();
-        if (container != null) item.cont = container;
+        if (container == null) container = item.gameObject.AddComponent<Container>();
+        container.maxWeight = ContainerCapacity;
+        container.maxWeightPerItem = ContainerMaxWeightPerItem > 0 ? ContainerMaxWeightPerItem : 3f;
+        container.encumberanceMult = ContainerEncumbranceReduction;
+        item.cont = container;
 
         var icon = TryLoadIcon();
         var sr = item.GetComponent<SpriteRenderer>();
@@ -256,19 +260,4 @@ public static class UmkaItemSystem
         col.offset = Vector2.zero;
     }
 
-    // === 悬停描述 ===
-
-    // [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-    public static class UmkaHoverPatch
-    {
-        [HarmonyPostfix]
-        public static void Postfix(Item item, ref (string, string) __result)
-        {
-        return; // Disabled: replaced by UnifiedHoverPatch
-            if (item == null || !item.id.Equals(ItemKey, StringComparison.OrdinalIgnoreCase))
-                return;
-            if (!item.Stats.rec.recognizable) return;
-            __result.Item1 = DisplayName;
-        }
-    }
 }

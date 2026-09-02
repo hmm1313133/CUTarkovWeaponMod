@@ -47,7 +47,8 @@ public static class RecipePatch
 
             // === 移除被封禁的原版配方 ===
             // 必须在添加自定义配方之前执行，确保索引连续
-            if (VanillaBlockPatch.BlockEnabled)
+            // （HasForceBlockOverrides：全局关闭但存在单独强制拦截覆盖时仍需移除）
+            if (VanillaBlockPatch.BlockEnabled || VanillaBlockPatch.HasForceBlockOverrides)
             {
                 int blockedRecipes = 0;
                 for (int i = recipes.Count - 1; i >= 0; i--)
@@ -200,6 +201,14 @@ public static class RecipePatch
                 ByQuality("hammering"));
 
             AddRecipe(recipes, AKMMagItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Utilities,
+                Specific("scrappanel", 4),
+                Specific("magazinebase", 1),
+                Liquid("biochem", 15f),
+                ByQuality("cutting"),
+                ByQuality("hammering"));
+
+            AddRecipe(recipes, SksA5MagItemSystem.ItemKey, 1,
                 Recipes.RecipeCategory.Utilities,
                 Specific("scrappanel", 4),
                 Specific("magazinebase", 1),
@@ -385,7 +394,21 @@ public static class RecipePatch
                 ByQuality("hammering"),
                 ByQuality("hammering"));
 
-            Plugin.Log.LogInfo("[RecipePatch] Added 1 backpack recipe (scavpack) + 1 helmet recipe (tkfastmt).");
+            // Leatherman 多功能工具钳：2废料管 + 1废料板 + 2细绳 + 2钉子性质 + 3切割性质 + 2捶打性质 → 1个，INT=12, Tools(1)
+            AddRecipe(recipes, LeathermanItemSystem.ItemKey, 1,
+                Recipes.RecipeCategory.Tools, 12,
+                Specific("scraptube", 2),
+                Specific("scrappanel", 1),
+                Specific("string", 2),
+                ByQuality("nails"),
+                ByQuality("nails"),
+                ByQuality("cutting"),
+                ByQuality("cutting"),
+                ByQuality("cutting"),
+                ByQuality("hammering"),
+                ByQuality("hammering"));
+
+            Plugin.Log.LogInfo("[RecipePatch] Added 1 backpack recipe (scavpack) + 1 helmet recipe (tkfastmt) + 1 tool recipe (leatherman).");
 
             // === 护甲修复配方 ===
             // isRepair=true: 材料匹配时不忽略产物自身ID（允许用损坏的护甲作为材料）
@@ -479,6 +502,10 @@ public static class RecipePatch
             var lang = Locale.currentLang;
             if (lang == null || lang.other == null || lang.main == null) return;
 
+            // 已注入过则直接返回（本方法由 Plugin.Update 每帧调用，必须一次性完成）
+            if (_recipeI18nInjected) return;
+            _recipeI18nInjected = true;
+
             // 糖水液体名称/描述
             var swName = I18n.Tr("sugarwater.name");
             var swDesc = I18n.Tr("sugarwater.desc");
@@ -486,9 +513,6 @@ public static class RecipePatch
             if (swDesc == "sugarwater.desc") swDesc = "Sweet sugar water, soothing and energizing.";
             lang.other["sugarwater"] = swName;
             lang.other["sugarwaterdsc"] = swDesc;
-
-            if (_recipeI18nInjected) return;
-            _recipeI18nInjected = true;
 
             // 物品：Locale.GetItem(id) -> Language.main["id"]（名称，无后缀）
             //        Locale.GetItem(id + "dsc") -> Language.main["iddsc"]（描述）

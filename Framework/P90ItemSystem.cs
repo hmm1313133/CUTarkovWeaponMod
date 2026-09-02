@@ -145,13 +145,13 @@ public static class P90ItemSystem
             rotSpeed = source.rotSpeed,
             useAction = source.useAction,
             useLimbAction = null,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             weight = 1.8f,
             scaleWeightWithCondition = false,
             combineable = source.combineable,
             value = 42,
             tags = "cangetwet,gun",
-            rec = new Recognition(13),
+            rec = new Recognition(10),
         };
         clone.SetTags();
         return clone;
@@ -169,13 +169,13 @@ public static class P90ItemSystem
             usableOnLimb = false,
             usableWithLMB = true,
             autoAttack = true,
-            destroyAtZeroCondition = true,
+            destroyAtZeroCondition = false,
             combineable = true,
             weight = 1.8f,
             scaleWeightWithCondition = false,
             value = 42,
             tags = "cangetwet,gun",
-            rec = new Recognition(13),
+            rec = new Recognition(10),
         };
         info.SetTags();
         return info;
@@ -228,6 +228,12 @@ public static class P90ItemSystem
         catch (Exception ex) { Plugin.Log.LogWarning($"[P90] Failed to load no-mag icon: {ex.Message}"); }
         return _cachedNoMagIcon;
     }
+
+    /// <summary>公开：加载 P90 基础贴图（有弹匣态）。</summary>
+    public static Sprite? TryLoadIconPublic() => TryLoadIcon();
+
+    /// <summary>公开：加载 P90 无弹匣贴图。</summary>
+    public static Sprite? TryLoadNoMagIconPublic() => TryLoadNoMagIcon();
 
     private static AudioClip? TryLoadFireSound()
     {
@@ -283,17 +289,3 @@ public sealed class P90ItemMarker : MonoBehaviour
     public string description = P90ItemSystem.Description;
 }
 
-// [HarmonyPatch(typeof(PlayerCamera), nameof(PlayerCamera.ItemHoverDescription))]
-public static class P90HoverPatch
-{
-    [HarmonyPostfix]
-    public static void Postfix(Item item, ref (string, string) __result)
-    {
-        return; // Disabled: replaced by UnifiedHoverPatch
-        var marker = item.GetComponent<P90ItemMarker>();
-        if (marker == null) return;
-        if (!item.Stats.rec.recognizable) return;
-        // Name updated by I18nRefreshPatch Prefix
-        HoverDescriptionHelper.StripEffectsWhenNotExpanded(ref __result);
-    }
-}
