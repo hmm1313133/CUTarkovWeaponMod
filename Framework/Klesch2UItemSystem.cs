@@ -174,6 +174,12 @@ public sealed class Klesch2UController : MonoBehaviour
         return ctrl;
     }
 
+    /// <summary>从多人同步消息设置开关状态。</summary>
+    public void SetNetworkOn(bool on)
+    {
+        _on = on;
+    }
+
     private void Awake()
     {
         Klesch2UItemSystem.ResolveLightParamsFromVanilla();
@@ -192,6 +198,8 @@ public sealed class Klesch2UController : MonoBehaviour
         {
             _on = !_on;
             Plugin.Log.LogInfo($"[Klesch-2U] {( _on ? "ON" : "OFF" )}.");
+            if (_gunItem != null)
+                WeaponMpSync.SyncTacticalState(_gunItem, Klesch2UItemSystem.ItemKey, _on ? 1 : 0);
         }
 
         UpdateLight();

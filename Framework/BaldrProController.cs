@@ -44,6 +44,12 @@ public sealed class BaldrProController : MonoBehaviour
         return ctrl;
     }
 
+    /// <summary>从多人同步消息设置档位。</summary>
+    public void SetNetworkMode(int mode)
+    {
+        _mode = (Mode)Mathf.Clamp(mode, 0, 3);
+    }
+
     private void Awake()
     {
         BaldrProItemSystem.ResolveLightParamsFromVanilla();
@@ -66,6 +72,8 @@ public sealed class BaldrProController : MonoBehaviour
         {
             _mode = (Mode)(((int)_mode + 1) % 4);
             Plugin.Log.LogInfo($"[Baldr Pro] Mode → {_mode}.");
+            if (_gunItem != null)
+                WeaponMpSync.SyncTacticalState(_gunItem, BaldrProItemSystem.ItemKey, (int)_mode);
         }
 
         UpdateEffects();
@@ -244,12 +252,13 @@ public sealed class BaldrProController : MonoBehaviour
         // 方向：手持时游戏用 body.isRight 决定朝向（GunScript.Fire 中 num = body.isRight ? 1 : -1，
         // 枪械 transform.right 始终朝右，转身朝左靠 body.isRight=false 反向）。
         // 丢下/放背时枪是独立物体，激光应朝枪械自身朝向（transform.right），不受玩家朝向影响。
-        bool held = IsHeldByPlayer();
+        // 多人下不能只判断“本地玩家手持”：别人手上的枪要用枪所属的 Body 判断朝向，
+        // 否则会按本地玩家面向决定方向，导致激光反向。
+        var ownerBody = _gunItem != null ? _gunItem.GetComponentInParent<Body>() : null;
         Vector2 dir;
-        if (held)
+        if (ownerBody != null)
         {
-            var body = PlayerCamera.main?.body;
-            bool isRight = body != null ? body.isRight : true;
+            bool isRight = ownerBody.isRight;
             dir = (Vector2)_gunItem.transform.right * (isRight ? 1f : -1f);
         }
         else

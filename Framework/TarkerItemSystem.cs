@@ -63,6 +63,7 @@ public static class TarkerItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 body.Eat(6f, 0.12f);          // +6 饱食，+0.12 体重
                 body.thirst -= 2f;            // -2 水分
                 body.happiness += 1.3f;      // +1.3 心情

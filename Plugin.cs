@@ -419,6 +419,7 @@ public sealed class Plugin : BaseUnityPlugin
         NightVisionController.Tick();
         Tep300Controller.Tick();
         GunHotkeysController.Tick();
+        WeaponMpSync.Tick();
         _updateNotifier?.Tick();
         RecipePatch.InjectLiquidTranslations();
     }

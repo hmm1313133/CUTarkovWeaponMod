@@ -64,6 +64,7 @@ public static class AlyonkaItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 body.Eat(5f, 0.13f);          // +5 饱食，+0.13 体重
                 body.thirst -= 3f;             // -3 水分
                 body.happiness += 1.8f;        // +1.8 心情

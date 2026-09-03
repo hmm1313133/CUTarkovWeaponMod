@@ -37,19 +37,24 @@ public static class GunHotkeysController
         // 拉栓
         if (!checkingMag && Input.GetKeyDown(GunHotkeysKeybindPatch.RackKey))
         {
-            gun.TryRack();
+            // 使用 PlayerCamera.GunRack 而不是 GunScript.TryRack：
+            // KrokMP 对 PlayerCamera.GunRack 打了网络补丁，客户端拉栓会通知服务器，
+            // 并设置 round-trip 忽略窗口，避免本地预测状态被服务器的旧状态立刻覆盖。
+            PlayerCamera.main.GunRack();
             Plugin.Log.LogInfo($"[GunHotkeys] Rack toggled (racked={gun.racked}).");
         }
         // 卸下弹匣
         else if (!checkingMag && Input.GetKeyDown(GunHotkeysKeybindPatch.UnloadMagKey))
         {
-            gun.UnloadMag();
+            // 同样经过 PlayerCamera 入口，KrokMP 的 GunEjectMag 多人补丁才能向服务器上报。
+            PlayerCamera.main.GunEjectMag();
             Plugin.Log.LogInfo($"[GunHotkeys] UnloadMag triggered (hasMag={gun.hasMag}).");
         }
         // 切换保险
         else if (!checkingMag && Input.GetKeyDown(GunHotkeysKeybindPatch.SafetyKey))
         {
-            gun.ToggleSafety();
+            // KrokMP 的 GunToggleSafety 多人补丁挂在 PlayerCamera.GunToggleSafety。
+            PlayerCamera.main.GunToggleSafety();
             Plugin.Log.LogInfo($"[GunHotkeys] Safety toggled (safe={gun.safe}).");
         }
         // 检查弹匣弹药余量

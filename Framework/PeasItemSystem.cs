@@ -61,6 +61,7 @@ public static class PeasItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 if (item.condition <= 0f) return;
                 body.Eat(6f, 0.02f);
                 body.thirst += 4f;

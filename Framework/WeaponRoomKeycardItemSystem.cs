@@ -20,7 +20,7 @@ public static class WeaponRoomKeycardItemSystem
     public static string DisplayName => WModLoc.Tr("weaponroom_keycard.name", "Terragroup-武器室房卡【武器室】");
     public static string Description => WModLoc.Tr("weaponroom_keycard.desc", "Terragroup的武器室房卡，使用此卡可解锁Labs武器室。\n\n<color=#4fc3f7>每次使用损耗 2% 耐久</color>");
     private const float Weight = 0.05f;
-    private const int Value = 5000;
+    private const int Value = 100;
     private const int RecognitionMin = 5;
 
     private static Sprite? _cachedIcon;

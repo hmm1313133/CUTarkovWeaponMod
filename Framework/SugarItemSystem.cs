@@ -65,6 +65,7 @@ public static class SugarItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 body.Eat(6f, 0.12f);          // +6 饱食，+0.12 体重
                 body.thirst -= 4f;             // -4 水分
                 body.happiness -= 0.2f;        // -0.2 心情

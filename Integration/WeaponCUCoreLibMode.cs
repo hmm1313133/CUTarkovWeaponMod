@@ -49,8 +49,11 @@ public sealed class WeaponCUCoreLibMode
         SaveRegistry.RegisterItemProvider("cutarkovweapon.runtime", new WeaponItemSaveProvider());
         Plugin.Log.LogInfo("[WeaponCUCoreLib] Registered WeaponItemSaveProvider (ammo/mag state).");
 
-        // 注册独立 vanilla 控制台命令（原版物品拦截管理：list/on/off/[item] true|false）
+        // 注册独立 vanillablock 控制台命令（原版物品拦截管理：list/on/off/[物品] true|false）
         VanillaCommand.Register();
+
+        // 注册多人同步通道（退弹/地堡/配件操作的服务器权威同步）
+        WeaponMpSync.Register();
     }
 
     public void OnItemsSetup()

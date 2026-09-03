@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using BepInEx;
+using CUTarkovMedicalMod.Framework;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -1696,6 +1697,26 @@ public static class SuppressorSystem
             Sound.Play("combine", gun.transform.position);
             Plugin.Log.LogInfo($"[Attachment] Attached '{attachment.id}' to '{gun.id}' ({holder.attachmentIds.Count} total).");
 
+            var gsForSync = gun.GetComponent<GunScript>();
+            int syncFt = gsForSync != null ? (int)gsForSync.feedType : 0;
+            int syncMc = gsForSync != null ? gsForSync.magCapacity : 0;
+            int syncRm = gsForSync != null ? gsForSync.roundsInMag : 0;
+
+            // 多人客户端：上报服务器（服务器端枪镜像 attachmentIds.Add + 销毁配件物品镜像）。
+            // attachmentIds 是自定义组件字段，KrokMP 不同步，必须显式上报。
+            if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost)
+            {
+                // 先清除 KrokMP 的本地槽位快照，否则把配件从槽位移出/销毁会被 KrokMP
+                // 误判为“丢到地上”，服务器端会多生成一个配件在地上。
+                WeaponMpSync.SuppressLocalInventoryDrop(attachment);
+                WeaponMpSync.ReportAttachInstall(gun, attachment.id, attachment, syncFt, syncMc, syncRm);
+            }
+            // 多人主机：本地就是权威，但要主动把自定义 attachmentIds 广播给客户端。
+            else if (KrokMpHelper.IsMultiplayer && KrokMpHelper.IsHost)
+            {
+                WeaponMpSync.BroadcastAttachInstall(gun, attachment.id, syncFt, syncMc, syncRm);
+            }
+
             // 先把配件移出背包槽位（SetParent 立即生效，背包 UI 不再残留），再延迟销毁。
             // 若配件在玩家槽位中，setParent 到枪下后 childCount 立即清零。
             try { attachment.transform.SetParent(gun.transform, false); }
@@ -1838,6 +1859,18 @@ public static class SuppressorSystem
     }
 
     /// <summary>
+    /// 生成卸下的配件物品。
+    /// 多人客户端返回 null（不本地创建）：服务器创建后 KrokMP 会同步回来，
+    /// 本地创建会产生重复物品（客户端 Utils.Create 不注册网络同步）。
+    /// 调用方已有 if (spawned != null) 守卫，返回 null 时自动跳过电量写回等后续逻辑。
+    /// </summary>
+    private static GameObject SpawnDetachedAttachment(string id, Vector2 spawnPos, bool skipCreate)
+    {
+        if (skipCreate) return null;
+        return Utils.Create(id, spawnPos, 0f);
+    }
+
+    /// <summary>
     /// 从枪上卸下指定配件（从列表移除该项），生成到玩家面前。
     /// 统一处理 LAS/TAC 2 的电量保存、灯光关闭、控制器移除。
     /// </summary>
@@ -1853,6 +1886,29 @@ public static class SuppressorSystem
             var spawnPos = body != null
                 ? (Vector2)body.transform.position + UnityEngine.Random.insideUnitCircle * 1.2f
                 : (Vector2)gun.transform.position;
+
+            // 电量快照（战术手电）：多人客户端需上报给服务器，让服务器创建物品时写回电量。
+            // 必须在下方各分支把 holder.lasTacCharge 等重置为 0 之前捕获。
+            float syncCharge = 0f;
+            bool syncHadBattery = false;
+            if (holder != null)
+            {
+                if (string.Equals(id, LasTac2ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+                    syncCharge = holder.lasTacCharge;
+                else if (string.Equals(id, Klesch2UItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+                    syncCharge = holder.kleschCharge;
+                else if (string.Equals(id, BaldrProItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+                    syncCharge = holder.baldrCharge;
+                else if (string.Equals(id, TblItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
+                    syncCharge = holder.tblCharge;
+                syncHadBattery = !holder.noBatteryAttachments.Contains(id);
+            }
+            // 多人客户端：物品由服务器创建后同步回来，本地跳过创建（避免重复）。
+            // 仅当枪已注册网络对象（有 syncId）时才走上报路径；否则退回本地创建，
+            // 避免上报失败导致配件从 attachmentIds 移除后永久丢失。
+            bool mpClient = KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost
+                            && WeaponMpSync.CanSync(gun);
+            bool skipCreate = mpClient;
 
             // ===== SKS 供弹方式切换 =====
             // 核心规则：只要配件栏没有 10 发弹仓改件，枪械就是 Mag 模式。
@@ -1892,7 +1948,7 @@ public static class SuppressorSystem
             {
                 float savedCharge = holder.lasTacCharge;
                 if (savedCharge <= 0.01f) savedCharge = 0.01f; // 防止完全没电的不可用
-                var spawned = Utils.Create(id, spawnPos, 0f);
+                var spawned = SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 if (spawned != null)
                 {
                     // 延迟写回电量：Utils.Create 内部流程（ConfigureSpawnedItem/Item.Start）会覆盖 condition
@@ -1909,7 +1965,7 @@ public static class SuppressorSystem
             {
                 float savedCharge = holder.kleschCharge;
                 if (savedCharge <= 0.01f) savedCharge = 0.01f;
-                var spawned = Utils.Create(id, spawnPos, 0f);
+                var spawned = SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 if (spawned != null)
                 {
                     var setter = spawned.AddComponent<TacticalLightDetachedCharge>();
@@ -1925,7 +1981,7 @@ public static class SuppressorSystem
             {
                 float savedCharge = holder.baldrCharge;
                 if (savedCharge <= 0.01f) savedCharge = 0.01f;
-                var spawned = Utils.Create(id, spawnPos, 0f);
+                var spawned = SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 if (spawned != null)
                 {
                     var setter = spawned.AddComponent<TacticalLightDetachedCharge>();
@@ -1941,7 +1997,7 @@ public static class SuppressorSystem
             {
                 float savedCharge = holder.tblCharge;
                 if (savedCharge <= 0.01f) savedCharge = 0.01f;
-                var spawned = Utils.Create(id, spawnPos, 0f);
+                var spawned = SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 if (spawned != null)
                 {
                     var setter = spawned.AddComponent<TacticalLightDetachedCharge>();
@@ -1955,53 +2011,76 @@ public static class SuppressorSystem
             }
             else if (string.Equals(id, MrsItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
             }
             else if (string.Equals(id, Eotech553ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
             }
             else if (string.Equals(id, Hhs1ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 var ctrl = gun.GetComponent<Hhs1Controller>();
                 if (ctrl != null) UnityEngine.Object.Destroy(ctrl);
             }
             else if (string.Equals(id, SpecterDrItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 var ctrl = gun.GetComponent<SpecterDrController>();
                 if (ctrl != null) UnityEngine.Object.Destroy(ctrl);
             }
             else if (string.Equals(id, Monstr2x32ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 var ctrl = gun.GetComponent<Monstr2x32Controller>();
                 if (ctrl != null) UnityEngine.Object.Destroy(ctrl);
             }
             else if (string.Equals(id, Ta01nsnItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 var ctrl = gun.GetComponent<Ta01nsnController>();
                 if (ctrl != null) UnityEngine.Object.Destroy(ctrl);
             }
             else if (string.Equals(id, RazorHdItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 var ctrl = gun.GetComponent<RazorHdController>();
                 if (ctrl != null) UnityEngine.Object.Destroy(ctrl);
             }
             else if (string.Equals(id, Pm2ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
                 var ctrl = gun.GetComponent<Pm2Controller>();
                 if (ctrl != null) UnityEngine.Object.Destroy(ctrl);
             }
             else
             {
-                Utils.Create(id, spawnPos, 0f);
+                SpawnDetachedAttachment(id, spawnPos, skipCreate);
             }
 
+            // 多人客户端：上报服务器（服务器端移除 attachmentIds、创建配件物品、
+            // 应用 SKS 供弹状态；物品通过 KrokMP 同步回到本客户端）。
+            if (mpClient)
+            {
+                var gsForSync = gun.GetComponent<GunScript>();
+                WeaponMpSync.ReportAttachDetach(
+                    gun, id,
+                    syncCharge, syncHadBattery,
+                    gsForSync != null ? (int)gsForSync.feedType : 0,
+                    gsForSync != null ? gsForSync.magCapacity : 0,
+                    gsForSync != null ? gsForSync.roundsInMag : 0,
+                    spawnPos);
+            }
+            // 多人主机：本地就是权威，把自定义 attachmentIds 变更广播给客户端。
+            else if (KrokMpHelper.IsMultiplayer && KrokMpHelper.IsHost)
+            {
+                var gsForSync = gun.GetComponent<GunScript>();
+                WeaponMpSync.BroadcastAttachDetach(
+                    gun, id,
+                    gsForSync != null ? (int)gsForSync.feedType : 0,
+                    gsForSync != null ? gsForSync.magCapacity : 0,
+                    gsForSync != null ? gsForSync.roundsInMag : 0);
+            }
             Sound.Play("drop", gun.transform.position);
             Plugin.Log.LogInfo($"[Attachment] Detached '{id}' from '{gun.id}' ({holder.attachmentIds.Count} left).");
             // 失效瞄准时间缓存（配件变化影响瞄准速度）

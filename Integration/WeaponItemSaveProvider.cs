@@ -80,6 +80,22 @@ public sealed class WeaponItemSaveProvider : IItemSaveProvider
         {
             data["tblCharge"] = holder.tblCharge;
         }
+        if (holder != null && holder.mrsCharge < 1f)
+        {
+            data["mrsCharge"] = holder.mrsCharge;
+        }
+        if (holder != null && holder.eotechCharge < 1f)
+        {
+            data["eotechCharge"] = holder.eotechCharge;
+        }
+        if (holder != null && holder.hhs1Charge < 1f)
+        {
+            data["hhs1Charge"] = holder.hhs1Charge;
+        }
+        if (holder != null && holder.noBatteryAttachments != null && holder.noBatteryAttachments.Count > 0)
+        {
+            data["noBattery"] = new JArray(holder.noBatteryAttachments);
+        }
         return data.HasValues ? data : null!;
     }
 
@@ -193,6 +209,47 @@ public sealed class WeaponItemSaveProvider : IItemSaveProvider
             holder.tblCharge = tblToken.Value<float>();
             if (holder.attachmentIds != null && holder.attachmentIds.Contains(TblItemSystem.ItemKey))
                 TblController.Attach(item);
+        }
+        // MRS / EOTech / HHS-1 电量
+        var mrsToken = obj["mrsCharge"];
+        if (mrsToken != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.mrsCharge = mrsToken.Value<float>();
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(MrsItemSystem.ItemKey))
+                MrsController.Attach(item);
+        }
+        var eotechToken = obj["eotechCharge"];
+        if (eotechToken != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.eotechCharge = eotechToken.Value<float>();
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(Eotech553ItemSystem.ItemKey))
+                Eotech553Controller.Attach(item);
+        }
+        var hhs1Token = obj["hhs1Charge"];
+        if (hhs1Token != null)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.hhs1Charge = hhs1Token.Value<float>();
+            if (holder.attachmentIds != null && holder.attachmentIds.Contains(Hhs1ItemSystem.ItemKey))
+                Hhs1Controller.Attach(item);
+        }
+        // 无电池配件标记（战术灯卸下时不凭空补电池）
+        var noBatteryToken = obj["noBattery"];
+        if (noBatteryToken is JArray noBatteryArr)
+        {
+            var holder = item.GetComponent<GunAttachmentHolder>();
+            if (holder == null) holder = item.gameObject.AddComponent<GunAttachmentHolder>();
+            holder.noBatteryAttachments.Clear();
+            foreach (var tok in noBatteryArr.OfType<JValue>())
+            {
+                var id = tok.Value<string>();
+                if (!string.IsNullOrEmpty(id)) holder.noBatteryAttachments.Add(id);
+            }
         }
         // 变倍瞄具（HHS-1 / SpecterDR / Monstr 2x32）：恢复时挂上倍率控制器（无供电机制）
         var zoomHolder = item.GetComponent<GunAttachmentHolder>();

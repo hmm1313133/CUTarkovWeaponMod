@@ -6,6 +6,7 @@ using BepInEx;
 using CUCoreLib.Data;
 using CUCoreLib.Helpers;
 using CUCoreLib.Registries;
+using CUTarkovMedicalMod.Framework;
 using Newtonsoft.Json;
 using HarmonyLib;
 using UnityEngine;
@@ -578,6 +579,14 @@ public class WeaponCacheBoxDrop : MonoBehaviour
         // 世界卸载/对象回收等非摧毁场景 health 仍满，不产生掉落。
         if (_building == null || _building.health >= 0.5f) return;
 
+        // 多人客户端：仅上报服务器（服务器端销毁箱子+掉落+广播其他客户端），
+        // 本地跳过掉落，防止与服务器 Utils.Create 同步的物品重复。
+        if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost)
+        {
+            WeaponMpSync.ReportBunkerBox(transform.position);
+            return;
+        }
+
         try
         {
             int count = UnityEngine.Random.Range(1, 3); // 1~2 个
@@ -636,6 +645,13 @@ public class LargeWeaponCacheBoxDrop : MonoBehaviour
     {
         if (_isQuitting) return;
         if (_building == null || _building.health >= 0.5f) return;
+
+        // 多人客户端：仅上报服务器，本地跳过掉落（同 WeaponCacheBoxDrop）
+        if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost)
+        {
+            WeaponMpSync.ReportBunkerBox(transform.position);
+            return;
+        }
 
         try
         {
@@ -741,6 +757,11 @@ public class CardReaderDevice : MonoBehaviour
                 // 和原版生物终端机制类似：每使用一次损失 2% 耐久。
                 cardItem.SetCondition(Mathf.Clamp(cardItem.condition - 0.02f, 0f, 1f));
                 Sound.Play("unlock", transform.position, false, true, null, 1f, 1f, false, false);
+
+                // 多人客户端：上报服务器（服务器端扣钥匙卡耐久 + 开门 + 广播其他客户端）。
+                // 主机端 KrokMP 建筑状态同步（backgroundified）与物品状态同步自动传播，无需上报。
+                if (KrokMpHelper.IsMultiplayer && !KrokMpHelper.IsHost)
+                    WeaponMpSync.ReportKeycardUse(cardItem, cardItem.condition, building.transform.position);
 
                 Plugin.Log.LogInfo($"[WeaponCacheBunker] Weapon room keycard condition: {cardItem.condition:P}.");
                 return;

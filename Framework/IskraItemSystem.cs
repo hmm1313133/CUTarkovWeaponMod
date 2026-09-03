@@ -60,6 +60,7 @@ public static class IskraItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 if (item.condition <= 0f) return;
                 body.Eat(23f, 0.25f);
                 body.thirst += 5f;

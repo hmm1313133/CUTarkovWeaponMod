@@ -199,10 +199,29 @@ public static class AmmoUnloadRoundPatch
             var body = PlayerCamera.main?.body;
             if (body != null)
             {
-                SpawnCustomRound(expectedAmmoId, __instance.transform.position, body);
+                if (KrokMpHelper.IsMultiplayer && KrokMpHelper.IsHost)
+                {
+                    // 主机：Utils.Create 走 CUCoreLib ItemRegistry + KrokMP 自动同步到客户端
+                    var go = Utils.Create(expectedAmmoId, __instance.transform.position, 0f);
+                    if (go != null) go.AddComponent<FreshItemDrop>();
+                }
+                else if (KrokMpHelper.IsMultiplayer)
+                {
+                    // 客户端：不本地创建（Instantiate 不同步会与服务器创建的重复），
+                    // 上报服务器：服务器更新弹匣 rounds + Utils.Create 子弹同步回来。
+                    // 上报失败（弹匣无网络 syncId / 通道不可用）时退回单机行为，避免子弹丢失。
+                    bool reported = WeaponMpSync.ReportUnloadRound(magItem, __instance.rounds - 1,
+                        expectedAmmoId, __instance.transform.position);
+                    if (!reported)
+                        SpawnCustomRound(expectedAmmoId, __instance.transform.position, body);
+                }
+                else
+                {
+                    SpawnCustomRound(expectedAmmoId, __instance.transform.position, body);
+                }
                 Sound.Play("gunloadshell", __instance.transform.position);
             }
-            __instance.rounds--;
+            __instance.rounds--; // 主机=权威扣减；客户端=本地预测（服务器同步回来时一致）
         }
 
         return false; // 跳过原版方法

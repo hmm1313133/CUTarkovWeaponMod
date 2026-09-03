@@ -60,6 +60,7 @@ public static class MreItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 if (item.condition <= 0f) return;
                 body.Eat(20f, 0.2f);
                 body.thirst += 3f;

@@ -61,6 +61,7 @@ public static class CroutonsItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 body.Eat(6f, 0.08f);       // +6 饱食度，+0.08 体重
                 body.thirst -= 3f;
                 body.happiness += 1f;

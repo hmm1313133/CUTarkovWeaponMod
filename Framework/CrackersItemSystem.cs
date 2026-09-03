@@ -61,6 +61,7 @@ public static class CrackersItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 body.Eat(3f, 0.08f);       // +3 饱食度，+0.08 体重
                 body.thirst -= 1f;            // -1 水分
                 body.happiness += 0.5f;      // +0.5 心情

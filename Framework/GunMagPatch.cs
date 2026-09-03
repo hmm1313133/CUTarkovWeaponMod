@@ -2637,6 +2637,10 @@ public static class GunLoadMagPatch
                 UnityEngine.Object.Destroy(ammo.gameObject);
 
                 Plugin.Log.LogInfo($"[GunMagPatch] Loaded magazine '{ammoItem.id}' into gun '{gunId}', rounds={ammo.rounds}.");
+
+                // 多人同步：currentMagId 是自定义字段，KrokMP 不会同步，必须显式上报/广播。
+                if (KrokMpHelper.IsMultiplayer)
+                    WeaponMpSync.SyncMagState(item);
             }
 
             return false; // 跳过原方法
@@ -2754,6 +2758,10 @@ public static class GunUnloadMagPatch
         __instance.roundsInMag = 0;
 
         Plugin.Log.LogInfo($"[GunMagPatch] Unloaded custom magazine '{magId}' from gun '{item.id}', rounds={ejectedRounds}.");
+
+        // 多人同步：清空 currentMagId / hasMag / roundsInMag。
+        if (KrokMpHelper.IsMultiplayer)
+            WeaponMpSync.SyncMagState(item);
 
         return false; // 跳过原方法
     }

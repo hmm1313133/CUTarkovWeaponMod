@@ -62,6 +62,7 @@ public static class CookedNoodlesItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 if (item.condition <= 0f) return;
                 body.Eat(13f, 0.14f);
                 body.thirst += 7f;

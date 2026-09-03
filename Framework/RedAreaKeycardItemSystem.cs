@@ -17,7 +17,7 @@ public static class RedAreaKeycardItemSystem
     public static string Description => WModLoc.Tr("redarea_keycard.desc", "Terragroup的Red Area钥匙卡，使用此卡可解锁Labs的Red Area。\n\n<color=#4fc3f7>可使用 10 次</color>");
 
     private const float Weight = 0.05f;
-    private const int Value = 5000;
+    private const int Value = 100;
     private const int RecognitionMin = 5;
 
     private static Sprite? _cachedIcon;

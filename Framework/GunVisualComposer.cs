@@ -1284,6 +1284,7 @@ public static class GunVisualComposer
         else if (isDvl10) { oy = -7f; ox = 12f; }
         else if (baseSprite.texture.width >= 90f && baseSprite.texture.width < 95f) { ox = -15f; } // 格洛克：往左 15px
         else if (baseSprite.texture.width >= 95f && baseSprite.texture.width < 150f) { ox = 15f; oy = -4f; } // AXMC：往右 15px、往下 4px
+        else if (baseSprite.texture.width == 80) { /* AKM：保持护木基准位置，不套用手枪偏移 */ }
         else if (baseSprite.texture.width >= 45f && baseSprite.texture.width < 90f) { scale = 1.1f; oy = -7f; } // 沙鹰等手枪：放大1.1倍，往下7px
 
         list.Add(new OverlayLayer
@@ -1314,6 +1315,7 @@ public static class GunVisualComposer
         else if (isDvl10) { oy = -7f; ox = 12f; }
         else if (baseSprite.texture.width >= 90f && baseSprite.texture.width < 95f) { ox = -10f; oy = -4f; } // 格洛克：往左 10px、往下 4px
         else if (baseSprite.texture.width >= 95f && baseSprite.texture.width < 150f) { ox = 15f; oy = -4f; } // AXMC：往右 15px、往下 4px
+        else if (baseSprite.texture.width == 80) { /* AKM：保持护木基准位置，不套用手枪偏移 */ }
         else if (baseSprite.texture.width >= 45f && baseSprite.texture.width < 90f) { scale = 1.1f; oy = -7f; } // 沙鹰等手枪：放大1.1倍，往下7px
 
         list.Add(new OverlayLayer
@@ -1344,6 +1346,7 @@ public static class GunVisualComposer
         else if (isDvl10) { oy = -7f; ox = 12f; }
         else if (baseSprite.texture.width >= 90f && baseSprite.texture.width < 95f) { ox = -10f; oy = -4f; } // 格洛克：往左 10px、往下 4px
         else if (baseSprite.texture.width >= 95f && baseSprite.texture.width < 150f) { ox = 15f; oy = -4f; } // AXMC：往右 15px、往下 4px
+        else if (baseSprite.texture.width == 80) { /* AKM：保持护木基准位置，不套用手枪偏移 */ }
         else if (baseSprite.texture.width >= 45f && baseSprite.texture.width < 90f) { scale = 1.1f; oy = -7f; } // 沙鹰等手枪：放大1.1倍，往下7px
 
         list.Add(new OverlayLayer
@@ -1374,6 +1377,7 @@ public static class GunVisualComposer
         else if (isDvl10) { oy = -7f; ox = 12f; }
         else if (baseSprite.texture.width >= 90f && baseSprite.texture.width < 95f) { ox = -10f; oy = -4f; } // 格洛克：往左 10px、往下 4px
         else if (baseSprite.texture.width >= 95f && baseSprite.texture.width < 150f) { ox = 15f; oy = -4f; } // AXMC：往右 15px、往下 4px
+        else if (baseSprite.texture.width == 80) { /* AKM：保持护木基准位置，不套用手枪偏移 */ }
         else if (baseSprite.texture.width >= 45f && baseSprite.texture.width < 90f) { scale = 1.1f; oy = -7f; } // 沙鹰等手枪：放大1.1倍，往下7px
 
         list.Add(new OverlayLayer

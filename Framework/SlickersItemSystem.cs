@@ -63,6 +63,7 @@ public static class SlickersItemSystem
 
             info.useAction = (body, item) =>
             {
+                if (!KrokMpHelper.ShouldApplyUseEffect(body, item)) return;
                 body.Eat(7f, 0.15f);          // +7 饱食，+0.15 体重
                 body.thirst -= 3f;             // -3 水分
                 body.happiness += 2f;          // +2 心情

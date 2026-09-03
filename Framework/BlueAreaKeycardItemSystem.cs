@@ -16,7 +16,7 @@ public static class BlueAreaKeycardItemSystem
     public static string DisplayName => WModLoc.Tr("bluearea_keycard.name", "Terragroup-Blue Area钥匙卡【Blue Area】");
     public static string Description => WModLoc.Tr("bluearea_keycard.desc", "Terragroup的Blue Area钥匙卡，使用此卡可解锁Labs的Blue Area。\n\n<color=#4fc3f7>每次使用损耗 2% 耐久</color>");
     private const float Weight = 0.05f;
-    private const int Value = 6000;
+    private const int Value = 100;
     private const int RecognitionMin = 5;
 
     private static Sprite? _cachedIcon;

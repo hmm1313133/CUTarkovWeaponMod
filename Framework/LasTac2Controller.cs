@@ -56,6 +56,12 @@ public sealed class LasTac2Controller : MonoBehaviour
         return ctrl;
     }
 
+    /// <summary>从多人同步消息设置档位。</summary>
+    public void SetNetworkMode(int mode)
+    {
+        _mode = (Mode)Mathf.Clamp(mode, 0, 2);
+    }
+
     private void Awake()
     {
         LasTac2ItemSystem.ResolveLightParamsFromVanilla();
@@ -97,6 +103,8 @@ public sealed class LasTac2Controller : MonoBehaviour
     {
         _mode = (Mode)(((int)_mode + 1) % 3);
         Plugin.Log.LogInfo($"[LAS/TAC 2] Mode → {_mode}.");
+        if (_gunItem != null)
+            WeaponMpSync.SyncTacticalState(_gunItem, LasTac2ItemSystem.ItemKey, (int)_mode);
     }
 
     private void UpdateLight()
