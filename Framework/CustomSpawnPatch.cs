@@ -11,13 +11,17 @@ namespace CUTarkovWeaponMod.Framework;
 /// 自定义枪械和弹匣的世界生成补丁。
 ///
 /// 生成规则（触发后从模组列表随机选一个）：
-/// - 物资箱（Container）: 5% 枪械 + 10% 弹匣 + 10% 近战 + 5% 护甲/胸挂 + 5% 头盔 + 3% 背包(1~2个) + 2% 夜视仪 + 4.5% Blue Area钥匙卡 + 7% 武器室钥匙卡
+/// - 物资箱（Container）: 5% 枪械 + 10% 弹匣 + 10% 近战 + 5% 护甲/胸挂 + 5% 头盔 + 3% 背包(1~2个) + 2% 夜视仪
 /// - 空投舱（LifePod）: 20% 枪械 + 25% 弹挂 + 20% 头盔 + 6% 背包 + 8% 夜视仪（通过 GenerateLifePods 期间的 Container.Awake）
 /// - 空投胶囊（DropCapsule）: 29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2个) + 16% 背包 + 10% 夜视仪（通过 GenerateDropCapsules 期间的 Container.Awake）
 /// - 医疗箱（medcrate）: 20% 护甲（BuildingEntity 被破坏时触发）
-/// - 尸体（CorpseScript）: 1.5% 枪械 + 5% 弹匣 + 3% 护甲/弹挂 + 2% 头盔 + 3% 背包 + 2.8% 武器室钥匙卡（每次 roll，共 2 次）
+/// - 尸体（CorpseScript）: 1.5% 枪械 + 5% 弹匣 + 3% 护甲/弹挂 + 2% 头盔 + 3% 背包（每次 roll，共 2 次）
 /// - 崩溃舱（CollapsedPod）: 62% 弹匣（通过 Item.Start 替换被 VanillaBlockPatch 销毁的原版弹匣）
 /// 世界生成的弹匣内子弹在 0~满 之间随机；合成出来的弹匣内没有子弹（见 RecipeSpawnPatch）。
+///
+/// 钥匙卡（武器室 / Blue Area / Red Area）：
+/// - 只在尸体旁刷新，三种各自独立 1% 判定（见 KeycardCorpseChance），物资箱/空投不再刷新
+/// - 每局开局每位玩家直接获得三张（见 KeycardStartGrantPatch）
 ///
 /// 护甲/胸挂刷新规则（触发后按分类+价值加权随机选一件）：
 /// - 40% 弹挂类（bandolier 槽位，无防护）
@@ -54,6 +58,12 @@ public static class CustomSpawnPatch
 
     // === 近战武器列表（物资箱专属） ===
     private static readonly string[] MeleeIds = { RedRebelItemSystem.ItemKey, M2SwordItemSystem.ItemKey };
+
+    /// <summary>
+    /// 尸体旁每种钥匙卡的刷新概率（武器室 / Blue Area / Red Area 各自独立判定）。
+    /// 用户指定：所有钥匙卡改为尸体 1%。
+    /// </summary>
+    private const float KeycardCorpseChance = 0.01f;
 
     /// <summary>加权随机选一把枪械 ID（用户指定权重）</summary>
     private static readonly (string id, int weight)[] GunSpawnTable =
@@ -547,6 +557,13 @@ public static class CustomSpawnPatch
         SpawnCustomItemAt(WeaponRoomKeycardItemSystem.ItemKey, pos);
     }
 
+    /// <summary>以指定概率在指定位置生成 Red Area 钥匙卡</summary>
+    internal static void TrySpawnRedAreaKeycard(Vector2 pos, float chance)
+    {
+        if (UnityEngine.Random.Range(0f, 1f) > chance) return;
+        SpawnCustomItemAt(RedAreaKeycardItemSystem.ItemKey, pos);
+    }
+
     /// <summary>以指定概率在指定位置生成一个 TEP-300 战术耳塞</summary>
     internal static void TrySpawnTep300(Vector2 pos, float chance)
     {
@@ -738,7 +755,8 @@ public static class CustomSpawnPatch
                 }
                 else
                 {
-                    // 物资箱: 5% 枪械 + 10% 弹匣 + 10% 近战武器 + 5% 护甲/胸挂 + 5% 头盔 + 3% 背包(1~2个) + 2% 夜视仪 + 4.5% Blue Area钥匙卡 + 7% 武器室钥匙卡
+                    // 物资箱: 5% 枪械 + 10% 弹匣 + 10% 近战武器 + 5% 护甲/胸挂 + 5% 头盔 + 3% 背包(1~2个) + 2% 夜视仪
+                    // 钥匙卡不再从物资箱刷新（改为尸体旁三种各 1%，见下方 CorpseScript 补丁）
                     TrySpawnRandomGun(pos, 0.05f);
                     TrySpawnRandomMag(pos, 0.10f);
                     TrySpawnRandomMelee(pos, 0.10f);
@@ -746,8 +764,6 @@ public static class CustomSpawnPatch
                     TrySpawnRandomHelmet(pos, 0.05f);
                     TrySpawnRandomBackpackCount(pos, 0.03f, 1, 2);
                     TrySpawnRandomNvg(pos, 0.02f);
-                    TrySpawnBlueAreaKeycard(pos, 0.045f);
-                    TrySpawnWeaponRoomKeycard(pos, 0.07f);
                     // 食物使用原版战利池生成，不在此处生成
                 }
 
@@ -793,7 +809,6 @@ public static class CustomSpawnPatch
                     else if (roll < 0.095f) type = "armor";
                     else if (roll < 0.115f) type = "helmet";
                     else if (roll < 0.145f) type = "backpack";
-                    else if (roll < 0.173f) type = "weaponroom_keycard"; // 武器室钥匙卡 2.8%
 
                     if (type == null || !spawnedTypes.Add(type)) continue;
 
@@ -804,10 +819,14 @@ public static class CustomSpawnPatch
                         case "armor": TrySpawnRandomArmor(pos, 1f); break;
                         case "helmet": TrySpawnRandomHelmet(pos, 1f); break;
                         case "backpack": TrySpawnRandomBackpack(pos, 1f); break;
-                        case "weaponroom_keycard": TrySpawnWeaponRoomKeycard(pos, 1f); break;
                     }
                 }
-                // 53% 无物品, 37% 1件, 10% 2件
+                // 钥匙卡：只在尸体旁刷新，三种各自 1% 独立判定
+                // （与上面 2 次物品 roll 无关，可以同时出现；用户指定）
+                TrySpawnWeaponRoomKeycard(pos, KeycardCorpseChance);
+                TrySpawnBlueAreaKeycard(pos, KeycardCorpseChance);
+                TrySpawnRedAreaKeycard(pos, KeycardCorpseChance);
+                // 其余 53% 无物品, 37% 1件, 10% 2件
             }
             catch (Exception ex)
             {

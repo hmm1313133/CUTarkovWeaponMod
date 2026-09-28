@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0.1] - 2026-09-29
+
+### 修复
+
+- **M4A1 加长枪管未装护木时的开火拦截不彻底**
+  - 现象：装上加长枪管但不装护木时，扣扳机仍会退出一发**实弹**（带初速飞出、可造成撞击伤害），看起来像"打出了弹道并造成伤害"，而弹匣弹药数不变。
+  - 原因：原先只在 `GunScript.Fire` 的 Prefix 里 `return false`，膛内那发实弹会一直留在膛内；玩家拉栓退弹时，`GunPatch` 会把膛内实弹作为**实弹**弹出（`[CaliberPatch] Ejected custom round`），造成"枪还是打出去了"的观感。
+  - 修复：新增 `M4LongBarrelTriggerBlockPatch`（`GunScript.Update` Prefix），在扳机层直接吞掉 `triggerPressed`，开火路径（扳机声/火光/弹道/后坐/耐久）完全不会触发；`Fire` Prefix 保留为兜底拦截，并把日志节流到每秒 1 条。
+  - 修复：自伤/自杀（`Fire(suicide: true)`）不再被该拦截挡住，`SelfHarmer` 的枪械自杀流程恢复正常。
+  - 新增 UI 提示：拦截时在枪械 UI 上方显示「加长枪管需先安装护木才能开火」（`wm.hud.need_handguard`，中英双语）。
+  - 加长枪管物品描述补充"必须安装护木后才能开火"的说明（中英双语）。
+- **EXFIL 头盔无法安装夜视仪**
+  - 原因：`NightVisionController.IsCompatibleHelmetId`（手动 Harmony Patch 的 `Body.WearWearable` Prefix）的白名单缺少 `exfil`，而 PVS-14 / GPNVG-18 / PVS-31A 各自的 Prefix 已放行 EXFIL，两者取交集后穿戴被拦下。
+  - 修复：头盔兼容白名单集中为 `StandardNvgHelmetIds`（6B47 / Calman / FAST MT / TK Fast MT / EXFIL）与 `HighEndNvgHelmetIds`（GPNVG-18 / PVS-31A，不含 6B47），EXFIL 现已可佩戴全部三款夜视仪；同时也修复了摘下 EXFIL 头盔时夜视仪会被误判为不兼容而掉落的问题。
+- **夜视仪物品描述与代码不一致**
+  - PVS-14 描述写「中型电池约能使用 6 分钟」，但代码 `StandardDrainRate = 1/600` 实为 **10 分钟**（6 分钟是 GPNVG-18 的数值），已修正为中/英双语 10 分钟。
+  - GPNVG-18 描述缺少续航说明，已补「中型电池约能使用 6 分钟」；三款夜视仪描述现在都写明兼容头盔（含 EXFIL / TK Fast MT）与续航。
+  - EXFIL 头盔描述新增「【夜视仪兼容】可佩戴 PVS-14 / GPNVG-18 / PVS-31A」。
+  - README / ITEMS 文档同步补充三款夜视仪的兼容头盔与续航数值。
+- **钥匙卡刷新规则调整（用户指定）**
+  - 三种钥匙卡（武器室 `weaponroom_keycard` / Blue Area `bluearea_keycard` / Red Area `redarea_keycard`）**只在尸体旁刷新，每种独立 1% 判定**；物资箱不再刷新钥匙卡（原为 Blue Area 4.5% + 武器室 7%），尸体原本的 2.8% 武器室房卡判定改为三种各 1%（新增 `TrySpawnRedAreaKeycard`，Red Area 钥匙卡此前没有世界刷新来源）。
+  - **每局开局发放**：新增 `KeycardStartGrantPatch`，在 `WorldGeneration.FinishWorldGeneration` 时给本地玩家直接发放三张钥匙卡（武器室 / Blue Area / Red Area 各一张）。判定与原版起始补给一致：仅本局第一层（`totalTraveled == 0` 且非教程/覆盖场景、非调试起始深度）、仅新开一局（`SaveSystem.loadedRun == false`，`LoadRun` 读取存档不补发）、每局只发一次（`WorldGeneration.Start` 重置标记）；多人模式下每位客户端给自己发放，因此每位玩家都会拿到。
+  - 物品生成走 `Utils.Create`（CUCoreLib 已打补丁支持自定义物品）+ `Body.AutoPickUpItem`（背包满则落在脚边），与医疗模组本地玩家物品创建的写法一致。
+- **武器物资箱掉落调整（按文档对齐代码）**
+  - **大型武器箱**：随机枪械由「30% 概率掉 1 把」改为**必掉 1 把**（`WeaponGunIds` 池 15 把等权重），配件仍为 2~4 个。
+  - **同一箱子内去重**：新增 `WeaponCacheBunker.PickUnique(pool, used)`，小箱的 1~2 个配件、大箱的 2~4 个配件 + 1 把枪在**同一次开箱内不会重复掉落同一件**（跨箱子仍可重复）。
+  - 配件耐久维持**满耐久 100%**（`SetCondition(1f)`，按你的要求不改代码，改为修正 ITEMS.md 中「50%~100% 随机」的旧描述）。
+  - 移除 ITEMS.md 中已不存在的「测试附件生成器（TestAttachmentSpawner）」描述（该测试功能已删除，不再实现）。
+  - 结果：单地堡期望从 6.75 个配件 + 0.3 把枪变为 **6.75 个配件 + 1 把枪**；一整局（7 个地堡）期望约 **47 个配件 + 7 把枪**。
+
 ## [2.0.0.0] - 2026-09-03
 
 > 自 1.2.1 后的下一个正式版本即 2.0，以下为相对 1.2.1 的全部更新。

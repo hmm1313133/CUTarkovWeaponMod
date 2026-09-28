@@ -758,6 +758,17 @@ public static class SuppressorSystem
         => gunItem != null
            && string.Equals(gunItem.id, M4A1ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// M4A1 是否处于「已装加长枪管但没有护木」状态 —— 此状态下枪械无法开火。
+    /// 加长枪管是单枪管（无护木、无导轨），必须安装护木才能正常射击：
+    /// 普通护木（MOE SL / Viper / KAC RIS）或长枪管专属护木（SMR Mk.16 / 2-15木制 / LVOA-S）。
+    /// </summary>
+    public static bool IsLongBarrelWithoutHandguard(Item? gunItem)
+        => gunItem != null
+           && IsM4Gun(gunItem)
+           && IsAttachmentInstalled(gunItem, M4LongBarrelItemSystem.ItemKey)
+           && !IsHandguardInstalled(gunItem);
+
     /// <summary>判断枪是否为 SKS。</summary>
     public static bool IsSksGun(Item gunItem)
         => gunItem != null
@@ -2099,6 +2110,49 @@ public static class SuppressorSystem
     // 若把配件拖到枪上，将走原版 CanCombine 逻辑（attachment tag 不会被原版识别为可组合项），
     // 不会发生安装，符合预期。
 
+    // ===== M4 加长枪管（无护木）扳机拦截 =====
+
+    /// <summary>
+    /// M4A1 处于「已装加长枪管但未装护木」状态时的扳机拦截。
+    ///
+    /// 在 GunScript.Update 之前直接吞掉这次扳机（triggerPressed=false），
+    /// 使枪械既不出声、也不调用 Fire()，同时在枪械 UI 上给玩家一条提示，
+    /// 说明需要先安装护木。
+    ///
+    /// 为什么必须在 Update 层拦截（只拦 Fire() 是不够的）：
+    /// 只拦 Fire() 时膛内那发实弹会一直留在膛内，玩家拉栓退弹时会退出一发**实弹**
+    /// （带初速飞出、可造成撞击伤害），看起来就像"枪还是打出去了，而且没消耗弹匣弹药"，
+    /// 因此需要从扳机层完全拦掉开火路径（扳机声/火光/弹道/后坐/耐久损耗）。
+    /// </summary>
+    [HarmonyPatch(typeof(GunScript), nameof(GunScript.Update))]
+    public static class M4LongBarrelTriggerBlockPatch
+    {
+        /// <summary>提示显示节流（按住扳机时不重复刷新提示）。</summary>
+        private static float _lastHintTime = -99f;
+
+        [HarmonyPrefix]
+        public static void Prefix(GunScript __instance)
+        {
+            try
+            {
+                if (__instance == null || !__instance.triggerPressed) return;
+
+                var gunItem = __instance.GetComponent<Item>();
+                if (!IsLongBarrelWithoutHandguard(gunItem)) return;
+
+                // 吞掉这次扳机：原版 Update 不会播放扳机音效，也不会调用 Fire()
+                __instance.triggerPressed = false;
+
+                float now = Time.time;
+                if (now - _lastHintTime < 1.5f) return;
+                _lastHintTime = now;
+                Hhs1ZoomUiPatch.ShowHint(
+                    WModLoc.Tr("wm.hud.need_handguard", "需先安装护木才能开火"));
+            }
+            catch { }
+        }
+    }
+
     // ===== 开火效果 =====
 
     [HarmonyPatch(typeof(GunScript), nameof(GunScript.Fire))]
@@ -2216,8 +2270,11 @@ public static class SuppressorSystem
             catch { return null; }
         }
 
+        /// <summary>上次打印"加长枪管无护木无法开火"日志的时间（避免刷屏）。</summary>
+        private static float _lastLongBarrelBlockLogTime = -99f;
+
         [HarmonyPrefix]
-        public static bool Prefix(GunScript __instance, out State __state)
+        public static bool Prefix(GunScript __instance, bool suicide, out State __state)
         {
             __state = new State();
             // 标记当前处于 Fire() 时机：JamChancePatch 只在此时返回真实卡壳概率
@@ -2234,13 +2291,19 @@ public static class SuppressorSystem
                 bool HasAttachment(string id)
                     => holder != null && holder.attachmentIds != null && holder.attachmentIds.Contains(id);
 
-                // ===== M4 加长枪管：未安装改装护木时无法开火 =====
-                // 加长枪管初始为单枪管（无护木），必须安装 MOE SL 等改装护木才能正常开火。
-                if (IsM4Gun(gunItem)
-                    && HasAttachment(M4LongBarrelItemSystem.ItemKey)
-                    && !IsHandguardInstalled(gunItem))
+                // ===== M4 加长枪管：未安装护木时无法开火（兜底拦截）=====
+                // 加长枪管为单枪管（无护木），必须安装护木才能正常开火：
+                // 普通护木（MOE SL / Viper / KAC RIS）或长枪管专属护木（SMR Mk.16 / 2-15木制 / LVOA-S）。
+                // 正常扳机路径已由 M4LongBarrelTriggerBlockPatch 在 GunScript.Update 层拦掉，
+                // 这里作为兜底（多人同步/脚本直接调用 Fire 等路径）。
+                // 自伤/自杀（suicide=true）不受此限制：SelfHarmer 的自杀流程必须始终可用。
+                if (!suicide && IsLongBarrelWithoutHandguard(gunItem))
                 {
-                    Plugin.Log.LogInfo("[M4LongBarrel] Cannot fire: long barrel installed but no handguard.");
+                    if (Time.time - _lastLongBarrelBlockLogTime > 1f)
+                    {
+                        _lastLongBarrelBlockLogTime = Time.time;
+                        Plugin.Log.LogInfo("[M4LongBarrel] Cannot fire: long barrel installed but no handguard.");
+                    }
                     return false; // 跳过开火
                 }
 

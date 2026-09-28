@@ -48,6 +48,28 @@ public static class Hhs1ZoomUiPatch
     private static float _ammoShowUntil = -1f;   // 显示结束时间
     private static string _ammoSnapshot = "";    // 按下瞬间的弹药量快照
 
+    // 弹药量/提示文字颜色与字号（检查弹匣=绿色 30px；拦截提示=橙色警告 22px）
+    private static readonly Color AmmoTextColor = Color.green;
+    private static readonly Color HintTextColor = new Color(1f, 0.62f, 0.25f, 1f);
+    private static Color _ammoTextColor = AmmoTextColor;
+    private const float AmmoTextFontSize = 30f;
+    private const float HintTextFontSize = 22f;
+    private static float _ammoTextSize = AmmoTextFontSize;
+
+    /// <summary>
+    /// 在枪械 UI 上方显示一条短提示（复用弹药量显示文字，默认 1.5 秒后渐隐），
+    /// 用于告诉玩家某项操作被拦截的原因（如"加长枪管需先安装护木才能开火"）。
+    /// </summary>
+    public static void ShowHint(string text, float seconds = 1.5f)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        _ammoSnapshot = text;
+        _ammoTextColor = HintTextColor;
+        _ammoTextSize = HintTextFontSize;
+        _ammoShowStart = Time.unscaledTime;
+        _ammoShowUntil = Time.unscaledTime + Mathf.Max(0.5f, seconds);
+    }
+
     // 检查弹匣按钮按下瞬间抑制开火（下一帧自动重置）
     public static bool SuppressFire { get; private set; }
     private static float _suppressUntil = -1f;
@@ -235,7 +257,7 @@ public static class Hhs1ZoomUiPatch
             // 禁用键盘导航（空格/回车触发），只允许鼠标左键点击
             btn.navigation = new Navigation { mode = Navigation.Mode.None };
 
-            // ===== 弹药量显示（4 秒渐隐，快照）=====
+            // ===== 弹药量 / 拦截提示显示（4 秒渐隐，快照）=====
             if (Time.unscaledTime < _ammoShowUntil)
             {
                 EnsureAmmoText(__instance, _ammoSnapshot, gameFont);
@@ -298,6 +320,8 @@ public static class Hhs1ZoomUiPatch
             int rounds = gun.roundsInMag;
             int capacity = GunUnloadMagPatch.GetMagCapacity(gunItem);
             _ammoSnapshot = capacity <= 0 ? WModLoc.Tr("wm.hotkeys.empty", "空") : $"{rounds}/{capacity}";
+            _ammoTextColor = AmmoTextColor;   // 检查弹匣=绿色（拦截提示用橙色）
+            _ammoTextSize = AmmoTextFontSize;
 
             // 1 秒显示（期间抑制枪械操作），1 秒后播放装弹匣音效并渐隐
             _ammoShowStart = Time.unscaledTime;
@@ -375,11 +399,11 @@ public static class Hhs1ZoomUiPatch
             rt.anchorMin = new Vector2(0.5f, 1f);
             rt.anchorMax = new Vector2(0.5f, 1f);
             rt.pivot = new Vector2(0.5f, 1f);
-            rt.sizeDelta = new Vector2(200f, 40f);
+            rt.sizeDelta = new Vector2(420f, 40f);
             rt.anchoredPosition = new Vector2(0f, 60f);
 
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 30;
+            tmp.fontSize = (int)AmmoTextFontSize;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.green;
             tmp.raycastTarget = false;
@@ -393,24 +417,17 @@ public static class Hhs1ZoomUiPatch
         if (ammoTmp != null)
         {
             ammoTmp.text = snapshot;
+            ammoTmp.fontSize = _ammoTextSize;
             if (gameFont != null) ammoTmp.font = gameFont;
 
             // 1 秒显示：最后 0.5 秒透明度从 1 降到 0（渐隐）
             float elapsed = Time.unscaledTime - _ammoShowStart;
             float fadeStart = 0.5f; // 0.5 秒后开始渐隐，0.5 秒内淡出
-            if (elapsed > fadeStart)
-            {
-                float t = Mathf.Clamp01((elapsed - fadeStart) / 0.5f);
-                var c = ammoTmp.color;
-                c.a = 1f - t;
-                ammoTmp.color = c;
-            }
-            else
-            {
-                var c = ammoTmp.color;
-                c.a = 1f;
-                ammoTmp.color = c;
-            }
+            float alpha = elapsed > fadeStart
+                ? 1f - Mathf.Clamp01((elapsed - fadeStart) / 0.5f)
+                : 1f;
+            // 颜色由 ShowHint / 检查弹匣切换（提示=橙色警告，检查弹匣=绿色）
+            ammoTmp.color = new Color(_ammoTextColor.r, _ammoTextColor.g, _ammoTextColor.b, alpha);
         }
     }
 

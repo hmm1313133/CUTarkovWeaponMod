@@ -346,6 +346,7 @@
 ### M4A1 加长枪管【加长枪管】 / M4A1 Long Barrel [Long Barrel]
 - ID: `m4longbarrel`
 - 后坐力倍率: 0.94；散布倍率: 0.90；DamageBonus: 10；重量: 0.5；价值: 45；识别智力: 5；效果: 瞄准速度变化: +0.6s
+- 开火条件: 单枪管设计（无护木/无导轨），**安装护木后才能开火**（普通护木 MOE SL / Viper / KAC RIS，或长枪管专属护木 SMR Mk.16 / 2-15木制 / LVOA-S）；未装护木时扣扳机无任何反应并显示提示。安装时会自动卸下普通短护木与枪口装置。
 
 ### 枪托 / Stocks
 
@@ -764,6 +765,8 @@
 ### GPNVG-18全景夜视镜【GPNVG-18】 / GPNVG-18 Ground Panoramic Night Vision Goggle [GPNVG-18]
 - ID: `gpnvg18`
 - WearSlotId: "eyes"；重量: 0.44；价值: 35；识别智力: 7；穿戴视觉偏移: 6
+- 兼容头盔: FAST MT / TK Fast MT / Galvion Calman / Team Wendy EXFIL（不兼容 6B47 / SSh-68 / ULACH / Rys-T）
+- 续航: 中型电池满电约 6 分钟（每秒耗电 1/360）
 
 ### LolKek 3F Transfer 旅行背包【LK 3F】 / LolKek 3F Transfer Travel Backpack [LK 3F]
 - ID: `lk3f`
@@ -776,10 +779,14 @@
 ### AN/PVS-14单筒夜视仪【PVS-14】 / AN/PVS-14 Monocular Night Vision Device [PVS-14]
 - ID: `pvs14`
 - WearSlotId: "eyes"；重量: 0.3；价值: 30；识别智力: 7；穿戴视觉偏移: 6
+- 兼容头盔: FAST MT / TK Fast MT / Galvion Calman / 6B47 / Team Wendy EXFIL
+- 续航: 中型电池满电约 10 分钟（每秒耗电 1/600）
 
 ### L3Harris PVS-31A夜视仪【PVS-31A】 / L3Harris PVS-31A Night Vision Goggle [PVS-31A]
 - ID: `pvs31a`
 - WearSlotId: "eyes"；重量: 0.24；价值: 55；识别智力: 9；穿戴视觉偏移: 6
+- 兼容头盔: FAST MT / TK Fast MT / Galvion Calman / Team Wendy EXFIL（不兼容 6B47）
+- 续航: 中型电池满电约 16 分钟（每秒耗电 1/960）
 
 ### SSh-68头盔（1968钢盔）【SSh-68】 / SSh-68 Steel Helmet (1968) [SSh-68]
 - ID: `ssh68`
@@ -858,10 +865,17 @@
 ### Terragroup-Blue Area钥匙卡【Blue Area】 / Terragroup Blue Area Keycard [Blue Area]
 - ID: `bluearea_keycard`
 - 重量: 0.05；价值: 6000；识别智力: 5
+- 刷新：仅尸体旁，每种钥匙卡独立 1% 判定；开局每位玩家直接获得一张
 
 ### Terragroup-武器室房卡【武器室】 / Terragroup Weapon Room Card [Weapon Room]
 - ID: `weaponroom_keycard`
 - 重量: 0.05；价值: 5000；识别智力: 5
+- 刷新：仅尸体旁，每种钥匙卡独立 1% 判定；开局每位玩家直接获得一张
+
+### Terragroup-Red Area钥匙卡【Red Area】 / Terragroup Red Area Keycard [Red Area]
+- ID: `redarea_keycard`
+- 重量: 0.05；价值: 5000；识别智力: 5
+- 刷新：仅尸体旁，每种钥匙卡独立 1% 判定；开局每位玩家直接获得一张
 
 ## 世界刷新与掉落 / World Spawn & Drops
 
@@ -872,6 +886,9 @@
 - 空投胶囊（DropCapsule）：29% 枪械 + 32% 弹挂类 + 17% 头盔(1~2) + 16% 背包 + 10% 夜视仪
 - 医疗箱（medcrate）：20% 护甲（破坏时触发）
 - 尸体（CorpseScript）：15% 枪械 + 15% 弹匣 + 7% 护甲/弹挂 + 5% 头盔 + 3% 背包
+- 尸体（钥匙卡）：武器室 / Blue Area / Red Area **各 1% 独立判定**（与上面的 2 次物品 roll 无关，可同时出现）
+- 物资箱/空投舱/空投胶囊：**不再刷新钥匙卡**
+- 开局发放：新开一局时每位玩家直接获得 3 张钥匙卡（武器室 / Blue Area / Red Area 各一张，读取存档继续游戏不补发）
 - 崩溃舱（CollapsedPod）：62% 弹匣
 - 枪械随机权重：手枪 35% / SKS+霰弹 20% / 冲锋枪 17% / 步枪 13% / 狙击 10% / 轻机枪 5%
 - 近战（物资箱）：冰镐 40% / M-2 60%
@@ -883,8 +900,8 @@
 
 - 小武器物资箱：1~2 个随机配件（WeaponPartIds 池）
 - 大型武器箱：2~4 个随机配件 + 1 把随机枪（WeaponGunIds 池）
-- 配件耐久：50%~100% 随机
-- 测试附件生成器（TestAttachmentSpawner）：每次游戏会话在玩家脚边生成全部 WeaponPartIds 一次
+- **同一箱子内不会重复掉落同一件物品（已去重）**
+- 配件耐久：满耐久 100%
 
 ### WeaponGunIds 枪械池
 

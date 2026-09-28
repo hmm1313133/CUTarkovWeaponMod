@@ -162,7 +162,7 @@ public static class WeaponCacheBunker
     };
 
     /// <summary>
-    /// 大型武器箱可掉落的枪械 ID（30% 概率抽一把）。
+    /// 大型武器箱可掉落的枪械 ID（开锁/破坏后必掉一把）。
     /// </summary>
     public static readonly string[] WeaponGunIds =
     {
@@ -182,6 +182,29 @@ public static class WeaponCacheBunker
         VSSItemSystem.ItemKey,
         AA12ItemSystem.ItemKey,
     };
+
+    /// <summary>
+    /// 从等权重池中随机取一个「本次开箱还没出现过」的物品 ID（同一箱子不重复掉落同一件）。
+    /// 优先随机重试，随机重试失败后退化为顺序扫描；池子抽空时返回 null。
+    /// </summary>
+    public static string? PickUnique(string[] pool, HashSet<string> used)
+    {
+        if (pool == null || pool.Length == 0 || used == null) return null;
+        if (used.Count >= pool.Length) return null;
+
+        for (int attempt = 0; attempt < 32; attempt++)
+        {
+            var id = pool[UnityEngine.Random.Range(0, pool.Length)];
+            if (used.Add(id)) return id;
+        }
+
+        // 兜底：随机一直撞到已用项时顺序找第一个未用项
+        foreach (var id in pool)
+        {
+            if (used.Add(id)) return id;
+        }
+        return null;
+    }
 
     /// <summary>注册武器物资箱 + 地堡结构。</summary>
     public static void Register()
@@ -274,7 +297,7 @@ public static class WeaponCacheBunker
         Plugin.Log.LogInfo($"[WeaponCacheBunker] Registered optional weapon cache box '{WeaponCacheBoxOptionalId}'.");
     }
 
-    /// <summary>注册大型武器箱（30% 掉落一把枪 + 2~4 个配件）。</summary>
+    /// <summary>注册大型武器箱（必掉一把枪 + 2~4 个配件，同一箱内不重复）。</summary>
     private static void RegisterLargeWeaponCacheBox()
     {
         var sprite = LoadSprite("weapon_crate_large");
@@ -553,7 +576,7 @@ public static class WeaponCacheBunker
 }
 
 /// <summary>
-/// 武器物资箱掉落组件：开锁成功（建筑销毁）时随机掉落 1~2 个武器改装配件。
+/// 武器物资箱掉落组件：开锁成功（建筑销毁）时随机掉落 1~2 个武器改装配件（同一箱内不重复）。
 /// 通过 Utils.Create 创建物品，走 CUCoreLib 拦截 + KrokMP 网络同步。
 /// </summary>
 public class WeaponCacheBoxDrop : MonoBehaviour
@@ -590,10 +613,12 @@ public class WeaponCacheBoxDrop : MonoBehaviour
         try
         {
             int count = UnityEngine.Random.Range(1, 3); // 1~2 个
+            var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase); // 同一箱内不重复掉落
+            int dropped = 0;
             for (int i = 0; i < count; i++)
             {
-                string id = WeaponCacheBunker.WeaponPartIds[
-                    UnityEngine.Random.Range(0, WeaponCacheBunker.WeaponPartIds.Length)];
+                string? id = WeaponCacheBunker.PickUnique(WeaponCacheBunker.WeaponPartIds, used);
+                if (id == null) break;
 
                 var pos = (Vector2)transform.position
                           + new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0.5f, 1.5f));
@@ -613,8 +638,9 @@ public class WeaponCacheBoxDrop : MonoBehaviour
                     rb.velocity = new Vector2(UnityEngine.Random.Range(-7f, 7f), UnityEngine.Random.Range(-7f, 7f));
 
                 go.AddComponent<FreshItemDrop>();
+                dropped++;
             }
-            Plugin.Log.LogInfo($"[WeaponCacheBox] Dropped {count} weapon part(s).");
+            Plugin.Log.LogInfo($"[WeaponCacheBox] Dropped {dropped} weapon part(s) (rolled {count}, unique).");
         }
         catch (Exception ex)
         {
@@ -624,7 +650,7 @@ public class WeaponCacheBoxDrop : MonoBehaviour
 
 }
 /// <summary>
-/// 大型武器箱掉落组件：开锁/破坏后 30% 概率掉落一把随机枪械，并掉落 2~4 个武器改装配件。
+/// 大型武器箱掉落组件：开锁/破坏后掉落 2~4 个武器改装配件 + 1 把随机枪械，同一箱内不重复掉落同一件。
 /// </summary>
 public class LargeWeaponCacheBoxDrop : MonoBehaviour
 {
@@ -655,17 +681,23 @@ public class LargeWeaponCacheBoxDrop : MonoBehaviour
 
         try
         {
+            var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase); // 同一箱内不重复掉落
+
             int attachmentCount = UnityEngine.Random.Range(2, 5); // 2~4 个配件
+            int dropped = 0;
             for (int i = 0; i < attachmentCount; i++)
-                SpawnDrop(WeaponCacheBunker.WeaponPartIds[
-                    UnityEngine.Random.Range(0, WeaponCacheBunker.WeaponPartIds.Length)]);
+            {
+                string? partId = WeaponCacheBunker.PickUnique(WeaponCacheBunker.WeaponPartIds, used);
+                if (partId == null) break;
+                SpawnDrop(partId);
+                dropped++;
+            }
 
-            // 30% 概率额外掉落一把枪
-            if (UnityEngine.Random.value < 0.3f)
-                SpawnDrop(WeaponCacheBunker.WeaponGunIds[
-                    UnityEngine.Random.Range(0, WeaponCacheBunker.WeaponGunIds.Length)]);
+            // 必掉 1 把随机枪（与配件池不重叠，仍走同一去重表以防将来池子合并）
+            var gunId = WeaponCacheBunker.PickUnique(WeaponCacheBunker.WeaponGunIds, used);
+            if (gunId != null) SpawnDrop(gunId);
 
-            Plugin.Log.LogInfo($"[WeaponCacheBoxLarge] Dropped {attachmentCount} attachment(s) + gun chance.");
+            Plugin.Log.LogInfo($"[WeaponCacheBoxLarge] Dropped {dropped} attachment(s) + {(gunId != null ? 1 : 0)} gun(s).");
         }
         catch (Exception ex)
         {

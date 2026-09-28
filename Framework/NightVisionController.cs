@@ -544,28 +544,47 @@ public static class NightVisionController
 
     // ─── WearWearable helmet check (called via manual Harmony patch) ───
 
+    /// <summary>FAST 护目罩/防弹面罩：仅 FAST MT 系头盔。</summary>
+    private static readonly string[] FastHelmetIds = { "fastmt", "tkfastmt" };
+
+    /// <summary>
+    /// 普通夜视仪（PVS-14 等）兼容头盔：
+    /// 6B47 / Galvion Calman / FAST MT / TK Fast MT / Team Wendy EXFIL。
+    /// </summary>
+    private static readonly string[] StandardNvgHelmetIds = { "6b47", "calman", "fastmt", "tkfastmt", "exfil" };
+
+    /// <summary>
+    /// 高端双目/四目夜视仪（GPNVG-18 / PVS-31A）兼容头盔：
+    /// 不兼容 6B47；EXFIL（Wilcox 铝制夜视仪接口）兼容。
+    /// </summary>
+    private static readonly string[] HighEndNvgHelmetIds = { "calman", "fastmt", "tkfastmt", "exfil" };
+
+    private static bool MatchesAnyHelmetId(string[] ids, string helmetId)
+    {
+        foreach (var id in ids)
+        {
+            if (helmetId.Equals(id, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
     private static bool IsCompatibleHelmetId(string helmetId, string nvgId)
     {
         // FAST Visors only compatible with FAST MT / TK Fast MT
         if (nvgId.Equals(FastVisorItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) ||
             nvgId.Equals(FastVisor2ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
         {
-            return helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase) ||
-                   helmetId.Equals(TkFastMtItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
+            return MatchesAnyHelmetId(FastHelmetIds, helmetId);
         }
-        // GPNVG-18 and PVS-31A are NOT compatible with 6B47
+        // GPNVG-18 and PVS-31A are NOT compatible with 6B47 (+ tkfastmt / exfil)
         if (nvgId.Equals(Gpnvg18ItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase) ||
             nvgId.Equals(Pvs31aItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase))
         {
-            return helmetId.Equals("calman", StringComparison.OrdinalIgnoreCase) ||
-                   helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase) ||
-                   helmetId.Equals(TkFastMtItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
+            return MatchesAnyHelmetId(HighEndNvgHelmetIds, helmetId);
         }
-        // PVS-14 and standard NVG are compatible with all three helmets (+ tkfastmt)
-        return helmetId.Equals("6b47", StringComparison.OrdinalIgnoreCase) ||
-               helmetId.Equals("calman", StringComparison.OrdinalIgnoreCase) ||
-               helmetId.Equals("fastmt", StringComparison.OrdinalIgnoreCase) ||
-               helmetId.Equals(TkFastMtItemSystem.ItemKey, StringComparison.OrdinalIgnoreCase);
+        // PVS-14 and standard NVG are compatible with all helmets (+ tkfastmt / exfil)
+        return MatchesAnyHelmetId(StandardNvgHelmetIds, helmetId);
     }
 
     /// <summary>
