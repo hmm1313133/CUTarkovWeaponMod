@@ -81,43 +81,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Framework\Assets\*.png" Exclude="Framework\Assets\*_preview.png">
+    <!-- 资源按目录递归打包：新增任何子目录（headset / weaponmods 等）都会自动包含，
+         不再需要逐个文件夹添加规则（2.0.0.1 的发布包曾漏掉 headset\ 导致 TEP-300 / ProFlex 贴图丢失）。
+         仅排除 *_preview.png（README 预览图，运行时不读取）与已废弃的 guns\工具钳\。 -->
+    <Content Include="Framework\Assets\**\*.png" Exclude="Framework\Assets\**\*_preview.png;Framework\Assets\guns\工具钳\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Framework\Assets\*.webp">
+    <Content Include="Framework\Assets\**\*.webp" Exclude="Framework\Assets\**\*_preview.png;Framework\Assets\guns\工具钳\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Framework\Assets\guns\**\*.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\guns\**\*" Exclude="Framework\Assets\guns\**\*.wav;Framework\Assets\guns\**\*_preview.png;Framework\Assets\guns\工具钳\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\ammo\*.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\ammo\*.webp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\knife\*.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\knife\*.webp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\equipment\*.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\equipment\*.webp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\equipment\*.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\foods\*.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Framework\Assets\structures\*.png">
+    <Content Include="Framework\Assets\**\*.wav" Exclude="Framework\Assets\**\*_preview.png;Framework\Assets\guns\工具钳\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Lang\*.json">
@@ -165,22 +138,11 @@
     </CombinePath>
     <Copy SourceFiles="@(RequiredFilesToCopy_Combined)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)" />
     <ItemGroup>
-      <PluginAssets Include="$(OutDir)Framework\Assets\*.*" />
-      <PluginGunSounds Include="$(OutDir)Framework\Assets\guns\**\*.*" />
-      <PluginAmmo Include="$(OutDir)Framework\Assets\ammo\*.*" />
-      <PluginKnife Include="$(OutDir)Framework\Assets\knife\*.*" />
-      <PluginEquipment Include="$(OutDir)Framework\Assets\equipment\*.*" />
-      <PluginFoods Include="$(OutDir)Framework\Assets\foods\*.*" />
-      <PluginStructures Include="$(OutDir)Framework\Assets\structures\*.*" />
+      <!-- 资源整体递归复制（含 headset / weaponmods 等所有子目录），新增文件夹无需再改本文件 -->
+      <PluginAssetsAll Include="$(OutDir)Framework\Assets\**\*.*" />
       <PluginLang Include="$(OutDir)Lang\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(PluginAssets)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets" Condition="Exists('%(Identity)')" />
-    <Copy SourceFiles="@(PluginGunSounds)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/guns/%(RecursiveDir)" Condition="Exists('%(Identity)')" />
-    <Copy SourceFiles="@(PluginAmmo)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/ammo" Condition="Exists('%(Identity)')" />
-    <Copy SourceFiles="@(PluginKnife)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/knife" Condition="Exists('%(Identity)')" />
-    <Copy SourceFiles="@(PluginEquipment)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/equipment" Condition="Exists('%(Identity)')" />
-    <Copy SourceFiles="@(PluginStructures)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/structures" Condition="Exists('%(Identity)')" />
-    <Copy SourceFiles="@(PluginFoods)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/foods" Condition="Exists('%(Identity)')" />
+    <Copy SourceFiles="@(PluginAssetsAll)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Framework/Assets/%(RecursiveDir)" Condition="Exists('%(Identity)')" />
     <Copy SourceFiles="@(PluginLang)" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)/Lang" Condition="Exists('%(Identity)')" />
     <!-- 插件根目录语言文件（CUCoreLib LocaleLoader 扫描插件根目录的 zh_CN.json/EN.json） -->
     <Copy SourceFiles="$(OutDir)zh_CN.json" DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)" Condition="Exists('$(OutDir)zh_CN.json')" />

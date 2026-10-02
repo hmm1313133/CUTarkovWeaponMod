@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [2.0.0.1] - 2026-09-29
 
+### 打包修复（2026-10-02 补充）
+
+- **发布包缺少耳机贴图，导致 TEP-300 / ProFlex DX5 贴图错误**
+  - 现象：两个耳塞的物品图标丢失，CUCoreLib 回退到基础预制体贴图，看起来像"配件贴图错误"。玩家日志可见：
+    `[TEP300] Icon not found: ...\plugins\CUTarkovWeaponMod_v2.0.0.1\Framework\Assets\headset\TEP300.png` → `[TEP300] CUCoreLib: Icon=False`。
+  - 原因：`CUTarkovWeaponMod.csproj` 的资源拷贝是**逐目录白名单**，漏了 `Framework/Assets/headset/`，因此构建部署目录与发布 zip 都没有这两个贴图（2.0.0.0 / 2.0.0.1 都受影响，所有用户都会缺）。
+  - 修复：资源改为**按目录递归打包与部署**（`Framework\Assets\**\*.png|*.webp|*.wav`，仅排除 `*_preview.png` 预览图与已废弃的 `guns\工具钳\`），以后新增任何资源子目录都会自动包含；同时清理部署目录里历史遗留的预览图与构建残留 `jpg`。
+  - 已重新构建并重打 `CUTarkovWeaponMod_v2.0.0.1.zip`：新增 `Framework/Assets/headset/TEP300.png`、`headset/ProFlex.png`、`weaponmods/taclight.png`，包内 DLL 与构建产物哈希一致。
+
 ### 修复
 
 - **M4A1 加长枪管未装护木时的开火拦截不彻底**
